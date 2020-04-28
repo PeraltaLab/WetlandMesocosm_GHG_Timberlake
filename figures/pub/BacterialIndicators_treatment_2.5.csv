@@ -1,0 +1,15 @@
+otu,Cluster,IndVal,Prob,domain,Phylum,Class,Order,Family,Genus
+Otu00191,1,0.433194154488518,0.003,Bacteria,Actinobacteria,Actinobacteria,Actinomycetales,Actinomycetales,Actinomycetales
+Otu00022,2,0.458980044345898,0.01,Bacteria,Acidobacteria,Acidobacteria Gp2,Gp2,Gp2,Gp2
+Otu00027,2,0.458305084745763,0.007,Bacteria,Proteobacteria,Deltaproteobacteria,Desulfuromonadales,Geobacteraceae,Geobacter
+Otu00028,2,0.482538933459179,0.006,Bacteria,Acidobacteria,Acidobacteria Gp2,Gp2,Gp2,Gp2
+Otu00043,2,0.439463762044407,0.009,Bacteria,Verrucomicrobia,Subdivision3,Subdivision3,Subdivision3,Subdivision3
+Otu00172,2,0.630922693266833,0.007,Bacteria,Acidobacteria,Acidobacteria Gp2,Gp2,Gp2,Gp2
+Otu00009,3,0.398608349900596,0.001,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Bradyrhizobiaceae,Bradyrhizobium
+Otu00083,3,0.417409543786051,0.001,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Hyphomicrobiaceae,Hyphomicrobium
+Otu00129,3,0.58596837944664,0.001,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria
+Otu00130,3,0.467715231788079,0.001,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Rhizobiales,Rhizobiales
+Otu00138,3,0.442708333333333,0.008,Bacteria,Proteobacteria,Alphaproteobacteria,Rhodospirillales,Reyranella,Reyranella
+Otu00182,3,0.409282700421941,0.003,Bacteria,Proteobacteria,Alphaproteobacteria,Rhodospirillales,Rhodospirillaceae,Rhodospirillaceae
+Otu00237,3,0.512518409425626,0.002,Bacteria,Proteobacteria,Deltaproteobacteria,Myxococcales,Cystobacteraceae,Anaeromyxobacter
+Otu00245,3,0.438625204582651,0.006,Bacteria,Planctomycetes,Planctomycetia,Planctomycetales,Planctomycetaceae,Thermogutta

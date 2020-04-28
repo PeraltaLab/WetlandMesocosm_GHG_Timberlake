@@ -1,0 +1,44 @@
+otu,Cluster,IndVal,Prob,domain,Phylum,Class,Order,Family,Genus
+Otu00001,1,0.380835775360283,0.007,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Rhizobiales,Rhizobiales
+Otu00010,1,0.433393709863329,0.001,Bacteria,Acidobacteria,Acidobacteria Gp6,Gp6,Gp6,Gp6
+Otu00014,1,0.442573887018332,0.007,Bacteria,Acidobacteria,Acidobacteria Gp6,Gp6,Gp6,Gp6
+Otu00035,1,0.49718045112782,0.001,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria
+Otu00040,1,0.42283003070053,0.002,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Rhizobiales,Rhizobiales
+Otu00042,1,0.528095020557332,0.001,Bacteria,Proteobacteria,Betaproteobacteria,Betaproteobacteria,Betaproteobacteria,Betaproteobacteria
+Otu00048,1,0.425655976676385,0.006,Bacteria,Acidobacteria,Acidobacteria Gp2,Gp2,Gp2,Gp2
+Otu00049,1,0.535101404056162,0.001,Bacteria,Proteobacteria,Betaproteobacteria,Betaproteobacteria,Betaproteobacteria,Betaproteobacteria
+Otu00055,1,0.412972085385879,0.009,Bacteria,Acidobacteria,Acidobacteria Gp6,Gp6,Gp6,Gp6
+Otu00071,1,0.443173150266972,0.002,Bacteria,Bacteroidetes,Sphingobacteriia,Sphingobacteriales,Chitinophagaceae,Terrimonas
+Otu00081,1,0.501572327044025,0.001,Bacteria,Acidobacteria,Acidobacteria Gp3,Gp3,Gp3,Gp3
+Otu00090,1,0.475501113585746,0.001,Bacteria,Actinobacteria,Actinobacteria,Gaiellales,Gaiellaceae,Gaiella
+Otu00096,1,0.53528773072747,0.001,Bacteria,Actinobacteria,Actinobacteria,Actinobacteria,Actinobacteria,Actinobacteria
+Otu00101,1,0.417834394904459,0.001,Bacteria,Actinobacteria,Actinobacteria,Gaiellales,Gaiellaceae,Gaiella
+Otu00017,2,0.400251730648206,0.001,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Rhizobiales,Rhizobiales
+Otu00018,2,0.466417212347989,0.001,Bacteria,Acidobacteria,Acidobacteria Gp1,Gp1,Gp1,Gp1
+Otu00032,2,0.481009224091156,0.002,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria
+Otu00056,2,0.458563535911602,0.003,Bacteria,Acidobacteria,Acidobacteria Gp3,Gp3,Gp3,Gp3
+Otu00057,2,0.485320284697509,0.006,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria
+Otu00058,2,0.411826821541711,0.005,Bacteria,Acidobacteria,Acidobacteria Gp1,Gp1,Gp1,Gp1
+Otu00059,2,0.461810154525386,0.002,Bacteria,Planctomycetes,Planctomycetia,Planctomycetales,Planctomycetaceae,Planctomycetaceae
+Otu00072,2,0.482308111050626,0.001,Bacteria,Proteobacteria,Deltaproteobacteria,Deltaproteobacteria,Deltaproteobacteria,Deltaproteobacteria
+Otu00087,2,0.425730267246737,0.002,Bacteria,Planctomycetes,Planctomycetia,Planctomycetales,Planctomycetaceae,Planctomycetaceae
+Otu00092,2,0.515358361774744,0.001,Bacteria,Acidobacteria,Acidobacteria Gp3,Gp3,Gp3,Gp3
+Otu00106,2,0.61873459326212,0.001,Bacteria,Acidobacteria,Acidobacteria Gp10,Gp10,Gp10,Gp10
+Otu00118,2,0.435528120713306,0.003,Bacteria,Chloroflexi,Ktedonobacteria,Ktedonobacteria,Ktedonobacteria,Ktedonobacteria
+Otu00003,3,0.563141051940592,0.001,Bacteria,Acidobacteria,Acidobacteria Gp1,Gp1,Gp1,Gp1
+Otu00008,3,0.482342807924203,0.001,Bacteria,Acidobacteria,Acidobacteria Gp1,Gp1,Gp1,Gp1
+Otu00012,3,0.669078947368421,0.001,Bacteria,Acidobacteria,Acidobacteria Gp1,Gp1,Gp1,Gp1
+Otu00025,3,0.483766233766234,0.001,Bacteria,Actinobacteria,Actinobacteria,Solirubrobacterales,Solirubrobacterales,Solirubrobacterales
+Otu00033,3,0.412528647822765,0.01,Bacteria,Acidobacteria,Acidobacteria Gp3,Acidobacteria Gp3,Acidobacteria Gp3,Acidobacteria Gp3
+Otu00036,3,0.421491658488714,0.008,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Roseiarcaceae,Roseiarcus
+Otu00044,3,0.437559354226021,0.001,Bacteria,Actinobacteria,Actinobacteria,Actinomycetales,Thermomonosporaceae,Actinoallomurus
+Otu00052,3,0.425904977375566,0.002,Bacteria,Proteobacteria,Alphaproteobacteria,Alphaproteobacteria,Alphaproteobacteria,Alphaproteobacteria
+Otu00060,3,0.454757734967893,0.009,Bacteria,Acidobacteria,Acidobacteria Gp2,Gp2,Gp2,Gp2
+Otu00063,3,0.551055333713634,0.001,Bacteria,Acidobacteria,Acidobacteria Gp1,Gp1,Gp1,Gp1
+Otu00068,3,0.711818879508826,0.001,Bacteria,Acidobacteria,Acidobacteria Gp1,Acidobacteria Gp1,Acidobacteria Gp1,Acidobacteria Gp1
+Otu00070,3,0.4605358435916,0.001,Bacteria,Proteobacteria,Alphaproteobacteria,Alphaproteobacteria incertae sedis,Rhizomicrobium,Rhizomicrobium
+Otu00075,3,0.626634958382878,0.001,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria,Bacteria
+Otu00080,3,0.669551108707409,0.002,Bacteria,Proteobacteria,Deltaproteobacteria,Desulfuromonadales,Geobacteraceae,Geobacter
+Otu00099,3,0.427603203943315,0.01,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Hyphomicrobiaceae,Rhodomicrobium
+Otu00105,3,0.587912087912088,0.001,Bacteria,Chloroflexi,Chloroflexi,Chloroflexi,Chloroflexi,Chloroflexi
+Otu00119,3,0.657474600870827,0.001,Bacteria,Proteobacteria,Alphaproteobacteria,Rhizobiales,Methylocystaceae,Methylocystis
