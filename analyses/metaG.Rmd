@@ -1,0 +1,196 @@
+---
+title: "Wetland_Mesocosm_metaG"
+author: "Regina B. Bledsoe, Mario Muscarella, Ariane L. Peralta"
+date: "6/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+#use to set global options for chunks e.g., echo and warning options will be applied to all chuncks
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
+#use to set working directory 
+knitr::opts_knit$set(root.dir="")
+#list.files()
+
+require("tidyverse")
+require("lme4")
+```
+
+```{r get data, echo=FALSE}
+#Load function files from JGI IMG/MER analysis
+denit <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/denitrif_metaGs_Functionfull74402_09-jun-2020.csv")
+
+meth <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/methane_metaGs_Functionfull129484_09-jun-2020.csv")
+
+ttmeth <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/t_methane_metaGs_Functionfull129484_09-jun-2020.csv")
+
+resp <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/resp_metaGs_Functionfull6978_09-jun-2020.csv")
+
+#Load files to relate KO #s to genes and functions
+KO_list <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/KO_list.csv")
+
+KO_functions <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/KO_Functions_list.csv")
+
+#Load experimental design file
+design <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/design.csv")
+
+#Wide to long... transform KO columns into rows for each function file
+tdenit <- gather(denit, KO, count, K00368:K15864)
+tmeth <- gather(meth, KO, count, K00193:K17066) 
+tresp <- gather(resp, KO, count, K00281:K19269) 
+
+
+tttmeth <- gather(ttmeth, KO, count, K00193:K17066) 
+#Combine function files
+all_genes <- bind_rows(tdenit, tmeth, tresp) 
+
+#Join function files with KO info
+gene_design <- all_genes %>%
+  left_join(KO_list, by="KO") %>%
+  left_join(KO_functions, by="KO") %>%
+  left_join(design, by="Sample") 
+
+#Sum of all gene counts within a funcitonal group grouped by design factors plant and treatment 
+gene_design_func_sum <- gene_design %>%
+  group_by(Plant, Treat, Function) %>%
+  dplyr::summarise(count_sum=sum(count))
+
+```
+
+```{r normalization}
+
+require("DESeq2")
+
+#count matrix = meth
+#metadata = design
+#Make DESeqDataSet
+
+#tmeth <- as.data.frame(meth[,-c(1)])
+#tmeth <- as.data.frame(t(as.matrix(tmeth)))
+#colnames(tmeth) <- tmeth[-c(1),]
+
+tdesign <- as.data.frame(design)
+c<-ncol(ttmeth)
+r<-nrow(design)
+dds <- DESeq2::DESeqDataSetFromMatrix(countData = ttmeth, colData = tdesign, design = ~ Treat)
+
+getwd()
+```
+
+```{r models}
+func <- glmer(count ~ Function + (1|Sample), data=gene_design, family=poisson(link="log"))
+summary(func)
+lattice::dotplot(ranef(func, postVar = TRUE))
+
+func_plant <- glmer(count ~ Function * Plant * Treat * Hist + (1|Sample), data=gene_design, family=poisson(link="log"))
+summary(func_plant)
+lattice::dotplot(ranef(func_plant, postVar = TRUE))
+
+func_treat <- glmer(count ~ Function * Treat + (1|Sample), data=gene_design, family=poisson(link="log"))
+summary(func_treat)
+lattice::dotplot(ranef(func_treat, postVar = TRUE))
+
+func_hist <- glmer(count ~ Function * Hist + (1|Sample), data=gene_design, family=poisson(link="log"))
+summary(func_hist)
+lattice::dotplot(ranef(func_hist, postVar = TRUE))
+
+gene_design_meth <- gene_design %>%
+  filter(Function=="Methanogenesis") %>%
+  filter(count>30)
+
+gene_design_mcr <- gene_design %>%
+  filter(grepl("mcr", Gene, fixed=TRUE))
+
+gene_design_mcr <- gene_design %>%
+  filter(grepl("mcr", Gene, fixed=TRUE))
+
+gene_design_acka <- gene_design %>%
+  filter(grepl("ackA", Gene, fixed=TRUE))
+
+acka <- glmer(count ~ Plant * Treat + Plant * Hist + (1|Sample), data=gene_design_acka, family=poisson(link="log"))
+summary(acka)
+lattice::dotplot(ranef(acka, postVar = TRUE))
+
+
+gene_design_acss <- gene_design %>%
+  filter(grepl("ACSS, acs", Gene, fixed=TRUE))
+
+acss <- glmer(count ~ Plant * Treat + Plant * Hist + (1|Sample), data=gene_design_acss, family=poisson(link="log"))
+anova.acss <- anova(acss)
+summary(acss)
+acss
+lattice::dotplot(ranef(acss, postVar = TRUE))
+
+gene_design_denit <- gene_design %>%
+  filter(Function=="Denitrification")%>%
+  filter(count>30)
+
+gene_design_nosz <- gene_design %>%
+  filter(grepl("nosZ", Gene, fixed=TRUE))
+
+nosz <- glmer(count ~ Plant * Hist + (1|Sample), data=gene_design_nosz, family=poisson(link="log"))
+anova.nosz <- anova(nosz)
+summary(nosz)
+nosz
+
+lattice::dotplot(ranef(nosz, postVar = TRUE))
+
+gene_design_resp <- gene_design %>%
+  filter(Function=="Respiration")%>%
+  filter(count>30)
+
+gene_design_photo <- gene_design %>%
+  filter(Detail=="Photorespiration")
+
+gene_design_photo <- gene_design %>%
+  filter(Detail=="Photorespiration")
+```
+
+```{r plots}
+
+denit <- ggplot(data=gene_design_denit, aes(x=Gene, y=count)) +
+  geom_boxplot(data=gene_design_denit, aes(x=Gene, y=count, fill=Plant)) +
+  geom_point(data=gene_design_denit, aes(x=Gene, y=count, color=Plant, shape=Treat), position=position_jitterdodge(), size=2) +
+  coord_flip()
+denit
+
+require("readr")
+
+
+meth <- ggplot(data=gene_design_meth, aes(x=Gene, y=count)) +
+  geom_boxplot(data=gene_design_meth, aes(x=Gene, y=count, fill=Plant)) +
+  geom_point(data=gene_design_meth, aes(x=Gene, y=count, color=Plant, shape=Treat), position=position_jitterdodge(), size=2) +
+  coord_flip()
+
+meth
+
+resp <- ggplot(data=gene_design_resp, aes(x=Gene, y=count)) +
+  geom_boxplot(data=gene_design_resp, aes(x=Gene, y=count, fill=Plant)) +
+  geom_point(data=gene_design_resp, aes(x=Gene, y=count, color=Plant, shape=Treat), position=position_jitterdodge(), size=2) +
+  coord_flip()
+
+resp
+
+mcr <- ggplot(data=gene_design_mcr, aes(x=Gene, y=count)) +
+  geom_boxplot(data=gene_design_mcr, aes(x=Gene, y=count, fill=Plant)) +
+  geom_point(data=gene_design_mcr, aes(x=Gene, y=count, color=Plant, shape=Treat), position=position_jitterdodge(), size=2) +
+  coord_flip()
+
+mcr
+
+nosz <- ggplot(data=gene_design_nosz, aes(x=Gene, y=count)) +
+  geom_boxplot(data=gene_design_nosz, aes(x=Gene, y=count, fill=Plant)) +
+  geom_point(data=gene_design_nosz, aes(x=Gene, y=count, shape=Treat), position=position_jitterdodge(), size=2) +
+  coord_flip()
+
+nosz
+
+photo <- ggplot(data=gene_design_photo, aes(x=Gene, y=count)) +
+  geom_boxplot(data=gene_design_photo, aes(x=Gene, y=count, fill=Plant)) +
+  geom_point(data=gene_design_photo, aes(x=Gene, y=count, color=Plant, shape=Treat), position=position_jitterdodge(), size=2) +
+  coord_flip()
+
+photo
+
+```
+
