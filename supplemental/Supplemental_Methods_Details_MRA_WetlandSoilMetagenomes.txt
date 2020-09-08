@@ -1,0 +1,15 @@
+DNA library preparation for Illumina Sequencing details
+
+Plate-based DNA library preparation for Illumina sequencing was performed on the PerkinElmer Sciclone NGS robotic liquid handling system using the Kapa Biosystems library preparation kit. Then, 200 ng of sample DNA was sheared to 300 bp using a Covaris LE220 focused-ultrasonicator. The sheared DNA fragments were size selected by double-SPRI (SPRIselect beads), and the selected fragments were end-repaired, A-tailed, and ligated with Illumina compatible sequencing adaptors from Integrated DNA Technologies (IDT), which contained a unique molecular index barcode for each sample library. The prepared libraries were quantified using the KAPA Biosystem’s next-generation sequencing library qPCR kit and run on a Roche LightCycler 480 real-time PCR instrument. Libraries were loaded onto a NovaSeq S4 flow cell and paired-end sequencing was performed on the Illumina NovaSeq sequencer using NovaSeq XP V1 reagent kits following a 2x150 indexed run recipe.
+
+
+Initial Sequence Quality Control details
+
+Initial sequence quality control was performed using BBtools (version 38.55, pipeline 3.5.8), and 158,727,067 ± 32,226,768 (mean ± sd) sequences per sample passed initial quality control. Sequences were then assembled into contigs using metaSPAdes (v3.13.0) resulting in 2,329,704 ± 567,817 (mean ± sd) contigs per sample (n50; range: 404-569). The minimal contig length used was 200 bp and 34.4% ± 4.7 (mean ± sd) of the reads were mapped onto assembled contigs using BBmap (v 38.34) (Table S1). Contigs were annotated using IMG (IMGAP v5.0.9). 
+
+Reference: Nurk S, Meleshko D, Korobeynikov A, Pevzner PA. 2017. metaSPAdes: a new versatile metagenomic assembler. Genome Res 27:824–834.
+
+Quality Filtering of Illumina Reads details
+
+
+Illumina reads were QC filtered using rqcfilter2.sh from BBTools version 38.55 with rna=f trimfragadapter=t qtrim=r trimq=0 maxns=3 maq=3 minlen=51 mlf=0.33 phix=t removehuman=t removedog=t removecat=t removemouse=t khist=t removemicrobes=t sketch kapa=t clumpify=t barcodefilter=f trimpolyg=5. Read error correction was performed using bbcms.sh from BBTools version 38.34 using mincount=2 highcountfraction=0.6. MetaSPAdes version 3.13.0 was used for metagenome assembly using k-mer sizes 33, 55, 77, 99, and 127. Bbmap.sh from BBTools version 38.34 with ambiguous=random was used to align QC filtered data back to the assembly.
