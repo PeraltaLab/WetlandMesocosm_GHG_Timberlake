@@ -1,0 +1,25 @@
+Genome	Domain	KO:K02274	KO:K02275	KO:K02276	KO:K02277	KO:K15408	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 10NFC (3300036874) (MER-FS) (assembled)	*	735	504	366	79	10	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 10PFC (3300036875) (MER-FS) (assembled)	*	788	522	391	74	18	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 10Pre (3300036989) (MER-FS) (assembled)	*	393	252	176	32	12	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 11NFC (3300036995) (MER-FS) (assembled)	*	414	288	178	46	5	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 11PFC (3300036896) (MER-FS) (assembled)	*	689	487	292	80	9	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 11Pre (3300036868) (MER-FS) (assembled)	*	550	401	255	67	8	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 12NFC (3300036897) (MER-FS) (assembled)	*	731	468	378	89	8	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 12PFC (3300036898) (MER-FS) (assembled)	*	875	550	423	96	6	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 12Pre (3300036990) (MER-FS) (assembled)	*	404	267	205	51	3	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 16NFC (3300036899) (MER-FS) (assembled)	*	684	453	308	84	11	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 16PFC (3300036996) (MER-FS) (assembled)	*	616	397	261	54	16	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 16Pre (3300036991) (MER-FS) (assembled)	*	323	210	148	31	2	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 3NFC (3300036869) (MER-FS) (assembled)	*	623	414	286	85	7	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 3PFC (3300036870) (MER-FS) (assembled)	*	655	440	306	91	11	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 3Pre (3300036865) (MER-FS) (assembled)	*	579	412	278	71	8	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 6NFC (3300036871) (MER-FS) (assembled)	*	597	448	320	55	9	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 6PFC (3300036872) (MER-FS) (assembled)	*	654	432	384	84	8	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 6Pre (3300036988) (MER-FS) (assembled)	*	470	319	224	47	11	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 8NFC (3300036873) (MER-FS) (assembled)	*	810	580	365	116	11	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 8PFC (3300036992) (MER-FS) (assembled)	*	366	243	158	45	6	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 8Pre (3300036866) (MER-FS) (assembled)	*	781	577	360	100	13	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 9NFC (3300036993) (MER-FS) (assembled)	*	351	237	149	36	7	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 9PFC (3300036994) (MER-FS) (assembled)	*	282	169	142	32	4	
+Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 9Pre (3300036867) (MER-FS) (assembled)	*	532	393	257	65	5	

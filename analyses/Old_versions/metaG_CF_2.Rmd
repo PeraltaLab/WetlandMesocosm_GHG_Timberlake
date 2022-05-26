@@ -1,0 +1,243 @@
+---
+title: "metaG_CF"
+author: "CF"
+date: "4/8/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#use to set global options for chunks e.g., echo and warning options will be applied to all chunks:
+knitr::opts_chunk$set(echo = TRUE)
+
+# Clear environment:
+rm(list=ls())
+
+# Set working directory:
+setwd("~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
+
+# Standard error (se) and confidence interval (ci):
+se <- function(x, ...){sd(x, na.rm = TRUE)/sqrt(length(na.omit(x)))}
+ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
+
+# Code dependencies:
+#source("../bin/DiversityFunctions.R")
+#source("../bin/MothurTools.R")
+require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require(dplyr); require(dbstats)
+```
+
+Import KO function files from JGI IMG/MER
+```{r Import Files, include=FALSE}
+#Denitrification KEGG module:
+denit <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Denit_CF.csv")
+
+#Methanogen Signature KEGG module:
+meth <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Meth_CF.csv")
+
+#All Central Carbohydrate Metabolism KEGG modules:
+carb_metab <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Central_carb_metab_CF.csv")
+
+#Cytochrome C Oxidase KEGG module:
+cytoCox <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/CytCOx_CF.csv")
+
+#Design file:
+design <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/design.csv")
+design2 <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/tmg_design.csv")
+
+#Remove mock, field, and box samples from design2. 
+rownames(design2) <- design2$sample
+design2 <- design2[!(rownames(design2) %in% "MOCK"),]
+design2 <- design2[!(rownames(design2) %in% "TL1"),]
+design2 <- design2[!(rownames(design2) %in% "TL2"),]
+design2 <- design2[!(rownames(design2) %in% "TL3"),]
+design2 <- design2[!(rownames(design2) %in% "TL4"),]
+design2 <- design2[!(rownames(design2) %in% "TL5"),]
+design2 <- design2[!(rownames(design2) %in% "TL6"),]
+design2 <- design2[!(design2$source %in% "b"),]
+design2 <- design2[!(design2$source %in% "s"),]
+
+#Greenhouse gas data:
+GHG <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/TMG_GHG-Flux_T1_Pub_2-2020.csv")
+
+```
+
+Convert gene counts to relative abundance:
+  example code from '2018_WRC_SoilTeaDecomp.Rmd':
+    
+dataREL.t <- otus.t
+for(i in 1:dim(otus.t)[1]){
+  dataREL.t[i,] <- otus.t[i,]/sum(otus.t[i,])
+}
+```{r}
+#Make sample IDs the rownames:
+denitNumerical <- denit
+rownames(denitNumerical) <- denitNumerical$Sample
+
+methNumerical <- meth
+rownames(methNumerical) <- methNumerical$Sample
+
+carb_metabNumerical <- carb_metab
+rownames(carb_metabNumerical) <- carb_metabNumerical$Sample
+
+cytoCoxNumerical <- cytoCox
+rownames(cytoCoxNumerical) <- cytoCoxNumerical$Sample
+
+# Drop all non-numeric variables:
+denitNumerical <- denitNumerical[,3:12]
+methNumerical <- methNumerical[,3:46]
+carb_metabNumerical <- carb_metabNumerical[,3:122]
+cytoCoxNumerical <- cytoCoxNumerical[,3:7]
+
+#Convert denitrification KO counts to relative abundance:
+denitRA <- denitNumerical
+for(i in 1:dim(denitNumerical)[1]){
+  denitRA[i,] <- denitNumerical[i,]/sum(denitNumerical[i,])
+}
+
+#Convert methanogen KO counts to relative abundance:
+methRA <- methNumerical
+for(i in 1:dim(methNumerical)[1]){
+  methRA[i,] <- methNumerical[i,]/sum(methNumerical[i,])
+}
+
+#Convert central carbohydrate metabolism KO counts to relative abundance:
+carb_metabRA <- carb_metabNumerical
+for(i in 1:dim(carb_metabNumerical)[1]){
+  carb_metabRA[i,] <- carb_metabNumerical[i,]/sum(carb_metabNumerical[i,])
+}
+
+#Convert cytochrome c oxidase KO counts to relative abundance:
+cytoCoxRA <- cytoCoxNumerical
+for(i in 1:dim(cytoCoxNumerical)[1]){
+  cytoCoxRA[i,] <- cytoCoxNumerical[i,]/sum(cytoCoxNumerical[i,])
+}
+
+#Subset start and finish samples from all gene sets (for respective start and finish GHG analysis):
+methRA_start <- methRA[c("10Pre", "11Pre", "12Pre", "16Pre", "03Pre", "06Pre", "08Pre", "09Pre"), ]
+methRA_finish <- methRA[c("10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC", "03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC"), ]
+
+#Check dimensions of each relative abundance (RA) matrix (should be 24 for 24 samples):
+dim(denitRA)
+dim(methRA)
+dim(carb_metabRA)
+dim(cytoCoxRA)
+```
+
+Calculate Bray Curtis dissimilarity:
+  Example code from '2018_WRC_SoilTeaDecomp.Rmd':
+  df <- vegdist(dataREL.t, method="bray")
+```{r}
+#Bray Curtis calculation for denitrification relative abundance data:
+denitBC <- vegdist(denitRA, method = "bray")
+#print(denitBC)
+
+#Bray Curtis calculation for methanogen relative abundance data:
+methBC <- vegdist(methRA, method = "bray")
+methBC_finish <- vegdist(methRA_finish, method = "bray")
+#print(methBC)
+
+#Bray Curtis calculation for central carbohydrate relative abundance data:
+carb_metabBC <- vegdist(carb_metabRA, method = "bray")
+#print(carb_metabBC)
+
+#Bray Curtis calculation for cytochrome C oxidase relative abundance data:
+cytoCoxBC <- vegdist(cytoCoxRA, method = "bray")
+#print(cytoCoxBC)
+
+
+```
+
+Wrangling GHG data:
+```{r}
+#Create a new GHG data frame with less columns:
+GHG_less_columns <- cbind(GHG[,1:4], GHG[24:32])
+
+#Drop rows with NAs (non-T1 rows)
+GHG_less_columns <- GHG_less_columns %>% drop_na()
+
+#Change column name "chamber" to "box" to match with design2
+colnames(GHG_less_columns)[2] <- "box"
+
+#Convert GHG_less_columns$plant to lowercase to match with design2$plant:
+GHG_less_columns$plant <- tolower(GHG_less_columns$plant)
+
+#Subset GHG_less_columns for 'start' timepoint (6/13/2016) and 'finish' (8/11/2016):
+GHG_start <- GHG_less_columns[1:36,]
+GHG_finish <- GHG_less_columns[157:192,]
+
+#Add design2 into GHG 'start' and 'finish':
+GHG_start <- left_join(GHG_start, design2, by = c("box", "plant"))
+GHG_finish <- left_join(GHG_finish, design2, by = c("box", "plant"))
+
+#Subset GHG_finish and GHG_start to only have metaG sample numbers:
+GHG_finish_metaG <- rbind(GHG_finish[5:6,], GHG_finish[11:12,], GHG_finish[15:24,], GHG_finish[31:32,], make.row.names = FALSE)
+  #Add GHG_start after figuring out what to do with plant and no-plant samples for one pre sample
+
+#Set the row names of GHG data to the metaG sample names, so that stats functions can compare the two data sets:
+row.names(GHG_finish_metaG) <- c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC","09PFC", "10NFC","10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC")
+
+```
+
+Distance-based partial least squares regression:
+
+  example code from '2018_WRC_SoilTeaDecomp.Rmd':
+    decomp.dbplsr <- dbplsr(new.data.t$Percent_Loss ~ as.matrix(df), data=new.data.t, ncomp=6, method="GCV")
+    summary(decomp.dbplsr)
+```{r}
+library(dbstats)
+
+finish.meth.dbplsr <- dbplsr(GHG_finish_metaG$mg.CH4.N.m.2 ~ as.matrix(methBC_finish), ncomp = 6, method = "GCV")
+summary(finish.meth.dbplsr)
+plot(finish.meth.dbplsr)
+
+```
+
+PERMANOVA:
+  example code from 'denitrif_metaG_example.Rmd':
+   
+    # PERMANOVA - permutational multivariate analysis of variance using the adonis function
+adonis = adonis(new.data[,-c(1:4)]~Treatment*Plant, method = "bray", data = new.data, perm=1000) 
+adonis
+
+```{r}
+#Make metaG sample ID's the rownames on 'design'. Then drop design$sample:
+rownames(design) <- design$Sample
+design <- design[,2:4]
+
+# Make data frames from gene set relative abundance (RA) files and design
+denitRA_design <- cbind(design, denitRA)
+methRA_design <- cbind(design, methRA)
+carb_metabRA_design <- cbind(design, carb_metabRA)
+cytoCoxRA_design <- cbind(design, cytoCoxRA)
+
+#PERMANOVA:
+adonis_denit_interaction = adonis(denitRA_design[,-c(1:3)]~Treat*Hist*Plant, method = "bray", data = denitRA_design, perm=1000)
+adonis_denit_interaction
+
+adonis_denit_main = adonis(denitRA_design[,-c(1:3)]~Treat+Hist+Plant, method = "bray", data = denitRA_design, perm=1000)
+adonis_denit_main
+
+adonis_meth_interactive = adonis(methRA_design[,-c(1:3)]~Treat*Hist*Plant, method = "bray", data = methRA_design, perm=1000)
+adonis_meth_interactive
+
+adonis_meth_main = adonis(methRA_design[,-c(1:3)]~Treat+Hist+Plant, method = "bray", data = methRA_design, perm=1000)
+adonis_meth_main
+
+adonis_carb_metab_interactive = adonis(carb_metabRA_design[,-c(1:3)]~Treat*Hist*Plant, method = "bray", data = carb_metabRA_design, perm=1000)
+adonis_carb_metab_interactive
+
+adonis_carb_metab_main = adonis(carb_metabRA_design[,-c(1:3)]~Treat+Hist+Plant, method = "bray", data = carb_metabRA_design, perm=1000)
+adonis_carb_metab_main
+
+adonis_cytoCox_interactive = adonis(cytoCoxRA_design[,-c(1:3)]~Treat*Hist*Plant, method = "bray", data = cytoCoxRA_design, perm=1000)
+adonis_cytoCox_interactive
+
+adonis_cytoCox_interactive2 = adonis(cytoCoxRA_design[,-c(1:3)]~Treat*Plant, method = "bray", data = cytoCoxRA_design, perm=1000)
+adonis_cytoCox_interactive2
+
+adonis_cytoCox_main = adonis(cytoCoxRA_design[,-c(1:3)]~Treat+Hist+Plant, method = "bray", data = cytoCoxRA_design, perm=1000)
+adonis_cytoCox_main
+```
+
+
+
+

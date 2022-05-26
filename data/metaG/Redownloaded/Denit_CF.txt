@@ -1,0 +1,25 @@
+Genome	Domain	KO:K00368	KO:K00370	KO:K00371	KO:K00374	KO:K00376	KO:K02305	KO:K02567	KO:K02568	KO:K04561	KO:K15864
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 10NFC (3300036874) (MER-FS) (assembled)"	*	69	113	52	28	39	15	19	8	50	10
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 10PFC (3300036875) (MER-FS) (assembled)"	*	65	124	54	32	33	19	25	8	36	5
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 10Pre (3300036989) (MER-FS) (assembled)"	*	40	77	43	18	28	7	6	1	23	3
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 11NFC (3300036995) (MER-FS) (assembled)"	*	48	75	32	10	32	9	20	4	29	3
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 11PFC (3300036896) (MER-FS) (assembled)"	*	76	99	51	27	39	15	23	9	44	9
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 11Pre (3300036868) (MER-FS) (assembled)"	*	67	81	39	25	36	10	19	4	31	4
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 12NFC (3300036897) (MER-FS) (assembled)"	*	78	102	49	25	34	17	19	10	55	16
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 12PFC (3300036898) (MER-FS) (assembled)"	*	89	118	59	27	43	18	24	8	46	11
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 12Pre (3300036990) (MER-FS) (assembled)"	*	51	72	28	16	22	11	16	7	25	6
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 16NFC (3300036899) (MER-FS) (assembled)"	*	78	94	56	26	37	17	8	3	36	7
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 16PFC (3300036996) (MER-FS) (assembled)"	*	45	79	39	22	18	7	7	1	39	3
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 16Pre (3300036991) (MER-FS) (assembled)"	*	44	53	26	14	16	7	2	1	15	6
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 3NFC (3300036869) (MER-FS) (assembled)"	*	69	114	58	26	47	16	30	7	66	7
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 3PFC (3300036870) (MER-FS) (assembled)"	*	78	135	66	38	43	10	16	7	61	9
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 3Pre (3300036865) (MER-FS) (assembled)"	*	64	109	64	22	41	17	21	7	47	7
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 6NFC (3300036871) (MER-FS) (assembled)"	*	68	129	65	42	47	12	14	4	53	4
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 6PFC (3300036872) (MER-FS) (assembled)"	*	66	130	54	28	32	11	9	4	54	3
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 6Pre (3300036988) (MER-FS) (assembled)"	*	48	84	44	23	34	6	3	1	41	2
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 8NFC (3300036873) (MER-FS) (assembled)"	*	106	151	69	36	53	17	33	7	76	7
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 8PFC (3300036992) (MER-FS) (assembled)"	*	44	65	32	18	23	11	16	3	29	5
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 8Pre (3300036866) (MER-FS) (assembled)"	*	105	157	73	37	47	23	27	10	68	11
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 9NFC (3300036993) (MER-FS) (assembled)"	*	41	54	24	9	15	3	12	6	22	1
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 9PFC (3300036994) (MER-FS) (assembled)"	*	28	32	16	8	14	6	16	5	24	0
+"Soil microbial communities from coastal freshwater wetland in North Carolina, United States - 9Pre (3300036867) (MER-FS) (assembled)"	*	82	88	58	21	35	14	17	5	33	9

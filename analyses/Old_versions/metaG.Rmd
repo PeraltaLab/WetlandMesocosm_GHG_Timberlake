@@ -2,11 +2,13 @@
 title: "Wetland_Mesocosm_metaG"
 author: "Regina B. Bledsoe, Mario Muscarella, Ariane L. Peralta"
 date: "6/10/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
-#use to set global options for chunks e.g., echo and warning options will be applied to all chuncks
+#use to set global options for chunks e.g., echo and warning options will be applied to all chunks
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 #use to set working directory 
 knitr::opts_knit$set(root.dir="")
@@ -16,23 +18,36 @@ require("tidyverse")
 require("lme4")
 ```
 
+
+```{r}
+
+```
+
+
 ```{r get data, echo=FALSE}
 #Load function files from JGI IMG/MER analysis
-denit <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/denitrif_metaGs_Functionfull74402_09-jun-2020.csv")
+#denit <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/denitrif_metaGs_Functionfull74402_09-jun-2020.csv")
+denit <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/denitrif_metaGs_Functionfull74402_09-jun-2020.csv")
 
-meth <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/methane_metaGs_Functionfull129484_09-jun-2020.csv")
+#meth <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/methane_metaGs_Functionfull129484_09-jun-2020.csv")
+meth <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/methane_metaGs_Functionfull129484_09-jun-2020.csv")
 
-ttmeth <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/t_methane_metaGs_Functionfull129484_09-jun-2020.csv")
+#ttmeth <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/t_methane_metaGs_Functionfull129484_09-jun-2020.csv")
+# Asks about this file
 
-resp <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/resp_metaGs_Functionfull6978_09-jun-2020.csv")
+#resp <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/resp_metaGs_Functionfull6978_09-jun-2020.csv")
+resp <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/resp_metaGs_Functionfull6978_09-jun-2020.csv")
 
 #Load files to relate KO #s to genes and functions
-KO_list <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/KO_list.csv")
+#KO_list <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/KO_list.csv")
+KO_list <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/KO_list.csv")
 
-KO_functions <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/KO_Functions_list.csv")
+#KO_functions <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/KO_Functions_list.csv")
+KO_functions <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/KO_Functions_list.csv")
 
 #Load experimental design file
-design <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/design.csv")
+#design <- read.csv("C:/Users/annorion/Documents/_Projects/2016_Timberlake/metaG/design.csv")
+design <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/design.csv")
 
 #Wide to long... transform KO columns into rows for each function file
 tdenit <- gather(denit, KO, count, K00368:K15864)
@@ -40,7 +55,7 @@ tmeth <- gather(meth, KO, count, K00193:K17066)
 tresp <- gather(resp, KO, count, K00281:K19269) 
 
 
-tttmeth <- gather(ttmeth, KO, count, K00193:K17066) 
+#tttmeth <- gather(ttmeth, KO, count, K00193:K17066) 
 #Combine function files
 all_genes <- bind_rows(tdenit, tmeth, tresp) 
 
@@ -50,7 +65,7 @@ gene_design <- all_genes %>%
   left_join(KO_functions, by="KO") %>%
   left_join(design, by="Sample") 
 
-#Sum of all gene counts within a funcitonal group grouped by design factors plant and treatment 
+#Sum of all gene counts within a functional group, grouped by design factors plant and treatment 
 gene_design_func_sum <- gene_design %>%
   group_by(Plant, Treat, Function) %>%
   dplyr::summarise(count_sum=sum(count))
@@ -132,7 +147,6 @@ nosz <- glmer(count ~ Plant * Hist + (1|Sample), data=gene_design_nosz, family=p
 anova.nosz <- anova(nosz)
 summary(nosz)
 nosz
-
 lattice::dotplot(ranef(nosz, postVar = TRUE))
 
 gene_design_resp <- gene_design %>%
