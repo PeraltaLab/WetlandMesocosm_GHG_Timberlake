@@ -89,7 +89,7 @@ otu.2.nofield <- otu.2.nofield[!(rownames(otu.2.nofield) %in% "TL6"),]
 
 otu.2 <- otu.2.nofield
 
-#Remove OTUs with less than 10 occurences across all sites
+#Remove OTUs with less than 10 occurrences across all sites
 b <- ncol(otu.2) #67355 OTUs,
 
 # !=0 35,897
@@ -191,7 +191,7 @@ metaotu.ad
 
 ```
 
-```{r Calculate distance matrix and PCoA components with out Field, end smaples only}
+```{r Calculate distance matrix and PCoA components without field, end samples only}
 otu.2.rel.dist<-vegdist(otu.2.rel, method="bray")
 
 # Principal Coordinates Analysis
@@ -305,7 +305,7 @@ plot1
 
 #ggsave("../figures/pub/16SrRNA_timberlake_end.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=5, dpi=900, limitsize=TRUE)
 
-ggsave("../figures/pub/16SrRNA_timberlake_end_novectors.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=5, dpi=900, limitsize=TRUE)
+#ggsave("../figures/pub/16SrRNA_timberlake_end_novectors.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=5, dpi=900, limitsize=TRUE)
 
 ```
 
@@ -320,7 +320,7 @@ tax.df <- tax.df %>%
 colnames(tax.df)=c("otu","domain","Phylum","Class", "Order","Family","Genus")
 
 #tax <- tax_table(tax.df)
-#Clean up taxonomy file. Remvoe underscores and unclassified
+#Clean up taxonomy file. Remove underscores and unclassified
 tax.df <- tax.df %>%
     mutate(Family = str_replace(Family, "_family_incertae_sedis", ""), Genus = str_replace(Genus, "_genera_incertae_sedis", "")) %>%
   mutate(Phylum = str_replace_all(Phylum,"_unclassified", ""), Order = str_replace_all(Order,"_unclassified", ""),Class = str_replace_all(Class,"_unclassified", ""), Family = str_replace_all(Family,"_unclassified", ""), Genus = str_replace_all(Genus,"_unclassified", "")) %>%
@@ -378,9 +378,9 @@ ind.tax.i.heat <- ggplot(ra.heat.treatment.tax, aes(Family, treatment)) +
 
 ind.tax.i.heat
 
-ggsave("../figures/heatmap_plant.pdf", plot=ind.tax.i.heat, device=NULL, path=NULL, scale=1, width=6, height=6, dpi=900, limitsize=TRUE)
+#ggsave("../figures/heatmap_plant.pdf", plot=ind.tax.i.heat, device=NULL, path=NULL, scale=1, width=6, height=6, dpi=900, limitsize=TRUE)
 
-ggsave("../figures/heatmap_plant.jpg", plot=ind.tax.i.heat, device=NULL, path=NULL, scale=1, width=4.5, height=5.5, dpi=900, limitsize=TRUE)
+#ggsave("../figures/heatmap_plant.jpg", plot=ind.tax.i.heat, device=NULL, path=NULL, scale=1, width=4.5, height=5.5, dpi=900, limitsize=TRUE)
 
 
 #By history
@@ -406,9 +406,9 @@ ind.tax.i.heat <- ggplot(ra.heat.treatment.tax, aes(Family, history)) +
 
 ind.tax.i.heat
 
-ggsave("../figures/heatmap_hydrology.pdf", plot=ind.tax.i.heat, device=NULL, path=NULL, scale=1, width=6, height=6, dpi=900, limitsize=TRUE)
+#ggsave("../figures/heatmap_hydrology.pdf", plot=ind.tax.i.heat, device=NULL, path=NULL, scale=1, width=6, height=6, dpi=900, limitsize=TRUE)
 
-ggsave("../figures/heatmap_hydrology.jpg", plot=ind.tax.i.heat, device=NULL, path=NULL, scale=1, width=4.5, height=5.5, dpi=900, limitsize=TRUE)
+#ggsave("../figures/heatmap_hydrology.jpg", plot=ind.tax.i.heat, device=NULL, path=NULL, scale=1, width=4.5, height=5.5, dpi=900, limitsize=TRUE)
 
 ###### 
 methane_groups <- read.csv("../data/methane_groups.csv")
@@ -505,8 +505,8 @@ table(indicator.bac$Cluster)
 levels(design.type)
 
 # Export Bacteria Indicator Table
-write.csv(indicator.bac, "../figures/pub/BacterialIndicators_plant_2.5.csv",
-            sep="\t", row.names = F, quote = F)
+#write.csv(indicator.bac, "../figures/pub/BacterialIndicators_plant_2.5.csv",
+            #sep="\t", row.names = F, quote = F)
 
 ```
 
@@ -541,9 +541,9 @@ theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
 
 iris_tubes
 
-ggsave("../figures/pub/iris_tubes.jpg", plot=iris_tubes, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
+#ggsave("../figures/pub/iris_tubes.jpg", plot=iris_tubes, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
 
-ggsave("../figures/pub/iris_tubes.pdf", plot=iris_tubes, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
+#ggsave("../figures/pub/iris_tubes.pdf", plot=iris_tubes, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
 
 soil_moisture <- ggplot(soil_nofield, aes(x=treatment, y=moisture.percent, fill=plant)) + 
   geom_boxplot() +
@@ -565,9 +565,9 @@ theme(axis.title=element_text(size=14,face="bold"),
 
 soil_moisture
 
-ggsave("../figures/pub/soil_moisture.jpg", plot=iris_tubes, device=NULL, path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE ,bg="transparent")
+#ggsave("../figures/pub/soil_moisture.jpg", plot=iris_tubes, device=NULL, path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE ,bg="transparent")
 
-ggsave("../figures/pub/soil_moisture.pdf", plot=iris_tubes, device=NULL, path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE ,bg="transparent")
+#ggsave("../figures/pub/soil_moisture.pdf", plot=iris_tubes, device=NULL, path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE ,bg="transparent")
 ```
 
 ```{r soil plots}
