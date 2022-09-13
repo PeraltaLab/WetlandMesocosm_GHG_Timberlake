@@ -1,0 +1,17 @@
+OTU	Cluster	IndVal	Prob	domain	Phylum	Class	Order	Family	Genus
+Otu00191	Dry	0.422177009155646	0.0036	Bacteria	Actinobacteria	Actinobacteria	Actinomycetales	Actinomycetales	Actinomycetales
+Otu00027	Interim	0.460045662100457	0.0094	Bacteria	Proteobacteria	Deltaproteobacteria	Desulfuromonadales	Geobacteraceae	Geobacter
+Otu00028	Interim	0.479728146238575	0.0042	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2	Gp2
+Otu00043	Interim	0.431645569620253	0.005	Bacteria	Verrucomicrobia	Subdivision3	Subdivision3	Subdivision3	Subdivision3
+Otu00076	Interim	0.410312273057371	0.0092	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2	Gp2
+Otu00172	Interim	0.637931034482759	0.0038	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2	Gp2
+Otu00009	Wet	0.399581764951903	6e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Bradyrhizobiaceae	Bradyrhizobium
+Otu00054	Wet	0.414207275223061	0.0024	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Rhizobiales	Rhizobiales
+Otu00083	Wet	0.412913727618014	8e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Hyphomicrobiaceae	Hyphomicrobium
+Otu00102	Wet	0.45139911634757	0.0059	Bacteria	Proteobacteria	Deltaproteobacteria	Myxococcales	Cystobacteraceae	Anaeromyxobacter
+Otu00129	Wet	0.603567888999009	1e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00130	Wet	0.471636952998379	1e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Rhizobiales	Rhizobiales
+Otu00138	Wet	0.459340659340659	0.0011	Bacteria	Proteobacteria	Alphaproteobacteria	Rhodospirillales	Reyranella	Reyranella
+Otu00139	Wet	0.475033738191633	0.0059	Bacteria	Verrucomicrobia	Subdivision3	Subdivision3	Subdivision3	Subdivision3
+Otu00182	Wet	0.416897506925208	7e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Rhodospirillales	Rhodospirillaceae	Rhodospirillaceae
+Otu00237	Wet	0.496171516079633	0.003	Bacteria	Proteobacteria	Deltaproteobacteria	Myxococcales	Cystobacteraceae	Anaeromyxobacter
