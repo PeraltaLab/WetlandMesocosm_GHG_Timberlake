@@ -14,7 +14,6 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 knitr::opts_knit$set(root.dir="../GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
 ```
 
-
 ```{r load packages and functions, include FALSE }
 getwd()
 
@@ -40,6 +39,8 @@ require("plyr")
 require("ggpubr")
 require("labdsv")
 require("grid")
+require("multcomp")
+require("multcompView")
 
 #Set Std Err and Conf Int
 se <- function(x, ...) {
@@ -156,7 +157,7 @@ by_time_plant_treatment <- soil %>%
   column_to_rownames("chamber")%>%
   dplyr::select(-history, -time) %>%
   group_by(plant, treatment) %>%
-  dplyr::summarise_all(funs(mean,sd, min, max), na.rm=T)
+  dplyr::summarise_all(list(mean,sd, min, max), na.rm=T)
 
 #write.csv(x = by_time_plant_treatment, file = "../figures/pub/soil_chem.csv")
 ```
@@ -401,7 +402,6 @@ colnames(common_indicators)[2:4] <- c("Cluster_hist", "IndVal_hist", "Prob_hist"
   #Add data from indicator.bac_trt:
 common_indicators <- left_join(common_indicators, indicator.bac_trt, by = c("OTU", "domain", "Phylum", "Class", "Order", "Family", "Genus")) 
 colnames(common_indicators)[11:13] <- c("Cluster_treatment", "IndVal_treatment", "Prob_treatment")
-#view(common_indicators)
 
 # Export Bacteria Indicator Tables:
 #write.table(indicator.bac_hist, "../figures/pub/BacterialIndicators_History.txt",
@@ -747,8 +747,8 @@ plot.N2O.plant <- ggplot(ghg.plant, aes(x=date, y=mg.N2O.N.m.2)) +
   theme(plot.background = element_rect(color=NA))+
   scale_y_continuous(limits = c(0, 1.6))
 
- 
 plot.N2O.plant
+
 
 #Panel together using ggarrange{ggpubr}:
 N2O.Combined <- ggarrange(plot.N2O.noplant, plot.N2O.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
@@ -784,7 +784,6 @@ subvp2 <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
 N2O.Combined
 print(plot.N2O.plant.autoScale, vp=subvp2)
 ```
-
 
 ```{r GHG summary}
 #Quick Data Summaries:
@@ -837,7 +836,7 @@ densityplot(p)
 qqPlot(resid(ch4.lm), main="QQ Plot")
 shapiro.test(resid(ch4.lm))
 
-ghg$log.ch4 <- log(ghg$mg.CH4.N.m.2)
+ghg$log.ch4 <- log(ghg$mg.CH4.N.m.2) # Log transforming (all GHGs) for better normality
 
 ch4.lm <- lmer(log.ch4~ (1|date) + (1|chamber), data=ghg, REML=TRUE)
 summary(ch4.lm)
@@ -851,7 +850,6 @@ shapiro.test(resid(ch4.lm))
 ```
 
 ```{r CH4 hyposthesis testing}
-
 ch4.lm1 <- lmer(log.ch4 ~ (1|date) + (1|chamber) , data=ghg, REML=FALSE)
 
 ch4.lm2 <- lmer(log.ch4~treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
@@ -875,7 +873,7 @@ ch4.lm10 <- lmer(log.ch4~ plant + treatment + (1|date) + (1|chamber), data=ghg, 
 ch4.lm11 <- lmer(log.ch4~ plant * history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
 
 ch4.lm12 <- lmer(log.ch4~ treatment + history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-#This is a liklihood ratio test to get Chi squared value and p-value
+#This is a likelihood ratio test to get Chi squared value and p-value
 ##a <- anova(ch4.lm1, ch4.lm2, ch4.lm3,ch4.lm4,ch4.lm5, ch4.lm6, ch4.lm7, ch4.lm8, ch4.lm9, ch4.lm4a, ch4.lm7a, ch4.lm8a)
 ##a
 ##anova(ch4.lm6)
@@ -905,7 +903,7 @@ densityplot(p)
 qqPlot(resid(ch4.lm8), main="QQ Plot")
 shapiro.test(resid(ch4.lm8))
 
-#Iteraction not significant so did not run post hoc
+#Interaction not significant so did not run post hoc
 #Post hoc Tests
 #Estimated marginal means - similar to lsmeans, uses t distribution
 #https://cran.rstudio.com/web/packages/emmeans/vignettes/interactions.html
@@ -926,9 +924,8 @@ shapiro.test(resid(ch4.lm8))
 ```
 
 ```{r co2 Do we have normaility?}
-
 #First check the distibution of residuals --- not so great
-co2.lm <- lmer(ug.co2c.m2~(1|chamber), data=ghg, REML=TRUE)
+co2.lm <- lmer(mg.CO2.N.m.2~(1|chamber), data=ghg, REML=TRUE)
 summary(co2.lm, ddf="Kenward-Roger")
 confint(co2.lm)
 p=profile(co2.lm)
@@ -937,7 +934,7 @@ densityplot(p)
 qqPlot(resid(co2.lm), main="QQ Plot")
 shapiro.test(resid(co2.lm))
 
-ghg$log.co2 <- log(ghg$ug.co2c.m2)
+ghg$log.co2 <- log(ghg$mg.CO2.N.m.2)
 
 co2.lm <- lmer(log.co2~(1|chamber), data=ghg, REML=TRUE)
 summary(co2.lm, ddf="Kenward-Roger")
@@ -947,11 +944,9 @@ xyplot(p)
 densityplot(p)
 qqPlot(resid(co2.lm), main="QQ Plot")
 shapiro.test(resid(co2.lm))
-
 ```
 
 ```{r co2 hyposthesis testing}
-
 co2.lm1 <- lmer(log.co2 ~ (1|date) + (1|chamber) , data=ghg, REML=FALSE)
 
 co2.lm2 <- lmer(log.co2~treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
@@ -986,7 +981,6 @@ c.mod <- list(co2.lm1, co2.lm2, co2.lm3,co2.lm4,co2.lm5, co2.lm8, co2.lm9, co2.l
 Modnames <- c("null", "treatment", "plant", "t * p", "h + p","h+t+p", "H", "p+T", "p*h", "h+t")
 aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
 
-
 #Variance explained by fixed effects and the entire model
 r.squaredGLMM(co2.lm1) #null
 r.squaredGLMM(co2.lm2) #treatment
@@ -1000,7 +994,6 @@ r.squaredGLMM(co2.lm9) #h
 r.squaredGLMM(co2.lm10)#p+t
 r.squaredGLMM(co2.lm11) #p*h
 r.squaredGLMM(co2.lm12) #h+t
-#My conclusion is that hydrology is the main factor and season is secondary factor in influencing methane rates within the wetland
 
 summary(co2.lm4, ddf="Kenward-Roger")
 confint.merMod(co2.lm4, oldNames = FALSE)
@@ -1014,18 +1007,17 @@ shapiro.test(resid(co2.lm4))
 #Estimated marginal means - similar to lsmeans, uses t distribution
 #https://cran.rstudio.com/web/packages/emmeans/vignettes/interactions.html
 
- emm <- emmeans(co2.lm4, ~ plant*treatment , adjust = "tukey")
- pairs(emm)
- multcomp::cld(emm, Letters=letters)
+emm <- emmeans(co2.lm4, ~ plant*treatment , adjust = "tukey")
+pairs(emm)
+multcomp::cld(emm, Letters=letters)
  
   #p <-contrast(emm, "consec", simple="each", combine =TRUE, adjust="mvt")
   #p
 ```
 
 ```{r n2o Do we have normaility?}
-
 #First check the distibution of residuals --- not so great
-n2o.lm <- lmer(ug.n2on.m2~(1|chamber), data=ghg, REML=TRUE)
+n2o.lm <- lmer(mg.N2O.N.m.2~(1|chamber), data=ghg, REML=TRUE)
 summary(n2o.lm, ddf="Kenward-Roger")
 confint(n2o.lm)
 p=profile(n2o.lm)
@@ -1034,7 +1026,7 @@ xyplot(p)
 qqPlot(resid(n2o.lm), main="QQ Plot")
 shapiro.test(resid(n2o.lm))
 
-ghg$log.n2o <- log(ghg$ug.n2on.m2)
+ghg$log.n2o <- log(ghg$mg.N2O.N.m.2)
 
 #ghg.n2o <- ghg[-c(45,73, 111, 139),]
 n2o.lm <- lmer(log.n2o~(1|chamber), data=ghg, REML=TRUE)
@@ -1045,11 +1037,9 @@ xyplot(p)
 densityplot(p)
 qqPlot(resid(n2o.lm), main="QQ Plot")
 shapiro.test(resid(n2o.lm))
-
 ```
 
 ```{r n2o hyposthesis testing}
-
 n2o.lm1 <- lmer(log.n2o ~ (1|date) + (1|chamber) , data=ghg, REML=FALSE)
 
 n2o.lm2 <- lmer(log.n2o~treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
@@ -1083,7 +1073,6 @@ c.mod <- list(n2o.lm1, n2o.lm2, n2o.lm3,n2o.lm4,n2o.lm5, n2o.lm8, n2o.lm9, n2o.l
 Modnames <- c("null", "treatment", "plant", "t * p", "h + p","h+t+p", "H", "p+T", "p*h", "h+t")
 aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
 
-
 #Variance explained by fixed effects and the entire model
 r.squaredGLMM(n2o.lm1) #null
 r.squaredGLMM(n2o.lm2) #treatment
@@ -1098,8 +1087,6 @@ r.squaredGLMM(n2o.lm10) #p+t
 r.squaredGLMM(n2o.lm11) #p*h
 r.squaredGLMM(n2o.lm12)#h+t
 
-#My conclusion is that hyrdology is the main factor and season is secondary factor in influencing methane rates within the wetland
-
 summary(n2o.lm10, ddf="Kenward-Roger")
 confint.merMod(n2o.lm10, oldNames = FALSE)
 p=profile(n2o.lm10)
@@ -1111,11 +1098,10 @@ shapiro.test(resid(n2o.lm10))
 emm <- emmeans(co2.lm10, ~ plant + treatment , adjust = "tukey")
  pairs(emm)
  multcomp::cld(emm, Letters=letters)
-
 ```
 
 ```{r only ending samples}
-#Using end samples for GHG because micorbial community analyses was on end samples
+#Using end samples for GHG because microbial community analyses was on end samples
 #make df of design, soil, and ghg
 ghg.filter.soil <- ghg %>%
   dplyr::select_('date', 'chamber', 'timepoint', 'ug.ch4c.m2', 'ug.co2c.m2', 'ug.n2on.m2')%>%
@@ -1130,7 +1116,6 @@ rownames(soil.ghg) = rownames(otu.2.rel.dist)
 soilonly.dist <- vegdist(x = scale(soil.ghg[, -c(1:4, 18:23)]), "euclid")
 soilghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:4,18:20)]), "euclid")
 ghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:20)]), "euclid")
-
 ```
 
 
@@ -1160,7 +1145,6 @@ summary(dbplsr.co2)
 dbplsr.n2o <- dbplsr(ug.n2on.m2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=3, method="GCV")
 summary(dbplsr.n2o)
 ```
-
 
 ```{r mantel soil and bac comm }
 
