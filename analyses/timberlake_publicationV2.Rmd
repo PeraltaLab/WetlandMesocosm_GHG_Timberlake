@@ -6,6 +6,7 @@ output:
   html_document:
     df_print: paged
 ---
+# Setup
 
 ```{r setup, include=FALSE}
 rm(list=ls())
@@ -13,6 +14,8 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 #use to set working directory 
 knitr::opts_knit$set(root.dir="../GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
 ```
+
+# Load packages and functions
 
 ```{r load packages and functions, include FALSE }
 getwd()
@@ -50,6 +53,7 @@ ci <- function(x, ...) {
   1.96 * sd(x, na.rm = TRUE)
 }
 ```
+# Load files
 
 ```{r load files paths}
 #Load data files
@@ -162,6 +166,8 @@ by_time_plant_treatment <- soil %>%
 #write.csv(x = by_time_plant_treatment, file = "../figures/pub/soil_chem.csv")
 ```
 
+# PERMANOVA
+
 ```{r PERMANOVA with just end samples}
 #transforms read counts to relative abundance
 otu.2.rel <- otu.2
@@ -176,6 +182,7 @@ metaotu <- cbind(meta, otu.2.rel)
 metaotu.ad <- adonis(metaotu[,-c(1:9)] ~ plant * history + plant * treatment, method = "bray", data = metaotu, perm=10000, set.seed=42)
 metaotu.ad 
 ```
+# PCoA
 
 ```{r Calculate distance matrix and PCoA components without field, end samples only}
 otu.2.rel.dist<-vegdist(otu.2.rel, method="bray")
@@ -288,6 +295,7 @@ plot1b
 
 #ggsave("../figures/pub/16SrRNA_timberlake_end_vectors.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
 ```
+# Indicator species
 
 ```{r read and clean taxonomy file}
 tax <- import_mothur(mothur_constaxonomy_file =  taxfile)
@@ -305,7 +313,7 @@ tax.df <- tax.df %>%
   mutate(Phylum = str_replace_all(Phylum,"_", " "), Order = str_replace_all(Order,"_", " "),Class = str_replace_all(Class,"_", " "), Family = str_replace_all(Family,"_", " "), Genus = str_replace_all(Genus,"_", " ")) 
 ```
 
-```{r Bacteria Indicator Species}
+```{r Indicator Species}
 #Final sampling, no field
 new.data <-metaotu
 new.data$history <- as.factor(new.data$history)
@@ -410,6 +418,8 @@ colnames(common_indicators)[11:13] <- c("Cluster_treatment", "IndVal_treatment",
 #write.table(indicator.bac_trt, "../figures/pub/BacterialIndicators_Treatment.txt",
             #sep="\t", row.names = F, quote = F)
 ```
+
+# Soil parameters
 
 ```{r soil parameters}
 soil <- read.csv("../data/Design_and_soil.csv",  header=T)
@@ -550,6 +560,8 @@ soil_p
 #require("ggfortify")
 #autoplot(prcomp(metaotu[,-c(1:2, 16:24)]), data=metaotu, colour="treatment", shape="plant.y", #loadings=TRUE, loadings.label = TRUE, loadings.label.size = 3, frame=TRUE)
 ```
+
+# Greenhouse gases (GHGs)
 
 ```{r GHG T1 concentration analysis}
 #read in gas data
@@ -825,6 +837,8 @@ ghg.summary.htp
 
 ```
 
+# Mixed-effects modeling
+
 ```{r CH4 Do we have normaility?}
 #First check the distribution of residuals --- not so great
 ch4.lm <- lmer(mg.CH4.N.m.2~ (1|date) +(1|chamber), data=ghg, REML=TRUE)
@@ -846,7 +860,6 @@ xyplot(p)
 densityplot(p)
 qqPlot(resid(ch4.lm), main="QQ Plot")
 shapiro.test(resid(ch4.lm))
-
 ```
 
 ```{r CH4 hyposthesis testing}
@@ -1100,53 +1113,59 @@ emm <- emmeans(co2.lm10, ~ plant + treatment , adjust = "tukey")
  multcomp::cld(emm, Letters=letters)
 ```
 
+# Distance-based partial least squares regression (dbplsr)
+
 ```{r only ending samples}
 #Using end samples for GHG because microbial community analyses was on end samples
 #make df of design, soil, and ghg
 ghg.filter.soil <- ghg %>%
-  dplyr::select_('date', 'chamber', 'timepoint', 'ug.ch4c.m2', 'ug.co2c.m2', 'ug.n2on.m2')%>%
+  dplyr::select_('date', 'chamber', 'timepoint', 'mg.CH4.N.m.2', 'mg.CO2.N.m.2', 'mg.N2O.N.m.2')%>%
   filter(timepoint=='T1' & date == '8/11/2016') 
 
 soil.ghg <- soil %>% 
-dplyr::select(chamber, time, plant, treatment, moisture.percent, pH, nh4.mg.l, c.percent, n.percent, P.ppm, K.ppm, Mg.ppm, S.ppm, Fe.ppm, Mn.ppm, HM, redox.percent.paint.removed)%>%
+dplyr::select(chamber, time, plant, treatment, moisture.percent, pH, nh4.mg.l, c.percent, n.percent, P.ppm, K.ppm, Mg.ppm, S.ppm, Fe.ppm, Mn.ppm, HM, redox.percent.paint.removed) %>%
+  filter(time=="finish") %>%
   bind_cols(ghg.filter.soil)
   
-rownames(soil.ghg) = rownames(otu.2.rel.dist)
+rownames(soil.ghg) <- rownames(otu.2.rel)
 
-soilonly.dist <- vegdist(x = scale(soil.ghg[, -c(1:4, 18:23)]), "euclid")
-soilghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:4,18:20)]), "euclid")
-ghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:20)]), "euclid")
+# Drop the two 'Chamber' columns (because Chambers are now row names)
+soil.ghg <- soil.ghg[,-c(1,19)]
+
+# Calculate euclidean distances for soil parameters only, soil parameters and GHGs, and GHGs only:
+soilonly.dist <- vegdist(x = scale(soil.ghg[, -c(1:3, 17:21)]), "euclid")
+soilghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:3,17:18)]), "euclid")
+ghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:18)]), "euclid")
 ```
-
 
 ```{r dbplsr analysis}
 #distance based partial least squares regression
 #Compares distance matrices. can use mixture of continuous and qualitative variables. 
 #Method good when factors are may and highly colinear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
 
-#Are GHG 
-dbplsr.ch4 <- dbplsr(ug.ch4c.m2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=3, method="GCV")
+# GHGs compared to Bray-Curtis Distance matrix of rarified OTUs: 
+dbplsr.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
 summary(dbplsr.ch4)
 
-dbplsr.co2 <- dbplsr(ug.co2c.m2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=3, method="GCV")
+dbplsr.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
 summary(dbplsr.co2)
 
-dbplsr.n2o <- dbplsr(ug.n2on.m2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=3, method="GCV")
+dbplsr.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
 summary(dbplsr.n2o)
 
-
-#Are GHG 
-dbplsr.ch4 <- dbplsr(ug.ch4c.m2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=3, method="GCV")
+# GHGs compared to euclidean distance matrix of soil parameters: 
+dbplsr.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
 summary(dbplsr.ch4)
 
-dbplsr.co2 <- dbplsr(ug.co2c.m2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=3, method="GCV")
+dbplsr.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
 summary(dbplsr.co2)
 
-dbplsr.n2o <- dbplsr(ug.n2on.m2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=3, method="GCV")
+dbplsr.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
 summary(dbplsr.n2o)
 ```
 
 ```{r mantel soil and bac comm }
+#Colin: set.seed? increase permutations to 10000.
 
 #soil only
 bac.soil.mantel <- vegan::mantel(as.matrix(soilonly.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=999)
@@ -1159,11 +1178,9 @@ bac.soil.mantel
 #ghg only 
 bac.soil.mantel <- vegan::mantel(as.matrix(ghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=999)
 bac.soil.mantel
-
 ```
 
 ```{r gas redox regressions}
-
 ch4.lm <- lm(log(ug.ch4c.m2) ~ redox.percent.paint.removed,data=soil.ghg[-c(17),])
 anova(ch4.lm)
 summary(ch4.lm)
@@ -1189,7 +1206,6 @@ gc
 
 getwd()
 ggsave("../figures/pub/ch4_redox.jpg", plot=gc, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
-
 ```
 
 ```{r co2 redox regression}
