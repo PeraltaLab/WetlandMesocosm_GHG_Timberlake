@@ -6,6 +6,7 @@ output:
   html_document: default
   pdf_document: default
 ---
+# Setup
 
 ```{r setup, include=FALSE}
 #use to set global options for chunks e.g., echo and warning options will be applied to all chunks:
@@ -26,6 +27,8 @@ source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
 require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2")
 ```
+
+# Load files
 
 Import KO function files from JGI IMG/MER
 ```{r Import Files}
@@ -71,6 +74,8 @@ design2 <- design2[!(design2$source %in% "s"),]
 #Greenhouse gas data:
 GHG <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/TMG_GHG-Flux_T1_Pub_2-2020.csv")
 ```
+
+# Data Wrangling
 
 Convert gene counts to relative abundance:
 ```{r gene counts to relative abundance}
@@ -157,6 +162,8 @@ carb_metabRA_design <- cbind(design, carb_metabRA)
 cytoCoxRA_design <- cbind(design, cytoCoxRA)
 ```
 
+## Bray Curtis dissimilarity
+
 Calculate Bray Curtis dissimilarity:
 ```{r relative abundance to Bray Curtis dissimilarity}
 #Bray Curtis calculation for denitrification relative abundance data:
@@ -183,6 +190,8 @@ cytoCoxBC_start <- vegdist(cytoCoxRA_start, method = "bray")
 cytoCoxBC_finish <- vegdist(cytoCoxRA_finish, method = "bray")
 #print(cytoCoxBC)
 ```
+
+## GHG wrangling
 
 Wrangling greenhouse gas (GHG) data:
 ```{r wrangling GHG data}
@@ -255,6 +264,10 @@ GHG_metaG <- GHG_metaG[match(sample_order, rownames(GHG_metaG)), ]
 GHG_metaG <- GHG_metaG[,c(2,5,8)] #Subset to only have units in mg
 ```
 
+# Statistics
+
+## dbplsr
+
 Distance-based partial least squares regression:
 ```{r distance-based partial least squares regression}
 library(dbstats)
@@ -301,34 +314,37 @@ summary(finish.denit.dbplsr.co2)
 #plot(finish.denit.dbplsr.co2)
 ```
 
-PERMANOVA:
+## PERMANOVA
+
+Permutational multivariate analysis of variance (PERMANOVA):
 ```{r PERMANOVA}
 #PERMANOVA without History:
-adonis_denit = adonis(denitRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
+adonis_denit = adonis2(denitRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
 adonis_denit
 
-adonis_meth = adonis(methRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42)
+adonis_meth = adonis2(methRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42)
 adonis_meth
 
-adonis_carb_metab = adonis(carb_metabRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42)
+adonis_carb_metab = adonis2(carb_metabRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42)
 adonis_carb_metab
 
-adonis_cytoCox = adonis(cytoCoxRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
+adonis_cytoCox = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
 adonis_cytoCox
 
 #PERMANOVA with History:
-adonis_denit_H = adonis(denitRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
+adonis_denit_H = adonis2(denitRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
 adonis_denit_H
 
-adonis_meth_H = adonis(methRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42)
+adonis_meth_H = adonis2(methRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42)
 adonis_meth_H
 
-adonis_carb_metab_H = adonis(carb_metabRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42)
+adonis_carb_metab_H = adonis2(carb_metabRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42)
 adonis_carb_metab_H
 
-adonis_cytoCox_H = adonis(cytoCoxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
+adonis_cytoCox_H = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
 adonis_cytoCox_H
 ```
+## PCoA
 
 Principal Coordinates Analysis (PCoA) denitrification:
 ```{r PCoA:denitrification}
@@ -402,51 +418,8 @@ plot1a <- ggplot(df1a, aes(x=V1, y=V2, shape = plant, colour=trt)) + theme_bw() 
 plot1a
 ```
 
-For Daniya, testing sub-setting of points:
-```{r}
-df1a_test <- df1a
-
-#try removing the 'baseline' (_pre_pre) row, i.e., the first row:
-df1a_test <- df1a_test[2:5,]
-
-# Now use identical ggplot code from above to test:
-plot_test <- ggplot(df1a_test, aes(x=V1, y=V2, shape = plant, colour=trt)) + theme_bw() + theme(panel.grid.major = element_blank(), 
-               panel.grid.minor = element_blank(), 
-               axis.line = element_line(colour = "black")) + 
-  theme(panel.background = element_blank()) + 
-  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e), colour="black") + 
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e), colour="black") +
-  geom_point(aes(colour=trt), size=5, stroke = 2, show.legend = TRUE) +
-  geom_segment(data=vec_denit, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
-      arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+
-  geom_text(data=vec_denit, aes(x=0.0125,y=-0.055), label= expression(paste("mg CO"[2],"-C m"^{-2})), size=3, inherit.aes=F)+
-  scale_colour_manual(labels = c("Dry","Wet"), 
-                      values = c("#997700", "#004488")) +
-  scale_shape_manual(labels = c("No Plant","Plant"), values = c(5,9)) +
-  theme(axis.title = element_text(size=14), 
-        axis.text = element_text(size=14),
-        axis.text.x = element_text(size=14), 
-        panel.border = element_rect(colour = "black", size = 1.25)) + 
-  theme(axis.ticks.length = unit(0.3, "cm")) + 
-        xlab("PCoA 1 (44.6%)") + ylab("PCoA 2 (25.1%)") +
-        labs(shape = "Plant", colour = "Treatment") +
-    guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
-           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
-    ggtitle("Denitrification")
-
-plot_test
-
-# Setup a 2-panel figure to confirm that the layouts are identical:
-library(ggpubr) #load in library for multi-panel figures
-
-two_panel_Daniya_test <- ggarrange(plot1a, plot_test, ncol = 2, nrow = 1, legend = "right", common.legend = T)
-
-two_panel_Daniya_test
-```
-
-
 PCoA denitrification, all factors (including hydrologic history AS SHAPE):
-```{r PCoA: denitrification, all factors}
+```{r PCoA: denitrification; all factors}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
 # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
 pcoa_denit <- cmdscale(denitBC, k=3, eig=TRUE, add=FALSE)
@@ -521,81 +494,6 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 plot2a
 ```
 
-PCoA denitrification, all factors (including hydrologic history AS COLOR):
-```{r PCoA: denitrification, all factors, HISTORY AS COLOR}
-# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
-# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
-pcoa_denit <- cmdscale(denitBC, k=3, eig=TRUE, add=FALSE)
-
-explainvar1b_denit <- round(pcoa_denit$eig[1] / sum(pcoa_denit$eig), 3) * 100
-explainvar2b_denit <- round(pcoa_denit$eig[2] / sum(pcoa_denit$eig), 3) * 100
-sum.eiga <- sum(explainvar1b_denit, explainvar2b_denit)
-
-explainvar1b_denit # 44.6
-explainvar2b_denit # 25.1
-
-pcoa_denit2.groups <- paste(denitRA_design$Treat, denitRA_design$Plant, denitRA_design$Hist, sep = "_")
-pcoa_denit2.points <- data.frame(pcoa_denit$points, group = pcoa_denit2.groups)
-
-# Calculate Centroids (mean and SE)
-pcoa_denit2.L.centroids <- reshape2::melt(pcoa_denit2.points, id="group", measure.vars = c("X1", "X2"))
-pcoa_denit2.centroids <- acast(pcoa_denit2.L.centroids, variable ~ group, mean)
-pcoa_denit2.centroids.se <- acast(pcoa_denit2.L.centroids, variable ~ group, se)
-pcoa_denit2.centroids.sd <- acast(pcoa_denit2.L.centroids, variable ~ group, sd)
-
-# Combine
-pcoa_denit2.cent.dataframe <- cbind(t(pcoa_denit2.centroids), t(pcoa_denit2.centroids.se))
-colnames(pcoa_denit2.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
-
-trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
-plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
-history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
-trt_plant_combined <- c(paste(trt, plant, sep = "_"))
-
-pcoa_denitX.cent.dataframe.trts <- as.data.frame(pcoa_denit2.cent.dataframe) 
-pcoa_denitX.cent.dataframe.trts$trt <- as.factor(trt_H)
-pcoa_denitX.cent.dataframe.trts$plant <- as.factor(plant_H)
-pcoa_denitX.cent.dataframe.trts$history <- as.factor(history)
-pcoa_denitX.cent.dataframe.trts$trt_plant<- as.factor(trt_plant_combined)
-
-#Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
-fit_denitX <- envfit(pcoa_denit$points, GHG_metaG, permutations = 10000)
-fit_denitX
-
-A_denitX <-as.list(fit_denitX$vectors)
-vec_denitX <- as.data.frame(fit_denitX$vectors$arrows*sqrt(fit_denitX$vectors$r)*0.15)
-p_denitX <- as.data.frame(A_denitX$pvals)
-vec_denitX <- cbind(vec_denitX, p_denitX)
-vec_denitX <- subset(vec_denitX, A_denitX$pvals<=0.1)
-
-#Plot using ggplot2
-dfXa <- as.data.frame(pcoa_denitX.cent.dataframe.trts)
-
-plotXa <- ggplot(dfXa, aes(x=V1, y=V2, shape=trt_plant, colour=history)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +   
-  geom_point(aes(shape = trt_plant, colour=history), size=5, stroke=2) +  
-  theme_bw() +
-  scale_color_manual(values=c("#997700", "#004488"), name="History") +
-  scale_shape_manual(values = c(8, 2, 17, 1, 19), name="Treatment_Plant") +
-  xlab("PCoA 1 (44.6%)") + ylab("PCoA 2 (25.1%)") + 
-  geom_segment(data=vec_denit2, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
- geom_text(data=vec_denit2, aes(x=Dim1, y=Dim2-0.001), label= expression(paste("mg CO"[2],"-C m"^{-2})), size=3, inherit.aes=F)+
-  ggtitle("") + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  theme(panel.background = element_blank()) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=18), 
-          axis.text.x = element_text(size=18),  axis.text.y = element_text(size=18),
-          panel.border = element_rect(colour = "black", size=1.25)) +
-  theme(axis.ticks.length=unit(0.3,"cm")) + 
-  theme(plot.title=element_text(size=18)) +
-  theme(legend.text=element_text(size=18), legend.title = element_text(size=18))+
-  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
-           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
-    ggtitle("Denitrification")
-
-plotXa
-```
-
 Principal Coordinates Analysis (PCoA) methanogenesis:
 ```{r PCoA: methanogenesis}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -668,82 +566,8 @@ plot1b <- ggplot(df1b, aes(x=V1, y=V2, colour=trt, shape = plant)) + theme_bw() 
 plot1b
 ```
 
-PCoA Methanogenesis, all factors, HISTORY AS COLOR:
-```{r PCoA: Methanogenesis, all factors, HISTORY AS COLOR}
-pcoa_meth <- cmdscale(methBC, k=3, eig=TRUE, add=FALSE)
-
-explainvar1b_meth <- round(pcoa_meth$eig[1] / sum(pcoa_meth$eig), 3) * 100
-explainvar2b_meth <- round(pcoa_meth$eig[2] / sum(pcoa_meth$eig), 3) * 100
-sum.eigb <- sum(explainvar1b_meth, explainvar2b_meth)
-
-explainvar1b_meth # 41.3
-explainvar2b_meth # 27.8
-
-pcoa_meth.groups <- paste(methRA_design$Treat, methRA_design$Plant, methRA_design$Hist, sep = "_")
-pcoa_meth.points <- data.frame(pcoa_meth$points, group = pcoa_meth.groups)
-
-# Calculate Centroids (mean and SE)
-pcoa_meth.L.centroids <- reshape2::melt(pcoa_meth.points, id="group", measure.vars = c("X1", "X2"))
-pcoa_meth.centroids <- acast(pcoa_meth.L.centroids, variable ~ group, mean)
-pcoa_meth.centroids.se <- acast(pcoa_meth.L.centroids, variable ~ group, se)
-pcoa_meth.centroids.sd <- acast(pcoa_meth.L.centroids, variable ~ group, sd)
-
-# Combine
-pcoa_meth.cent.dataframe <- cbind(t(pcoa_meth.centroids), t(pcoa_meth.centroids.se))
-colnames(pcoa_meth.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
-
-# No need to run again if these lists have already been declared:
-#trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
-#plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
-#history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
-#trt_plant_combined <- c(paste(trt, plant, sep = "_"))
-
-pcoa_methX.cent.dataframe.trts <- as.data.frame(pcoa_meth.cent.dataframe) 
-pcoa_methX.cent.dataframe.trts$trt <- as.factor(trt_H)
-pcoa_methX.cent.dataframe.trts$plant <- as.factor(plant_H)
-pcoa_methX.cent.dataframe.trts$history <- as.factor(history)
-pcoa_methX.cent.dataframe.trts$trt_plant<- as.factor(trt_plant_combined)
-
-#Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
-fit_meth <- envfit(pcoa_meth$points, GHG_metaG, permutations = 10000)
-fit_meth
-
-A_meth2 <-as.list(fit_meth$vectors)
-vec_meth2 <- as.data.frame(fit_meth$vectors$arrows*sqrt(fit_meth$vectors$r)*0.15)
-p_meth2 <- as.data.frame(A_meth2$pvals)
-vec_meth2 <- cbind(vec_meth2, p_meth2)
-vec_meth2 <- subset(vec_meth2, A_meth2$pvals<=0.1)
-
-#Plot using ggplot2
-dfXb <- as.data.frame(pcoa_methX.cent.dataframe.trts)
-
-plotXb <- ggplot(dfXb, aes(x=V1, y=V2, shape=trt_plant, colour=history)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +   
-  geom_point(aes(shape = trt_plant, colour=history), size=5, stroke=2) +  
-  theme_bw() +
-  scale_color_manual(values=c("#997700", "#004488"), name="History") +
-  scale_shape_manual(values = c(8, 2, 17, 1, 19), name="Treatment_Plant") +
-  xlab("PCoA 1 (41.3%)") + ylab("PCoA 2 (27.8%)") + 
-  geom_segment(data=vec_meth2, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
- geom_text(data=vec_meth2, aes(x=Dim1+0.02, y=Dim2-0.01), angle = -24, label= expression(paste("mg CH"[4],"-C m"^{-2})), size=3, inherit.aes=F)+
-  ggtitle("") + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  theme(panel.background = element_blank()) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=18), 
-          axis.text.x = element_text(size=18),  axis.text.y = element_text(size=18),
-          panel.border = element_rect(colour = "black", size=1.25)) +
-  theme(axis.ticks.length=unit(0.3,"cm")) + 
-  theme(plot.title=element_text(size=18)) +
-  theme(legend.text=element_text(size=18), legend.title = element_text(size=18))+
-  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
-           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
-    ggtitle("Methanogenesis")
-
-plotXb
-```
-
 PCoA Methanogenesis, all factors, HISTORY AS SHAPE:
-```{r PCoA: Methanogenesis, all factors, HISTORY AS SHAPE}
+```{r PCoA: Methanogenesis; all factors}
 pcoa_meth <- cmdscale(methBC, k=3, eig=TRUE, add=FALSE)
 
 explainvar1b_meth <- round(pcoa_meth$eig[1] / sum(pcoa_meth$eig), 3) * 100
@@ -815,7 +639,6 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 
 plot2b
 ```
-
 
 Principal Coordinates Analysis (PCoA) central carbohydrate metabolism:
 ```{r PCoA:central carbohydrate metabolism}
@@ -890,7 +713,7 @@ plot1c
 ```
 
 PCoA central carbohydrate metabolism, all factors, HISTORY AS SHAPE:
-```{r PCoA: central carbohydrate metabolism, all factors, HISTORY AS SHAPE}
+```{r PCoA: central carbohydrate metabolism; all factors}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
 # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
 pcoa_carb_metab <- cmdscale(carb_metabBC, k=3, eig=TRUE, add=FALSE)
@@ -1029,7 +852,7 @@ plot1d
 ```
 
 PCoA cytochrome C oxidase, all factors, HISTORY AS SHAPE:
-```{r PCoA: cytochrome C oxidase, all factors, HISTORY AS SHAPE}
+```{r PCoA: cytochrome C oxidase; all factors}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
 # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
 pcoa_cytoCox <- cmdscale(cytoCoxBC, k=3, eig=TRUE, add=FALSE)
@@ -1117,6 +940,8 @@ MetaG_pcoa_4panel_noH
 MetaG_pcoa_4panel_H <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
 
 MetaG_pcoa_4panel_H
+
+#ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white")
 
 #ggsave("../figures/pub/metaG_pcoa4panel_H.jpg", plot = MetaG_pcoa_4panel_H, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE)
 ```
