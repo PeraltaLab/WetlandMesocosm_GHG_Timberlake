@@ -1153,15 +1153,15 @@ summary(dbplsr.co2)
 dbplsr.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
 summary(dbplsr.n2o)
 
-# GHGs compared to euclidean distance matrix of soil parameters: 
-dbplsr.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
-summary(dbplsr.ch4)
+# GHGs compared to euclidean distance matrix of soil parameters (sp): 
+dbplsr.sp.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.ch4)
 
-dbplsr.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
-summary(dbplsr.co2)
+dbplsr.sp.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.co2)
 
-dbplsr.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
-summary(dbplsr.n2o)
+dbplsr.sp.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.n2o)
 ```
 
 ```{r mantel soil and bac comm }
