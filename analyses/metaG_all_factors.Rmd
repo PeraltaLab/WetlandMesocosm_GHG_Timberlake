@@ -492,6 +492,8 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Denitrification")
 
 plot2a
+
+#ggsave("../figures/NC_ASM_2022/Denit_PCoA.png", plot=plot2a, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 Principal Coordinates Analysis (PCoA) methanogenesis:
@@ -638,6 +640,8 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Methanogenesis")
 
 plot2b
+
+#ggsave("../figures/NC_ASM_2022/Meth_PCoA.png", plot=plot2b, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 Principal Coordinates Analysis (PCoA) central carbohydrate metabolism:
@@ -786,6 +790,8 @@ plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Central Carbohydrate Metabolism")
 
 plot2c
+
+#ggsave("../figures/NC_ASM_2022/CarbMetab_PCoA.png", plot=plot2c, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 Principal Coordinates Analysis (PCoA) cytochrome C oxidase:
@@ -923,6 +929,8 @@ plot2d <- ggplot(df2d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Cytochrome C Oxidase")
 
 plot2d
+
+#ggsave("../figures/NC_ASM_2022/CcO_PCoA.png", plot=plot2d, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 Create 4-panel figure of the 4 PCoA plots above:

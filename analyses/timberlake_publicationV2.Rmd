@@ -270,7 +270,7 @@ pcoa.cent.dataframe.trts$plant <- as.factor(pcoa.plant)
 pcoa.cent.dataframe.trts$history_plant <- as.factor(history_plant_combined)
 
 #Plotting:
-plot1b <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +   
   geom_point(aes(shape = history_plant, color=pcoa.trt), size=5, stroke=2) +  
   theme_bw() +
@@ -291,7 +291,9 @@ plot1b <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_plant, 
   theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
   guides(fill = guide_legend(override.aes=list(shape=21)))
 
-plot1b
+plot16S_PCoA
+
+#ggsave("../figures/NC_ASM_2022/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 
 #ggsave("../figures/pub/16SrRNA_timberlake_end_vectors.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
 ```
@@ -713,6 +715,8 @@ plot.CO2.plant
 CO2.Combined <- ggarrange(plot.CO2.noplant, plot.CO2.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
 
 CO2.Combined
+
+ggsave("../figures/NC_ASM_2022/CO2_BoxPlot.png", plot=CO2.Combined, device="png", path=NULL, scale=1, width=7, height=6, dpi=300, limitsize=TRUE, bg="white")
 
 #ggsave("../figures/pub/CO2_boxplot.jpg", plot=CO2.Combined, device=NULL, path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE ,bg="transparent")
 
