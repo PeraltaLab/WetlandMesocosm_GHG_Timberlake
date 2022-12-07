@@ -1,7 +1,7 @@
 ---
 title: "metaG_all_factors"
 author: "Colin G. Finlay"
-date: "7/27/2022"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document: default
   pdf_document: default
@@ -25,7 +25,7 @@ ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
 # Code dependencies:
 source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
-require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2")
+require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2"); require("ggpubr")
 ```
 
 # Load files
@@ -116,7 +116,7 @@ for(i in 1:dim(carb_metabNumerical)[1]){
   carb_metabRA[i,] <- carb_metabNumerical[i,]/sum(carb_metabNumerical[i,])
 }
 
-#Convert cytochrome c oxidase KO counts to relative abundance:
+#Convert cytochrome C oxidase KO counts to relative abundance:
 cytoCoxRA <- cytoCoxNumerical
 for(i in 1:dim(cytoCoxNumerical)[1]){
   cytoCoxRA[i,] <- cytoCoxNumerical[i,]/sum(cytoCoxNumerical[i,])
@@ -219,7 +219,7 @@ GHG_finish <- left_join(GHG_finish, design2, by = c("box", "plant"))
 GHG_start_metaG <- rbind(GHG_start[5:6,], GHG_start[11:12,], GHG_start[15:24,], GHG_start[31:32,], make.row.names = FALSE)
 GHG_finish_metaG <- rbind(GHG_finish[5:6,], GHG_finish[11:12,], GHG_finish[15:24,], GHG_finish[31:32,], make.row.names = FALSE)
 
-#To align "pre" metaG samples with a single, initial GHG values (from the start GHG measurements on 6/13/206), average together GHG samples in the same box number, then transpose and set row name to corresponding metaG Sample ID:
+#To align "pre" metaG samples with a single, initial GHG value (from the start GHG measurements on 6/13/206), average together GHG samples in the same box number, then transpose and set row name to corresponding metaG Sample ID:
 GHG_start_03 <- data.frame(colMeans(GHG_start_metaG[1:2, 5:13]))
 GHG_start_03 <- as.data.frame(t(GHG_start_03))
 row.names(GHG_start_03) <- "03Pre"
@@ -270,7 +270,7 @@ GHG_metaG <- GHG_metaG[,c(2,5,8)] #Subset to only have units in mg
 
 Distance-based partial least squares regression:
 ```{r distance-based partial least squares regression}
-library(dbstats)
+#require(dbstats) # run if dbstats not already loaded
 
 start.denit.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.N2O.N.m.2 ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
 summary(start.denit.dbplsr)
@@ -478,7 +478,6 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   xlab("PCoA 1 (44.6%)") + ylab("PCoA 2 (25.1%)") + 
   geom_segment(data=vec_denit, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
  geom_text(data=vec_denit, aes(x=Dim1+0.03, y=Dim2), label= expression(paste("mg CO"[2],"-C m"^{-2})), size=3, inherit.aes=F)+
-  ggtitle("") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -492,8 +491,6 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Denitrification")
 
 plot2a
-
-#ggsave("../figures/NC_ASM_2022/Denit_PCoA.png", plot=plot2a, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 Principal Coordinates Analysis (PCoA) methanogenesis:
@@ -626,7 +623,6 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   xlab("PCoA 1 (41.3%)") + ylab("PCoA 2 (27.8%)") + 
   geom_segment(data=vec_meth, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
  geom_text(data=vec_meth, aes(x=-0.05, y=0.0), label= expression(paste("mg CH"[4],"-C m"^{-2})), size=3, inherit.aes=F)+
-  ggtitle("") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -640,8 +636,6 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Methanogenesis")
 
 plot2b
-
-#ggsave("../figures/NC_ASM_2022/Meth_PCoA.png", plot=plot2b, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 Principal Coordinates Analysis (PCoA) central carbohydrate metabolism:
@@ -776,7 +770,6 @@ plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   xlab("PCoA 1 (33.7%)") + ylab("PCoA 2 (15.9%)") + 
   geom_segment(data=vec_carb_metab, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
  geom_text(data=vec_carb_metab, aes(x=Dim1+0.02, y=Dim2), label= expression(paste("mg CO"[2],"-C m"^{-2})), size=3, inherit.aes=F)+
-  ggtitle("") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -790,8 +783,6 @@ plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Central Carbohydrate Metabolism")
 
 plot2c
-
-#ggsave("../figures/NC_ASM_2022/CarbMetab_PCoA.png", plot=plot2c, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 Principal Coordinates Analysis (PCoA) cytochrome C oxidase:
@@ -915,7 +906,6 @@ plot2d <- ggplot(df2d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab("PCoA 1 (50.7%)") + ylab("PCoA 2 (35.6%)") + 
-  ggtitle("") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -929,13 +919,11 @@ plot2d <- ggplot(df2d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Cytochrome C Oxidase")
 
 plot2d
-
-#ggsave("../figures/NC_ASM_2022/CcO_PCoA.png", plot=plot2d, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 Create 4-panel figure of the 4 PCoA plots above:
 ```{r 4-panel PCoA plot}
-library(ggpubr) #load in library for multi-panel figures
+#require(ggpubr) #load in library for multi-panel figures (if not already loaded)
 
 # 4 panel metaG PCoA without History
 MetaG_pcoa_4panel_noH <- ggarrange(plot1a, plot1b, plot1c, plot1d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
