@@ -279,7 +279,7 @@ plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_p
   xlab("PCoA 1 (25%)") + ylab("PCoA 2 (11%)") + 
   geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
   #Label soil vectors 
-  geom_text(data=vec,aes(x=Dim1-0.0125,y=Dim2+0.011,label=parm),size=5, inherit.aes=F)+
+  geom_text(data=vec,aes(x=Dim1-0.014,y=Dim2+0.011,label=parm),size=5, inherit.aes=F)+
   ggtitle("") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
@@ -293,9 +293,9 @@ plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_p
 
 plot16S_PCoA
 
-#ggsave("../figures/NC_ASM_2022/16S_PCoA.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+#ggsave("../figures/pub/16S_PCoA.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 
-#ggsave("../figures/NC_ASM_2022/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+#ggsave("../figures/pub/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 
 #ggsave("../figures/pub/16SrRNA_timberlake_end_vectors.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
 ```
@@ -495,7 +495,7 @@ iris_tubes.Combined <- ggarrange(iris_tubes.Start, iris_tubes.Finish, labels = c
 
 iris_tubes.Combined
 
-#ggsave("../figures/pub/iris_tubes.tiff", plot=iris_tubes.Combined, device="tiff", path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE, bg="transparent")
+#ggsave("../figures/pub/iris_tubes.tiff", plot=iris_tubes.Combined, device="tiff", path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE, bg="white")
 
 #ggsave("../figures/pub/iris_tubes.jpg", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
 
@@ -716,11 +716,11 @@ CO2.Combined <- ggarrange(plot.CO2.noplant, plot.CO2.plant, labels = c("No Plant
 
 CO2.Combined
 
-#ggsave("../figures/pub/CO2_BoxPlot.tiff", plot=CO2.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="transparent")
+#ggsave("../figures/pub/CO2_BoxPlot.tiff", plot=CO2.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
 
-#ggsave("../figures/pub/CO2_boxplot.jpg", plot=CO2.Combined, device=NULL, path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE ,bg="transparent")
+#ggsave("../figures/pub/CO2_boxplot.jpg", plot=CO2.Combined, device=NULL, path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE ,bg="white")
 
-#ggsave("../figures/pub/CO2_boxplot.pdf", plot=CO2.Combined, device=NULL, path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE ,bg="transparent")
+#ggsave("../figures/pub/CO2_boxplot.pdf", plot=CO2.Combined, device=NULL, path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE ,bg="white")
 ```
 
 ```{r N2O Boxplot}
@@ -1170,8 +1170,6 @@ summary(dbplsr.sp.n2o)
 # Mantel test: soil and bacterial community
 
 ```{r mantel soil and bac comm }
-#Colin: set.seed? increase permutations to 10000.
-
 # For reproducibility, confirm that random seed is set:
 set.seed(42)
 

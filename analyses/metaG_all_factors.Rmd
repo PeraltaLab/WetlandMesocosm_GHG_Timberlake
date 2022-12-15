@@ -497,72 +497,72 @@ Principal Coordinates Analysis (PCoA) methanogenesis:
 ```{r PCoA: methanogenesis}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
 # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
-#pcoa_meth <- cmdscale(methBC, k=3, eig=TRUE, add=FALSE)
+pcoa_meth <- cmdscale(methBC, k=3, eig=TRUE, add=FALSE)
 
-#explainvar1b_meth <- round(pcoa_meth$eig[1] / sum(pcoa_meth$eig), 3) * 100
-#explainvar2b_meth <- round(pcoa_meth$eig[2] / sum(pcoa_meth$eig), 3) * 100
-#sum.eigb <- sum(explainvar1b_meth, explainvar2b_meth)
+explainvar1b_meth <- round(pcoa_meth$eig[1] / sum(pcoa_meth$eig), 3) * 100
+explainvar2b_meth <- round(pcoa_meth$eig[2] / sum(pcoa_meth$eig), 3) * 100
+sum.eigb <- sum(explainvar1b_meth, explainvar2b_meth)
 
-#explainvar1b_meth # 41.3
-#explainvar2b_meth # 27.8
+explainvar1b_meth # 41.3
+explainvar2b_meth # 27.8
 
-#pcoa_meth.groups <- paste(methRA_design$Treat, methRA_design$Plant, sep = "_")
-#pcoa_meth.points <- data.frame(pcoa_meth$points, group = pcoa_meth.groups)
+pcoa_meth.groups <- paste(methRA_design$Treat, methRA_design$Plant, sep = "_")
+pcoa_meth.points <- data.frame(pcoa_meth$points, group = pcoa_meth.groups)
 
 # Calculate Centroids (mean and SE)
-#pcoa_meth.L.centroids <- reshape2::melt(pcoa_meth.points, id="group", measure.vars = c("X1", "X2"))
-#pcoa_meth.centroids <- acast(pcoa_meth.L.centroids, variable ~ group, mean)
-#pcoa_meth.centroids.se <- acast(pcoa_meth.L.centroids, variable ~ group, se)
-#pcoa_meth.centroids.sd <- acast(pcoa_meth.L.centroids, variable ~ group, sd)
+pcoa_meth.L.centroids <- reshape2::melt(pcoa_meth.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_meth.centroids <- acast(pcoa_meth.L.centroids, variable ~ group, mean)
+pcoa_meth.centroids.se <- acast(pcoa_meth.L.centroids, variable ~ group, se)
+pcoa_meth.centroids.sd <- acast(pcoa_meth.L.centroids, variable ~ group, sd)
 
 # Combine
-#pcoa_meth.cent.dataframe <- cbind(t(pcoa_meth.centroids), t(pcoa_meth.centroids.se))
-#colnames(pcoa_meth.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa_meth.cent.dataframe <- cbind(t(pcoa_meth.centroids), t(pcoa_meth.centroids.se))
+colnames(pcoa_meth.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
 
 # No need to redefine trt_noH and plant_noH if these lines were run in previous chunk.
 #trt_noH <- c("Baseline","Dry","Dry","Wet","Wet") 
 #plant_noH <- c("Baseline","No Plant","Plant","No Plant","Plant")
 
-#pcoa_meth.cent.dataframe.trts <- as.data.frame(pcoa_meth.cent.dataframe) 
-#pcoa_meth.cent.dataframe.trts$trt <- as.factor(trt_noH)
-#pcoa_meth.cent.dataframe.trts$plant <- as.factor(plant_noH)
+pcoa_meth.cent.dataframe.trts <- as.data.frame(pcoa_meth.cent.dataframe) 
+pcoa_meth.cent.dataframe.trts$trt <- as.factor(trt_noH)
+pcoa_meth.cent.dataframe.trts$plant <- as.factor(plant_noH)
 
 #Run envfit to see which [GHG]s (start or finish) are explained by ordination:
-#fit_meth <- envfit(pcoa_meth$points, GHG_metaG, permutations = 1000)
-#fit_meth
+fit_meth <- envfit(pcoa_meth$points, GHG_metaG, permutations = 1000)
+fit_meth
 
-#A_meth <-as.list(fit_meth$vectors)
-#vec_meth <- as.data.frame(fit_meth$vectors$arrows*sqrt(fit_meth$vectors$r)*0.15) #This calculation is scaling the length of the vector with the correlation (square root of R2) from envfit. 0.15 is a constant multiplier to fit vector to PCoA with less distortion.
-#p_meth <- as.data.frame(A_meth$pvals)
-#vec_meth <- cbind(vec_meth, p_meth)
-#vec_meth <- subset(vec_meth, A_meth$pvals<=0.1)
+A_meth <-as.list(fit_meth$vectors)
+vec_meth <- as.data.frame(fit_meth$vectors$arrows*sqrt(fit_meth$vectors$r)*0.15) #This calculation is scaling the length of the vector with the correlation (square root of R2) from envfit. 0.15 is a constant multiplier to fit vector to PCoA with less distortion.
+p_meth <- as.data.frame(A_meth$pvals)
+vec_meth <- cbind(vec_meth, p_meth)
+vec_meth <- subset(vec_meth, A_meth$pvals<=0.1)
 
 #Plot using ggplot2
-#df1b <- as.data.frame(pcoa_meth.cent.dataframe.trts)
-#plot1b <- ggplot(df1b, aes(x=V1, y=V2, colour=trt, shape = plant)) + theme_bw() + theme(panel.grid.major = element_blank(), 
-               #panel.grid.minor = element_blank(), 
-               #axis.line = element_line(colour = "black")) + 
-  #theme(panel.background = element_blank()) + 
-  #geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e), colour="black") + 
-  #geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e), colour="black") +
-  #geom_point(aes(colour=trt), size=5, stroke = 2, show.legend = TRUE) +
-  #geom_segment(data=vec_meth, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
-      #arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+
-  #geom_text(data=vec_meth, aes(x=Dim1+0.025, y=Dim2), label= expression(paste("mg CH"[4],"-C m"^{-2})), size=3, inherit.aes=F)+
- # scale_colour_manual(values = c("black", "#997700", "#004488")) +
-  #scale_shape_manual(values = c(4, 5, 18)) +
-  #theme(axis.title = element_text(size=14), 
-       # axis.text = element_text(size=14),
-       # axis.text.x = element_text(size=14), 
-       # panel.border = element_rect(colour = "black", size = 1.25)) + 
-  #theme(axis.ticks.length = unit(0.3, "cm")) + 
-       # xlab("PCoA 1 (41.3%)") + ylab("PCoA 2 (27.8%)") +
-       # labs(colour = "Treatment", shape = "Plant") +
- # guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
-           #colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
-   # ggtitle("Methanogenesis")
+df1b <- as.data.frame(pcoa_meth.cent.dataframe.trts)
+plot1b <- ggplot(df1b, aes(x=V1, y=V2, colour=trt, shape = plant)) + theme_bw() + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+  theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e), colour="black") + 
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e), colour="black") +
+  geom_point(aes(colour=trt), size=5, stroke = 2, show.legend = TRUE) +
+  geom_segment(data=vec_meth, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
+      arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+
+  geom_text(data=vec_meth, aes(x=Dim1+0.025, y=Dim2), label= expression(paste("mg CH"[4],"-C m"^{-2})), size=3, inherit.aes=F)+
+  scale_colour_manual(values = c("black", "#997700", "#004488")) +
+  scale_shape_manual(values = c(4, 5, 18)) +
+  theme(axis.title = element_text(size=14), 
+       axis.text = element_text(size=14),
+       axis.text.x = element_text(size=14), 
+       panel.border = element_rect(colour = "black", size = 1.25)) + 
+  theme(axis.ticks.length = unit(0.3, "cm")) + 
+       xlab("PCoA 1 (41.3%)") + ylab("PCoA 2 (27.8%)") +
+       labs(colour = "Treatment", shape = "Plant") +
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+  ggtitle("Methanogenesis")
 
-#plot1b
+plot1b
 ```
 
 PCoA Methanogenesis, all factors, HISTORY AS SHAPE:
@@ -926,9 +926,9 @@ Create 4-panel figure of the 4 PCoA plots above:
 #require(ggpubr) #load in library for multi-panel figures (if not already loaded)
 
 # 4 panel metaG PCoA without History
-#MetaG_pcoa_4panel_noH <- ggarrange(plot1a, plot1b, plot1c, plot1d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
+MetaG_pcoa_4panel_noH <- ggarrange(plot1a, plot1b, plot1c, plot1d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
 
-#MetaG_pcoa_4panel_noH
+MetaG_pcoa_4panel_noH
 
 #ggsave("../figures/pub/metaG_pcoa4panel.jpg", plot = MetaG_pcoa_4panel_noH, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE)
 
