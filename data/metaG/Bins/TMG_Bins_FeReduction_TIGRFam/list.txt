@@ -1,0 +1,4 @@
+3300036865_5_scaffold_set	TIGR03507	3300036865 assembled Ga0394817_0005149_4672_6297	OmcA/MtrC family decaheme c-type cytochrome	3300036865	assembled
+3300036867_3_scaffold_set	TIGR03507	3300036867 assembled Ga0394820_0000177_21889_24882	OmcA/MtrC family decaheme c-type cytochrome	3300036867	assembled
+3300036867_3_scaffold_set	TIGR03509	3300036867 assembled Ga0394820_0014159_2_2107	MtrB/PioB family decaheme-associated outer membrane protein	3300036867	assembled
+3300036898_5_scaffold_set	TIGR03509	3300036898 assembled Ga0394838_0004912_1893_4160	MtrB/PioB family decaheme-associated outer membrane protein	3300036898	assembled

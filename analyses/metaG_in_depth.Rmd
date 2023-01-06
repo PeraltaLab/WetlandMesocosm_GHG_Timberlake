@@ -1,5 +1,5 @@
 ---
-title: "metaG_all_factors"
+title: "metaG_in_depth"
 author: "Colin G. Finlay"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:

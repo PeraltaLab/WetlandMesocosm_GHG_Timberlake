@@ -1,0 +1,11 @@
+{
+   "functype" : null,
+   "datatype" : "assembled",
+   "scaffold" : "3300036865_5_scaffold_set,3300036867_3_scaffold_set,3300036870_7_scaffold_set,3300036872_8_scaffold_set,3300036873_3_scaffold_set,3300036875_5_scaffold_set,3300036898_4_scaffold_set,3300036898_5_scaffold_set,3300036989_2_scaffold_set,3300036989_4_scaffold_set,3300036990_3_scaffold_set,3300036991_3_scaffold_set,3300036991_4_scaffold_set,3300036993_3_scaffold_set",
+   "currDateTime" : "2022/12/20 16:54:36",
+   "contact_oid" : "124715",
+   "jobname" : "TMG_Bins_Methane_oxidation_genes",
+   "program" : "Scaffold Function Profile",
+   "comment" : "Testing function profile of methane oxidation genes across bins. Look at data structure.",
+   "function" : "Methane_oxidation_genes"
+}
