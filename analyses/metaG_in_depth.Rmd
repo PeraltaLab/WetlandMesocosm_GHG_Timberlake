@@ -137,14 +137,13 @@ design2 <- design2[!(design2$source %in% "s"),]
 #Greenhouse gas data:
 GHG <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/TMG_GHG-Flux_T1_Pub_2-2020.csv")
 
-# Import soil physiochemical data?
+# Import soil physiochemical data:
+soil <- read.csv("../data/Design_and_soil.csv",  header=T)
 ```
 
 # Data Wrangling
 
-Convert gene counts to relative abundance:
-```{r gene counts to relative abundance}
-#Make sample IDs the rownames:
+```{r Make sample IDs the rownames}
 denitNumerical <- denit
 rownames(denitNumerical) <- denitNumerical$Sample
 
@@ -156,13 +155,19 @@ rownames(carb_metabNumerical) <- carb_metabNumerical$Sample
 
 cytoCoxNumerical <- cytoCox
 rownames(cytoCoxNumerical) <- cytoCoxNumerical$Sample
+```
 
-# Drop all non-numeric variables:
+```{r make numeric only data frames for functional genes}
 denitNumerical <- denitNumerical[,3:12]
-methNumerical <- methNumerical[,3:46]
-carb_metabNumerical <- carb_metabNumerical[,3:122]
-cytoCoxNumerical <- cytoCoxNumerical[,3:7]
 
+methNumerical <- methNumerical[,3:46]
+
+carb_metabNumerical <- carb_metabNumerical[,3:122]
+
+cytoCoxNumerical <- cytoCoxNumerical[,3:7]
+```
+
+```{r Convert KO counts to relative abundance}
 #Convert denitrification KO counts to relative abundance:
 denitRA <- denitNumerical
 for(i in 1:dim(denitNumerical)[1]){
@@ -186,6 +191,10 @@ cytoCoxRA <- cytoCoxNumerical
 for(i in 1:dim(cytoCoxNumerical)[1]){
   cytoCoxRA[i,] <- cytoCoxNumerical[i,]/sum(cytoCoxNumerical[i,])
 }
+```
+
+```{r Subset start and finish samples from all gene sets}
+#Make a list for start and finish, so you don't have to re-write it each time below
 
 #Subset start and finish samples from all gene sets (for respective start and finish GHG analysis):
 denitRA_start <- denitRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
@@ -199,28 +208,34 @@ carb_metabRA_finish <- carb_metabRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC
 
 cytoCoxRA_start <- cytoCoxRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
 cytoCoxRA_finish <- cytoCoxRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
+```
 
+```{r Dimension check for RA matrices}
 #Check dimensions of each relative abundance (RA) matrix:
 dim(denitRA) #24 10
 dim(methRA) #24 44
 dim(carb_metabRA) #24 120
 dim(cytoCoxRA) #24 5
 
+#Check dimensions of RA start matrices
 dim(denitRA_start) #8 10
 dim(methRA_start) #8 44
 dim(carb_metabRA_start) #8 120
 dim(cytoCoxRA_start) #8 5
 
+#Check dimensions of RA finish matrices
 dim(denitRA_finish) #16 10
 dim(methRA_finish) #16 44
 dim(carb_metabRA_finish) #16 120
 dim(cytoCoxRA_finish) #16 5
+```
 
+```{r combine RA and design data frames}
 #Make metaG sample ID's the rownames on 'design'. Then drop design$Sample:
 rownames(design) <- design$Sample
 design <- design[,2:4]
 
-# Make data frames from gene set relative abundance (RA) files and design
+# Make data frames from gene set relative abundance (RA) data frames and design
 denitRA_design <- cbind(design, denitRA)
 methRA_design <- cbind(design, methRA)
 carb_metabRA_design <- cbind(design, carb_metabRA)
