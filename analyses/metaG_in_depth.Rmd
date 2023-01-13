@@ -36,12 +36,12 @@ Import KO function files from JGI IMG/MER
 sample_order <- c("03NFC", "03PFC", "03Pre", "06NFC", "06PFC", "06Pre", "08NFC", "08PFC", "08Pre", "09NFC", "09PFC", "09Pre", "10NFC", "10PFC", "10Pre", "11NFC", "11PFC", "11Pre", "12NFC", "12PFC", "12Pre", "16NFC", "16PFC", "16Pre")
 length(sample_order) #Should be 24
 
-#Denitrification KEGG module:
+#Denitrification KEGG module (M00529):
 denit <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Denit_CF.csv")
 #Reorder rows:
 denit <- denit[match(sample_order, denit$Sample), ]
 
-#Methanogen Signature KEGG module:
+#Methanogen Signature KEGG module (M00617):
 meth <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Meth_CF.csv")
 meth <- meth[match(sample_order, meth$Sample), ]
 
@@ -49,10 +49,71 @@ meth <- meth[match(sample_order, meth$Sample), ]
 carb_metab <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Central_carb_metab_CF.csv")
 carb_metab <- carb_metab[match(sample_order, carb_metab$Sample), ]
 
-#Cytochrome C Oxidase KEGG module:
+#Cytochrome C Oxidase KEGG module (M00155):
 cytoCox <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/CytCOx_CF.csv")
 cytoCox <- cytoCox[match(sample_order, cytoCox$Sample), ]
 
+#Sulfate-sulfur assimilation (M00616):
+SO4_S_Assim <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00616_SO4_S_Assimiliation.csv")
+#Reorder rows:
+SO4_S_Assim <- SO4_S_Assim[match(sample_order, SO4_S_Assim$Sample), ]
+
+#Assimilatory sulfate reduction (M00176):
+Assim_SO4_red <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00176_Assim_SO4_reduction.csv")
+#Reorder rows:
+Assim_SO4_red <- Assim_SO4_red[match(sample_order, Assim_SO4_red$Sample), ]
+
+#Dissimilatory sulfate reduction (M00596):
+Dissim_SO4_red <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00596_Dissim_SO4_reduction.csv")
+#Reorder rows:
+Dissim_SO4_red <- Dissim_SO4_red[match(sample_order, Dissim_SO4_red$Sample), ]
+
+#Thiosulfate oxidation by SOX complex (M00595):
+ThioSOX <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00595_Thiosulfate_ox_by_SOX.csv")
+#Reorder rows:
+ThioSOX <- ThioSOX[match(sample_order, ThioSOX$Sample), ]
+
+#Dissimilatory nitrate reduction (M00530):
+DNRA <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00530_DNRA.csv")
+#Reorder rows:
+DNRA <- DNRA[match(sample_order, DNRA$Sample), ]
+
+#Assimilatory nitrate reduction (M00531):
+ANRA <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00531_ANRA.csv")
+#Reorder rows:
+ANRA <- ANRA[match(sample_order, ANRA$Sample), ]
+
+#Nitrification (M00528):
+Nitrific <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00528_Nitrification.csv")
+#Reorder rows:
+Nitrific <- Nitrific[match(sample_order, Nitrific$Sample), ]
+
+#COMAMMOX (M00804):
+COMAMMOX <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00804_COMAMMOX.csv")
+#Reorder rows:
+COMAMMOX <- COMAMMOX[match(sample_order, COMAMMOX$Sample), ]
+
+#Nitrogen fixation (M00175):
+Nfix <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00175_N_fixation.csv")
+#Reorder rows:
+Nfix <- Nfix[match(sample_order, Nfix$Sample), ]
+
+#Methane oxidation (M00174):
+CH4_ox <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/M00174_MethaneOxidation.csv")
+#Reorder rows:
+CH4_ox <- CH4_ox[match(sample_order, CH4_ox$Sample), ]
+
+#Fe reduction (mtrBC) (TIGR03507 + TIGR03509):
+mtrBC_TIGR <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/IMG_functions_in_depth/FeR_mtrBC.csv")
+#Reorder rows:
+mtrBC_TIGR <- mtrBC_TIGR[match(sample_order, mtrBC_TIGR$Sample), ]
+
+#Bins, all KOs:
+
+```
+
+
+```{r Import metadata and greenhouse gas data}
 #Design file:
 design <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/design.csv")
 design2 <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/tmg_design.csv")
@@ -71,8 +132,12 @@ design2 <- design2[!(rownames(design2) %in% "TL6"),]
 design2 <- design2[!(design2$source %in% "b"),]
 design2 <- design2[!(design2$source %in% "s"),]
 
+#Bin genome IDs:
+
 #Greenhouse gas data:
 GHG <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/TMG_GHG-Flux_T1_Pub_2-2020.csv")
+
+# Import soil physiochemical data?
 ```
 
 # Data Wrangling
