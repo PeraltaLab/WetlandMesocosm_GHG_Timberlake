@@ -141,9 +141,40 @@ GHG <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/TMG_GHG-Flux_T1_Pu
 soil <- read.csv("../data/Design_and_soil.csv",  header=T)
 ```
 
+```{r Playing around with a list of dfs for control structures}
+# Make a list of all the metaG dfs:
+#metaG_data_list <- c(denit, meth, carb_metab, cytoCox, SO4_S_Assim, Assim_SO4_red, Dissim_SO4_red, ThioSOX, DNRA, ANRA, Nitrific, COMAMMOX, Nfix, CH4_ox, mtrBC_TIGR)
+
+#length(metaG_data_list) #why is it 292?
+
+#try some control structure stuff: #Not working!
+for (i in metaG_data_list) {
+  print(typeof(i))
+ #as.data.frame(i)
+  #print(i$Sample)
+  #typeof(i)
+}
+
+# dm() didn't work either.
+library(dm)
+
+metaG_data_dm <- dm(denit, meth, carb_metab, cytoCox, SO4_S_Assim, Assim_SO4_red, Dissim_SO4_red, ThioSOX, DNRA, ANRA, Nitrific, COMAMMOX, Nfix, CH4_ox, mtrBC_TIGR)
+
+names(metaG_data_dm)
+
+#for (i in metaG_data_dm) {
+  #print(Sample)
+#}
+
+# Later, you'll want to print the colnames() (KOs) of each metaG df to use for indexing Bins-all-KOs data
+```
+
+
 # Data Wrangling
 
-```{r Make sample IDs the rownames}
+```{r Sample IDs to rownames}
+#For metegenomic data, make sample IDs rownames in a new data frame, to be further subsetted to numeric only data:
+
 denitNumerical <- denit
 rownames(denitNumerical) <- denitNumerical$Sample
 
@@ -155,6 +186,39 @@ rownames(carb_metabNumerical) <- carb_metabNumerical$Sample
 
 cytoCoxNumerical <- cytoCox
 rownames(cytoCoxNumerical) <- cytoCoxNumerical$Sample
+
+SO4_S_AssimNumerical <- SO4_S_Assim
+rownames(SO4_S_AssimNumerical) <- SO4_S_AssimNumerical$Sample
+
+Assim_SO4_redNumerical <- Assim_SO4_red
+rownames(Assim_SO4_redNumerical) <- Assim_SO4_redNumerical$Sample
+
+Dissim_SO4_redNumerical <- Dissim_SO4_red
+rownames(Dissim_SO4_redNumerical) <- Dissim_SO4_redNumerical$Sample
+
+ThioSOXNumerical <- ThioSOX
+rownames(ThioSOXNumerical) <- ThioSOXNumerical$Sample
+
+DNRANumerical <- DNRA
+rownames(DNRANumerical) <- DNRANumerical$Sample
+
+ANRANumerical <- ANRA
+rownames(ANRANumerical) <- ANRANumerical$Sample
+
+NitrificNumerical <- Nitrific
+rownames(NitrificNumerical) <- NitrificNumerical$Sample
+
+COMAMMOXNumerical <- COMAMMOX
+rownames(COMAMMOXNumerical) <- COMAMMOXNumerical$Sample
+
+NfixNumerical <- Nfix
+rownames(NfixNumerical) <- NfixNumerical$Sample
+
+CH4_oxNumerical <- CH4_ox
+rownames(CH4_oxNumerical) <- CH4_oxNumerical$Sample
+
+mtrBC_TIGRNumerical <- mtrBC_TIGR
+rownames(mtrBC_TIGRNumerical) <- mtrBC_TIGRNumerical$Sample
 ```
 
 ```{r make numeric only data frames for functional genes}
