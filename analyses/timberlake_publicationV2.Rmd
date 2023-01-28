@@ -12,7 +12,7 @@ output:
 rm(list=ls())
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
 #use to set working directory 
-knitr::opts_knit$set(root.dir="../GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
+knitr::opts_knit$set(root.dir="~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
 ```
 
 # Load packages and functions
@@ -634,24 +634,30 @@ plot.CH4.plant <- ggplot(ghg.plant, aes(x=date, y=mg.CH4.N.m.2)) +
 plot.CH4.plant
 
 #Panel together using ggarrange{ggpubr}:
-CH4.Combined <- ggarrange(plot.CH4.noplant, plot.CH4.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+
+#CH4.Combined <- ggarrange(plot.CH4.noplant, plot.CH4.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+
+#No legend version, for combining figures later:
+CH4.Combined <- ggarrange(plot.CH4.noplant, plot.CH4.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
 
 CH4.Combined
+
+#ggsave("../figures/pub/Fig3/CH4_BasePlot.tiff", plot=CH4.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
 
 # Add an inset to show small values for the 'plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
 plot.CH4.plant.autoScale <- ggplot(ghg.plant, aes(x=date, y=mg.CH4.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1, position = position_jitterdodge()) +
+                     geom_point(aes(color=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=7),  
+  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="none", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = NULL, y = NULL, title="") +
   theme(rect=element_rect(fill="transparent"))+
@@ -660,12 +666,16 @@ plot.CH4.plant.autoScale <- ggplot(ghg.plant, aes(x=date, y=mg.CH4.N.m.2)) +
  
 plot.CH4.plant.autoScale
 
-# Create a viewport (vp) with appropriate dimensions for inset:
-subvp <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
+#ggsave("../figures/pub/Fig3/CH4_Inset.tiff", plot=plot.CH4.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=600, limitsize=TRUE, bg="white")
+
+# Create a viewport (vp) with appropriate dimensions for inset. Two different versions for combined figure with or without legend:
+#subvp_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
+
+#subvp_NO_legend <- viewport(width = 0.35, height = 0.3, x = 0.81, y = 0.34)
 
 # This works, but only if ran in console, one line followed by the next. To save the image, must manually click through "Export" on "Plots" tab.
-CH4.Combined
-print(plot.CH4.plant.autoScale, vp=subvp)
+#CH4.Combined
+#print(plot.CH4.plant.autoScale, vp=subvp_NO_legend)
 ```
 
 ```{r CO2 plot}
@@ -712,11 +722,14 @@ plot.CO2.plant <- ggplot(ghg.plant, aes(x=date, y=mg.CO2.N.m.2)) +
 plot.CO2.plant
 
 #Panel together using ggarrange{ggpubr}:
-CO2.Combined <- ggarrange(plot.CO2.noplant, plot.CO2.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+#CO2.Combined <- ggarrange(plot.CO2.noplant, plot.CO2.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "bottom", common.legend = T)
+
+#No legend version, for combining figures later:
+CO2.Combined <- ggarrange(plot.CO2.noplant, plot.CO2.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
 
 CO2.Combined
 
-#ggsave("../figures/pub/CO2_BoxPlot.tiff", plot=CO2.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/CO2_BoxPlot.tiff", plot=CO2.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
 
 #ggsave("../figures/pub/CO2_boxplot.jpg", plot=CO2.Combined, device=NULL, path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE ,bg="white")
 
@@ -767,24 +780,29 @@ plot.N2O.plant
 
 
 #Panel together using ggarrange{ggpubr}:
-N2O.Combined <- ggarrange(plot.N2O.noplant, plot.N2O.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+#N2O.Combined <- ggarrange(plot.N2O.noplant, plot.N2O.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+
+# Version without legend for multi-panel figure:
+N2O.Combined <- ggarrange(plot.N2O.noplant, plot.N2O.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
 
 N2O.Combined
+
+#ggsave("../figures/pub/Fig3/N2O_BasePlot.tiff", plot=N2O.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
 
 # Add an inset to show small values for the 'plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
 plot.N2O.plant.autoScale <- ggplot(ghg.plant, aes(x=date, y=mg.N2O.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1, position = position_jitterdodge()) +
+                     geom_point(aes(color=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=7),  
+  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="none", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = NULL, y = NULL, title="") +
   theme(rect=element_rect(fill="transparent"))+
@@ -793,13 +811,35 @@ plot.N2O.plant.autoScale <- ggplot(ghg.plant, aes(x=date, y=mg.N2O.N.m.2)) +
  
 plot.N2O.plant.autoScale
 
+#ggsave("../figures/pub/Fig3/N2O_Inset.tiff", plot=plot.N2O.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
+
 # Create a viewport (vp) with appropriate dimensions for inset:
-subvp2 <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
+#subvp2_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
+
+#subvp2_NO_legend <- viewport(width = 0.35, height = 0.3, x = 0.81, y = 0.34)
 
 # This works, but only if ran in console, one line followed by the next. To save the image, must manually click through "Export" on "Plots" tab.
-N2O.Combined
-print(plot.N2O.plant.autoScale, vp=subvp2)
+#N2O.Combined
+#print(plot.N2O.plant.autoScale, vp=subvp2_NO_legend)
 ```
+
+```{r Extract and save GHG boxplot legend}
+leg <- get_legend(plot.N2O.noplant, position = "right") #Extract legend as a legend Grob
+legend_plot <- as_ggplot(leg) #Asign the grob as a ggplot
+legend_plot #View the plot
+
+ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=900, limitsize=TRUE, bg="white")
+```
+
+```{r Combined GHG Boxplot}
+comb_GHG_BoxPlot <- ggarrange(CH4.Combined, CO2.Combined, N2O.Combined, labels = c("A", "B", "C"), ncol = 3, nrow = 1, legend = "none")
+
+comb_GHG_BoxPlot
+
+ggsave("../figures/pub/Fig3/BasePlots_ggpubr.tiff", plot=comb_GHG_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=900, limitsize=TRUE, bg="white")
+```
+
+
 
 ```{r GHG summary}
 #Quick Data Summaries:

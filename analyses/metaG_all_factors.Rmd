@@ -930,14 +930,14 @@ MetaG_pcoa_4panel_noH <- ggarrange(plot1a, plot1b, plot1c, plot1d, labels = c("A
 
 MetaG_pcoa_4panel_noH
 
-#ggsave("../figures/pub/metaG_pcoa4panel.jpg", plot = MetaG_pcoa_4panel_noH, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE)
+#ggsave("../figures/pub/metaG_pcoa4panel.jpg", plot = MetaG_pcoa_4panel_noH, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 900)
 
 # 4 panel metaG PCoA with History
 MetaG_pcoa_4panel_H <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
 
 MetaG_pcoa_4panel_H
 
-#ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white")
+#ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 900)
 
 #ggsave("../figures/pub/metaG_pcoa4panel_H.jpg", plot = MetaG_pcoa_4panel_H, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE)
 ```

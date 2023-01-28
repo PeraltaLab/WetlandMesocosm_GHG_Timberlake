@@ -120,19 +120,14 @@ design2 <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/tmg_design.csv
 #Reorder rows of design:
 design <- design[match(sample_order, design$Sample), ]
 
-#Remove mock, field, and box samples from design2. 
+#Remove mock, and box samples from design2. 
 rownames(design2) <- design2$sample
 design2 <- design2[!(rownames(design2) %in% "MOCK"),]
-design2 <- design2[!(rownames(design2) %in% "TL1"),]
-design2 <- design2[!(rownames(design2) %in% "TL2"),]
-design2 <- design2[!(rownames(design2) %in% "TL3"),]
-design2 <- design2[!(rownames(design2) %in% "TL4"),]
-design2 <- design2[!(rownames(design2) %in% "TL5"),]
-design2 <- design2[!(rownames(design2) %in% "TL6"),]
 design2 <- design2[!(design2$source %in% "b"),]
-design2 <- design2[!(design2$source %in% "s"),]
+design2 <- design2[!(design2$source %in% "s"),] # Consider using start samples later (16S data?)
 
 #Bin genome IDs:
+Bin_genome_IDs <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Bins/Bin_Genome_IDs.csv")
 
 #Greenhouse gas data:
 GHG <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/TMG_GHG-Flux_T1_Pub_2-2020.csv")
@@ -143,16 +138,13 @@ soil <- read.csv("../data/Design_and_soil.csv",  header=T)
 
 ```{r Playing around with a list of dfs for control structures}
 # Make a list of all the metaG dfs:
-#metaG_data_list <- c(denit, meth, carb_metab, cytoCox, SO4_S_Assim, Assim_SO4_red, Dissim_SO4_red, ThioSOX, DNRA, ANRA, Nitrific, COMAMMOX, Nfix, CH4_ox, mtrBC_TIGR)
+metaG_data_list <- c(denit, meth, carb_metab, cytoCox, SO4_S_Assim, Assim_SO4_red, Dissim_SO4_red, ThioSOX, DNRA, ANRA, Nitrific, COMAMMOX, Nfix, CH4_ox, mtrBC_TIGR)
 
 #length(metaG_data_list) #why is it 292?
 
 #try some control structure stuff: #Not working!
 for (i in metaG_data_list) {
-  print(typeof(i))
- #as.data.frame(i)
-  #print(i$Sample)
-  #typeof(i)
+  print(i)
 }
 
 # dm() didn't work either.
@@ -162,9 +154,20 @@ metaG_data_dm <- dm(denit, meth, carb_metab, cytoCox, SO4_S_Assim, Assim_SO4_red
 
 names(metaG_data_dm)
 
-#for (i in metaG_data_dm) {
-  #print(Sample)
-#}
+for (i in metaG_data_dm) {
+  print(names(i))
+}
+
+# Make a list of all the metaG dfs:
+metaG_string_list <- c("denit", "meth", "carb_metab", "cytoCox", "SO4_S_Assim", "Assim_SO4_red", "Dissim_SO4_red", "ThioSOX", "DNRA", "ANRA", "Nitrific", "COMAMMOX", "Nfix", "CH4_ox", "mtrBC_TIGR")
+
+for (i in metaG_string_list) {
+  print(i)
+}
+
+for (i in metaG_string_list) {
+  print(paste(i, "Numerical", sep = ""))
+}
 
 # Later, you'll want to print the colnames() (KOs) of each metaG df to use for indexing Bins-all-KOs data
 ```
@@ -222,14 +225,47 @@ rownames(mtrBC_TIGRNumerical) <- mtrBC_TIGRNumerical$Sample
 ```
 
 ```{r make numeric only data frames for functional genes}
-denitNumerical <- denitNumerical[,3:12]
+denitNumerical <- denitNumerical[,-(1:2)]
 
-methNumerical <- methNumerical[,3:46]
+methNumerical <- methNumerical[,-(1:2)]
 
-carb_metabNumerical <- carb_metabNumerical[,3:122]
+carb_metabNumerical <- carb_metabNumerical[,-(1:2)]
 
-cytoCoxNumerical <- cytoCoxNumerical[,3:7]
+cytoCoxNumerical <- cytoCoxNumerical[,-(1:2)]
+
+SO4_S_AssimNumerical <- SO4_S_AssimNumerical[,-(1:2)]
+
+Assim_SO4_redNumerical <- Assim_SO4_redNumerical[,-(1:2)]
+
+Dissim_SO4_redNumerical <- Dissim_SO4_redNumerical[,-(1:2)]
+
+ThioSOXNumerical <- ThioSOXNumerical[,-(1:2)]
+
+DNRANumerical <- DNRANumerical[,-(1:2)]
+
+ANRANumerical <- ANRANumerical[,-(1:2)]
+
+NitrificNumerical <- NitrificNumerical[,-(1:2)]
+
+COMAMMOXNumerical <- COMAMMOXNumerical[,-(1:2)]
+
+NfixNumerical <- NfixNumerical[,-(1:2)]
+
+CH4_oxNumerical <- CH4_oxNumerical[,-(1:2)]
+
+mtrBC_TIGRNumerical <- mtrBC_TIGRNumerical[,-(1:2)]
 ```
+
+```{r for loop to generate text for RA calculations}
+
+for (i in metaG_string_list) {
+  cat(i, "RA <- ", i,"Numerical", sep = "")
+  cat("\nfor(i in 1:dim(", i, "Numerical)[1]){\n  ", i, "RA[i,] <- ", i, "Numerical[i,]/sum(", i, "Numerical[i,])\n}\n\n", sep = "")
+}
+
+# Output of loop to write following chunk
+```
+
 
 ```{r Convert KO counts to relative abundance}
 #Convert denitrification KO counts to relative abundance:
@@ -254,6 +290,61 @@ for(i in 1:dim(carb_metabNumerical)[1]){
 cytoCoxRA <- cytoCoxNumerical
 for(i in 1:dim(cytoCoxNumerical)[1]){
   cytoCoxRA[i,] <- cytoCoxNumerical[i,]/sum(cytoCoxNumerical[i,])
+}
+
+SO4_S_AssimRA <- SO4_S_AssimNumerical
+for(i in 1:dim(SO4_S_AssimNumerical)[1]){
+  SO4_S_AssimRA[i,] <- SO4_S_AssimNumerical[i,]/sum(SO4_S_AssimNumerical[i,])
+}
+
+Assim_SO4_redRA <- Assim_SO4_redNumerical
+for(i in 1:dim(Assim_SO4_redNumerical)[1]){
+  Assim_SO4_redRA[i,] <- Assim_SO4_redNumerical[i,]/sum(Assim_SO4_redNumerical[i,])
+}
+
+Dissim_SO4_redRA <- Dissim_SO4_redNumerical
+for(i in 1:dim(Dissim_SO4_redNumerical)[1]){
+  Dissim_SO4_redRA[i,] <- Dissim_SO4_redNumerical[i,]/sum(Dissim_SO4_redNumerical[i,])
+}
+
+ThioSOXRA <- ThioSOXNumerical
+for(i in 1:dim(ThioSOXNumerical)[1]){
+  ThioSOXRA[i,] <- ThioSOXNumerical[i,]/sum(ThioSOXNumerical[i,])
+}
+
+DNRARA <- DNRANumerical
+for(i in 1:dim(DNRANumerical)[1]){
+  DNRARA[i,] <- DNRANumerical[i,]/sum(DNRANumerical[i,])
+}
+
+ANRARA <- ANRANumerical
+for(i in 1:dim(ANRANumerical)[1]){
+  ANRARA[i,] <- ANRANumerical[i,]/sum(ANRANumerical[i,])
+}
+
+NitrificRA <- NitrificNumerical
+for(i in 1:dim(NitrificNumerical)[1]){
+  NitrificRA[i,] <- NitrificNumerical[i,]/sum(NitrificNumerical[i,])
+}
+
+COMAMMOXRA <- COMAMMOXNumerical
+for(i in 1:dim(COMAMMOXNumerical)[1]){
+  COMAMMOXRA[i,] <- COMAMMOXNumerical[i,]/sum(COMAMMOXNumerical[i,])
+}
+
+NfixRA <- NfixNumerical
+for(i in 1:dim(NfixNumerical)[1]){
+  NfixRA[i,] <- NfixNumerical[i,]/sum(NfixNumerical[i,])
+}
+
+CH4_oxRA <- CH4_oxNumerical
+for(i in 1:dim(CH4_oxNumerical)[1]){
+  CH4_oxRA[i,] <- CH4_oxNumerical[i,]/sum(CH4_oxNumerical[i,])
+}
+
+mtrBC_TIGRRA <- mtrBC_TIGRNumerical
+for(i in 1:dim(mtrBC_TIGRNumerical)[1]){
+  mtrBC_TIGRRA[i,] <- mtrBC_TIGRNumerical[i,]/sum(mtrBC_TIGRNumerical[i,])
 }
 ```
 
@@ -339,6 +430,8 @@ cytoCoxBC_finish <- vegdist(cytoCoxRA_finish, method = "bray")
 
 Wrangling greenhouse gas (GHG) data:
 ```{r wrangling GHG data}
+## Use GHG wrangling from Gina's code, instead of the following.
+
 #Create a new GHG data frame with less columns:
 GHG_less_columns <- cbind(GHG[,1:4], GHG[24:32])
 
