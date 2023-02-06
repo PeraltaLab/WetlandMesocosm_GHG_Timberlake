@@ -18,8 +18,6 @@ knitr::opts_knit$set(root.dir="~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses"
 # Load packages and functions
 
 ```{r load packages and functions, include FALSE }
-getwd()
-
 #Set source R tools
 source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
@@ -179,6 +177,7 @@ rownames(meta) <- rownames(otu.2.rel)
 all.equal(rownames(otu.2.rel), rownames(meta))
 metaotu <- cbind(meta, otu.2.rel)
 
+# PERMANOVA:
 metaotu.ad <- adonis2(metaotu[,-c(1:9)] ~ plant * history + plant * treatment, method = "bray", data = metaotu, perm=10000, set.seed=42)
 metaotu.ad 
 ```
@@ -582,6 +581,11 @@ colnames(meta)[2] <- "chamber"
 ghg <- ghg %>%
   left_join(meta[,-c(3, 4, 7, 8, 9)], by="chamber")
 
+# Add new date column, to shorten:
+ghg$date_short <- ghg$date
+# remove "/2016" from data_short:
+ghg$date_short <- str_remove(ghg$date_short, "/2016")
+
 # Separate data frames for "No Plant" and "Plant", for plotting:
 ghg.noplant <- ghg %>%
   filter(plant=="N")
@@ -591,7 +595,7 @@ ghg.plant <- ghg %>%
 ```
 
 ```{r CH4 plot}
-plot.CH4.noplant <- ggplot(ghg.noplant, aes(x=date, y=mg.CH4.N.m.2)) +
+plot.CH4.noplant <- ggplot(ghg.noplant, aes(x=date_short, y=mg.CH4.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -612,7 +616,7 @@ plot.CH4.noplant <- ggplot(ghg.noplant, aes(x=date, y=mg.CH4.N.m.2)) +
 plot.CH4.noplant
 
 
-plot.CH4.plant <- ggplot(ghg.plant, aes(x=date, y=mg.CH4.N.m.2)) +
+plot.CH4.plant <- ggplot(ghg.plant, aes(x=date_short, y=mg.CH4.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -646,7 +650,7 @@ CH4.Combined
 
 # Add an inset to show small values for the 'plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
-plot.CH4.plant.autoScale <- ggplot(ghg.plant, aes(x=date, y=mg.CH4.N.m.2)) +
+plot.CH4.plant.autoScale <- ggplot(ghg.plant, aes(x=date_short, y=mg.CH4.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -679,7 +683,7 @@ plot.CH4.plant.autoScale
 ```
 
 ```{r CO2 plot}
-plot.CO2.noplant <- ggplot(ghg.noplant, aes(x=date, y=mg.CO2.N.m.2)) +
+plot.CO2.noplant <- ggplot(ghg.noplant, aes(x=date_short, y=mg.CO2.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -700,7 +704,7 @@ plot.CO2.noplant <- ggplot(ghg.noplant, aes(x=date, y=mg.CO2.N.m.2)) +
 plot.CO2.noplant
 
 
-plot.CO2.plant <- ggplot(ghg.plant, aes(x=date, y=mg.CO2.N.m.2)) +
+plot.CO2.plant <- ggplot(ghg.plant, aes(x=date_short, y=mg.CO2.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -737,7 +741,7 @@ CO2.Combined
 ```
 
 ```{r N2O Boxplot}
-plot.N2O.noplant <- ggplot(ghg.noplant, aes(x=date, y=mg.N2O.N.m.2)) +
+plot.N2O.noplant <- ggplot(ghg.noplant, aes(x=date_short, y=mg.N2O.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -758,7 +762,7 @@ plot.N2O.noplant <- ggplot(ghg.noplant, aes(x=date, y=mg.N2O.N.m.2)) +
 plot.N2O.noplant
 
 
-plot.N2O.plant <- ggplot(ghg.plant, aes(x=date, y=mg.N2O.N.m.2)) +
+plot.N2O.plant <- ggplot(ghg.plant, aes(x=date_short, y=mg.N2O.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -791,7 +795,7 @@ N2O.Combined
 
 # Add an inset to show small values for the 'plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
-plot.N2O.plant.autoScale <- ggplot(ghg.plant, aes(x=date, y=mg.N2O.N.m.2)) +
+plot.N2O.plant.autoScale <- ggplot(ghg.plant, aes(x=date_short, y=mg.N2O.N.m.2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -828,7 +832,7 @@ leg <- get_legend(plot.N2O.noplant, position = "right") #Extract legend as a leg
 legend_plot <- as_ggplot(leg) #Asign the grob as a ggplot
 legend_plot #View the plot
 
-ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=900, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=900, limitsize=TRUE, bg="white")
 ```
 
 ```{r Combined GHG Boxplot}
@@ -836,7 +840,7 @@ comb_GHG_BoxPlot <- ggarrange(CH4.Combined, CO2.Combined, N2O.Combined, labels =
 
 comb_GHG_BoxPlot
 
-ggsave("../figures/pub/Fig3/BasePlots_ggpubr.tiff", plot=comb_GHG_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=900, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/BasePlots_ggpubr.tiff", plot=comb_GHG_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=900, limitsize=TRUE, bg="white")
 ```
 
 
