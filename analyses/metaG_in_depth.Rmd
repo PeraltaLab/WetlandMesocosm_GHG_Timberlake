@@ -137,34 +137,14 @@ soil <- read.csv("../data/Design_and_soil.csv",  header=T)
 ```
 
 ```{r Playing around with a list of dfs for control structures}
-# Make a list of all the metaG dfs:
-metaG_data_list <- c(denit, meth, carb_metab, cytoCox, SO4_S_Assim, Assim_SO4_red, Dissim_SO4_red, ThioSOX, DNRA, ANRA, Nitrific, COMAMMOX, Nfix, CH4_ox, mtrBC_TIGR)
-
-#length(metaG_data_list) #why is it 292?
-
-#try some control structure stuff: #Not working!
-for (i in metaG_data_list) {
-  print(i)
-}
-
-# dm() didn't work either.
-library(dm)
-
-metaG_data_dm <- dm(denit, meth, carb_metab, cytoCox, SO4_S_Assim, Assim_SO4_red, Dissim_SO4_red, ThioSOX, DNRA, ANRA, Nitrific, COMAMMOX, Nfix, CH4_ox, mtrBC_TIGR)
-
-names(metaG_data_dm)
-
-for (i in metaG_data_dm) {
-  print(names(i))
-}
-
-# Make a list of all the metaG dfs:
+# Make a list of all the metaG df names:
 metaG_string_list <- c("denit", "meth", "carb_metab", "cytoCox", "SO4_S_Assim", "Assim_SO4_red", "Dissim_SO4_red", "ThioSOX", "DNRA", "ANRA", "Nitrific", "COMAMMOX", "Nfix", "CH4_ox", "mtrBC_TIGR")
 
 for (i in metaG_string_list) {
   print(i)
 }
 
+# Make names for numerical only data frames:
 for (i in metaG_string_list) {
   print(paste(i, "Numerical", sep = ""))
 }
@@ -348,22 +328,76 @@ for(i in 1:dim(mtrBC_TIGRNumerical)[1]){
 }
 ```
 
-```{r Subset start and finish samples from all gene sets}
+```{r for loop to create start and finish subsets}
 #Make a list for start and finish, so you don't have to re-write it each time below
+start_metaG_samples <- c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre")
+finish_metaG_samples <- c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC")
 
-#Subset start and finish samples from all gene sets (for respective start and finish GHG analysis):
-denitRA_start <- denitRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
-denitRA_finish <- denitRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
+for (i in metaG_string_list) {
+  cat(i, "RA_start <- ", i,"RA[start_metaG_samples, ]\n", sep = "")
+  cat(i, "RA_finish <- ", i,"RA[finish_metaG_samples, ]\n\n", sep = "")
+}
 
-methRA_start <- methRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
-methRA_finish <- methRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
-
-carb_metabRA_start <- carb_metabRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
-carb_metabRA_finish <- carb_metabRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
-
-cytoCoxRA_start <- cytoCoxRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
-cytoCoxRA_finish <- cytoCoxRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
 ```
+
+```{r Subset start and finish samples from all gene sets}
+denitRA_start <- denitRA[start_metaG_samples, ]
+denitRA_finish <- denitRA[finish_metaG_samples, ]
+
+methRA_start <- methRA[start_metaG_samples, ]
+methRA_finish <- methRA[finish_metaG_samples, ]
+
+carb_metabRA_start <- carb_metabRA[start_metaG_samples, ]
+carb_metabRA_finish <- carb_metabRA[finish_metaG_samples, ]
+
+cytoCoxRA_start <- cytoCoxRA[start_metaG_samples, ]
+cytoCoxRA_finish <- cytoCoxRA[finish_metaG_samples, ]
+
+SO4_S_AssimRA_start <- SO4_S_AssimRA[start_metaG_samples, ]
+SO4_S_AssimRA_finish <- SO4_S_AssimRA[finish_metaG_samples, ]
+
+Assim_SO4_redRA_start <- Assim_SO4_redRA[start_metaG_samples, ]
+Assim_SO4_redRA_finish <- Assim_SO4_redRA[finish_metaG_samples, ]
+
+Dissim_SO4_redRA_start <- Dissim_SO4_redRA[start_metaG_samples, ]
+Dissim_SO4_redRA_finish <- Dissim_SO4_redRA[finish_metaG_samples, ]
+
+ThioSOXRA_start <- ThioSOXRA[start_metaG_samples, ]
+ThioSOXRA_finish <- ThioSOXRA[finish_metaG_samples, ]
+
+DNRARA_start <- DNRARA[start_metaG_samples, ]
+DNRARA_finish <- DNRARA[finish_metaG_samples, ]
+
+ANRARA_start <- ANRARA[start_metaG_samples, ]
+ANRARA_finish <- ANRARA[finish_metaG_samples, ]
+
+NitrificRA_start <- NitrificRA[start_metaG_samples, ]
+NitrificRA_finish <- NitrificRA[finish_metaG_samples, ]
+
+COMAMMOXRA_start <- COMAMMOXRA[start_metaG_samples, ]
+COMAMMOXRA_finish <- COMAMMOXRA[finish_metaG_samples, ]
+
+NfixRA_start <- NfixRA[start_metaG_samples, ]
+NfixRA_finish <- NfixRA[finish_metaG_samples, ]
+
+CH4_oxRA_start <- CH4_oxRA[start_metaG_samples, ]
+CH4_oxRA_finish <- CH4_oxRA[finish_metaG_samples, ]
+
+mtrBC_TIGRRA_start <- mtrBC_TIGRRA[start_metaG_samples, ]
+mtrBC_TIGRRA_finish <- mtrBC_TIGRRA[finish_metaG_samples, ]
+```
+
+```{r for loop to generate dimension checks}
+# Relative abundance (RA) dimension check:
+for (i in metaG_string_list) {
+  cat("dim(",i, "RA)\n", sep = "")
+}
+
+# Start samples only (RA_start) dimension check:
+
+# Finish samples ony (RA_finish) dimension check:
+```
+
 
 ```{r Dimension check for RA matrices}
 #Check dimensions of each relative abundance (RA) matrix:
@@ -371,6 +405,17 @@ dim(denitRA) #24 10
 dim(methRA) #24 44
 dim(carb_metabRA) #24 120
 dim(cytoCoxRA) #24 5
+dim(SO4_S_AssimRA) #24 14
+dim(Assim_SO4_redRA) #24 10
+dim(Dissim_SO4_redRA) #24 5
+dim(ThioSOXRA) #24 7
+dim(DNRARA) #24 9
+dim(ANRARA) #24 6
+dim(NitrificRA) #24 4
+dim(COMAMMOXRA) #24 6
+dim(NfixRA) #24 8
+dim(CH4_oxRA) #24 12
+dim(mtrBC_TIGRRA) #24 2
 
 #Check dimensions of RA start matrices
 dim(denitRA_start) #8 10
