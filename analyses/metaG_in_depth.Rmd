@@ -394,8 +394,14 @@ for (i in metaG_string_list) {
 }
 
 # Start samples only (RA_start) dimension check:
+for (i in metaG_string_list) {
+  cat("dim(",i, "RA_start)\n", sep = "")
+}
 
-# Finish samples ony (RA_finish) dimension check:
+# Finish samples only (RA_finish) dimension check:
+for (i in metaG_string_list) {
+  cat("dim(",i, "RA_finish)\n", sep = "")
+}
 ```
 
 
@@ -422,53 +428,140 @@ dim(denitRA_start) #8 10
 dim(methRA_start) #8 44
 dim(carb_metabRA_start) #8 120
 dim(cytoCoxRA_start) #8 5
+dim(SO4_S_AssimRA_start) #8 14
+dim(Assim_SO4_redRA_start) #8 10
+dim(Dissim_SO4_redRA_start) #8 5
+dim(ThioSOXRA_start) #8 7
+dim(DNRARA_start) #8 9
+dim(ANRARA_start) #8 6
+dim(NitrificRA_start) #8 4
+dim(COMAMMOXRA_start) #8 6
+dim(NfixRA_start) #8 8
+dim(CH4_oxRA_start) #8 12
+dim(mtrBC_TIGRRA_start) #8 2
 
 #Check dimensions of RA finish matrices
 dim(denitRA_finish) #16 10
 dim(methRA_finish) #16 44
 dim(carb_metabRA_finish) #16 120
 dim(cytoCoxRA_finish) #16 5
+dim(SO4_S_AssimRA_finish) #16 14
+dim(Assim_SO4_redRA_finish) #16 10
+dim(Dissim_SO4_redRA_finish) #16 5
+dim(ThioSOXRA_finish) #16 7
+dim(DNRARA_finish) #16 9
+dim(ANRARA_finish) #16 6
+dim(NitrificRA_finish) #16 4
+dim(COMAMMOXRA_finish) #16 6
+dim(NfixRA_finish) #16 8
+dim(CH4_oxRA_finish) #16 12
+dim(mtrBC_TIGRRA_finish) #16 2
 ```
 
-```{r combine RA and design data frames}
+```{r modify 'design' rownames}
 #Make metaG sample ID's the rownames on 'design'. Then drop design$Sample:
 rownames(design) <- design$Sample
 design <- design[,2:4]
+```
 
+```{r for loop for RA & design combination}
+for (i in metaG_string_list) {
+  cat(i, "RA_design <- cbind(design, ", i, "RA)\n", sep = "")
+}
+```
+
+```{r combine RA and design data frames}
 # Make data frames from gene set relative abundance (RA) data frames and design
 denitRA_design <- cbind(design, denitRA)
 methRA_design <- cbind(design, methRA)
 carb_metabRA_design <- cbind(design, carb_metabRA)
 cytoCoxRA_design <- cbind(design, cytoCoxRA)
+SO4_S_AssimRA_design <- cbind(design, SO4_S_AssimRA)
+Assim_SO4_redRA_design <- cbind(design, Assim_SO4_redRA)
+Dissim_SO4_redRA_design <- cbind(design, Dissim_SO4_redRA)
+ThioSOXRA_design <- cbind(design, ThioSOXRA)
+DNRARA_design <- cbind(design, DNRARA)
+ANRARA_design <- cbind(design, ANRARA)
+NitrificRA_design <- cbind(design, NitrificRA)
+COMAMMOXRA_design <- cbind(design, COMAMMOXRA)
+NfixRA_design <- cbind(design, NfixRA)
+CH4_oxRA_design <- cbind(design, CH4_oxRA)
+mtrBC_TIGRRA_design <- cbind(design, mtrBC_TIGRRA)
 ```
 
 ## Bray Curtis dissimilarity
 
+```{r for loop for BC calculation}
+# Combined loop:
+for (i in metaG_string_list) {
+  cat(i, "BC <- vegdist(", i, "RA, method = 'bray')\n", sep = "")
+  cat(i, "BC_start <- vegdist(", i, "RA_start, method = 'bray')\n", sep = "")
+  cat(i, "BC_finish <- vegdist(", i, "RA_finish, method = 'bray')\n\n", sep = "")
+}
+```
+
+
 Calculate Bray Curtis dissimilarity:
 ```{r relative abundance to Bray Curtis dissimilarity}
-#Bray Curtis calculation for denitrification relative abundance data:
-denitBC <- vegdist(denitRA, method = "bray")
-denitBC_start <- vegdist(denitRA_start, method = "bray")
-denitBC_finish <- vegdist(denitRA_finish, method = "bray")
-#print(denitBC)
+denitBC <- vegdist(denitRA, method = 'bray')
+denitBC_start <- vegdist(denitRA_start, method = 'bray')
+denitBC_finish <- vegdist(denitRA_finish, method = 'bray')
 
-#Bray Curtis calculation for methanogen relative abundance data:
-methBC <- vegdist(methRA, method = "bray")
-methBC_start <- vegdist(methRA_start, method = "bray")
-methBC_finish <- vegdist(methRA_finish, method = "bray")
-#print(methBC)
+methBC <- vegdist(methRA, method = 'bray')
+methBC_start <- vegdist(methRA_start, method = 'bray')
+methBC_finish <- vegdist(methRA_finish, method = 'bray')
 
-#Bray Curtis calculation for central carbohydrate metabolism relative abundance data:
-carb_metabBC <- vegdist(carb_metabRA, method = "bray")
-carb_metabBC_start <- vegdist(carb_metabRA_start, method = "bray")
-carb_metabBC_finish <- vegdist(carb_metabRA_finish, method = "bray")
-#print(carb_metabBC)
+carb_metabBC <- vegdist(carb_metabRA, method = 'bray')
+carb_metabBC_start <- vegdist(carb_metabRA_start, method = 'bray')
+carb_metabBC_finish <- vegdist(carb_metabRA_finish, method = 'bray')
 
-#Bray Curtis calculation for cytochrome C oxidase relative abundance data:
-cytoCoxBC <- vegdist(cytoCoxRA, method = "bray")
-cytoCoxBC_start <- vegdist(cytoCoxRA_start, method = "bray")
-cytoCoxBC_finish <- vegdist(cytoCoxRA_finish, method = "bray")
-#print(cytoCoxBC)
+cytoCoxBC <- vegdist(cytoCoxRA, method = 'bray')
+cytoCoxBC_start <- vegdist(cytoCoxRA_start, method = 'bray')
+cytoCoxBC_finish <- vegdist(cytoCoxRA_finish, method = 'bray')
+
+SO4_S_AssimBC <- vegdist(SO4_S_AssimRA, method = 'bray')
+SO4_S_AssimBC_start <- vegdist(SO4_S_AssimRA_start, method = 'bray')
+SO4_S_AssimBC_finish <- vegdist(SO4_S_AssimRA_finish, method = 'bray')
+
+Assim_SO4_redBC <- vegdist(Assim_SO4_redRA, method = 'bray')
+Assim_SO4_redBC_start <- vegdist(Assim_SO4_redRA_start, method = 'bray')
+Assim_SO4_redBC_finish <- vegdist(Assim_SO4_redRA_finish, method = 'bray')
+
+Dissim_SO4_redBC <- vegdist(Dissim_SO4_redRA, method = 'bray')
+Dissim_SO4_redBC_start <- vegdist(Dissim_SO4_redRA_start, method = 'bray')
+Dissim_SO4_redBC_finish <- vegdist(Dissim_SO4_redRA_finish, method = 'bray')
+
+ThioSOXBC <- vegdist(ThioSOXRA, method = 'bray')
+ThioSOXBC_start <- vegdist(ThioSOXRA_start, method = 'bray')
+ThioSOXBC_finish <- vegdist(ThioSOXRA_finish, method = 'bray')
+
+DNRABC <- vegdist(DNRARA, method = 'bray')
+DNRABC_start <- vegdist(DNRARA_start, method = 'bray')
+DNRABC_finish <- vegdist(DNRARA_finish, method = 'bray')
+
+ANRABC <- vegdist(ANRARA, method = 'bray')
+ANRABC_start <- vegdist(ANRARA_start, method = 'bray')
+ANRABC_finish <- vegdist(ANRARA_finish, method = 'bray')
+
+NitrificBC <- vegdist(NitrificRA, method = 'bray')
+NitrificBC_start <- vegdist(NitrificRA_start, method = 'bray')
+NitrificBC_finish <- vegdist(NitrificRA_finish, method = 'bray')
+
+COMAMMOXBC <- vegdist(COMAMMOXRA, method = 'bray')
+COMAMMOXBC_start <- vegdist(COMAMMOXRA_start, method = 'bray')
+COMAMMOXBC_finish <- vegdist(COMAMMOXRA_finish, method = 'bray')
+
+NfixBC <- vegdist(NfixRA, method = 'bray')
+NfixBC_start <- vegdist(NfixRA_start, method = 'bray')
+NfixBC_finish <- vegdist(NfixRA_finish, method = 'bray')
+
+CH4_oxBC <- vegdist(CH4_oxRA, method = 'bray')
+CH4_oxBC_start <- vegdist(CH4_oxRA_start, method = 'bray')
+CH4_oxBC_finish <- vegdist(CH4_oxRA_finish, method = 'bray')
+
+mtrBC_TIGRBC <- vegdist(mtrBC_TIGRRA, method = 'bray')
+mtrBC_TIGRBC_start <- vegdist(mtrBC_TIGRRA_start, method = 'bray')
+mtrBC_TIGRBC_finish <- vegdist(mtrBC_TIGRRA_finish, method = 'bray')
 ```
 
 ## GHG wrangling
