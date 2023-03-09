@@ -1,0 +1,90 @@
+OTU	Cluster	IndVal	Prob	domain	Phylum	Class	Order	Family	Genus
+Otu00001	Dry	0.38075034850597	0.0054	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Rhizobiales	Rhizobiales
+Otu00010	Dry	0.425008313934154	0.0012	Bacteria	Acidobacteria	Acidobacteria Gp6	Gp6	Gp6	Gp6
+Otu00014	Dry	0.442579671883839	0.0016	Bacteria	Acidobacteria	Acidobacteria Gp6	Gp6	Gp6	Gp6
+Otu00035	Dry	0.50705493845692	2e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00040	Dry	0.417467728645976	0.0016	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Rhizobiales	Rhizobiales
+Otu00042	Dry	0.526440037771483	3e-04	Bacteria	Proteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria
+Otu00047	Dry	0.403281519861831	0.0042	Bacteria	Proteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria
+Otu00049	Dry	0.530851063829787	1e-04	Bacteria	Proteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria
+Otu00055	Dry	0.413441955193483	0.0024	Bacteria	Acidobacteria	Acidobacteria Gp6	Gp6	Gp6	Gp6
+Otu00071	Dry	0.453543307086614	5e-04	Bacteria	Bacteroidetes	Sphingobacteriia	Sphingobacteriales	Chitinophagaceae	Terrimonas
+Otu00081	Dry	0.514240506329114	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp3	Gp3	Gp3	Gp3
+Otu00082	Dry	0.677380952380952	6e-04	Archaea	Thaumarchaeota	Nitrososphaerales	Nitrososphaeraceae	Nitrososphaera	Nitrososphaera
+Otu00090	Dry	0.478527607361963	0.001	Bacteria	Actinobacteria	Actinobacteria	Gaiellales	Gaiellaceae	Gaiella
+Otu00096	Dry	0.530454042081949	0.002	Bacteria	Actinobacteria	Actinobacteria	Actinobacteria	Actinobacteria	Actinobacteria
+Otu00101	Dry	0.407860824742268	0.0031	Bacteria	Actinobacteria	Actinobacteria	Gaiellales	Gaiellaceae	Gaiella
+Otu00104	Dry	0.528584817244611	2e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Sphingomonadales	Sphingomonadaceae	Sphingomonadaceae
+Otu00111	Dry	0.54390243902439	3e-04	Bacteria	Acidobacteria	Acidobacteria Gp6	Gp6	Gp6	Gp6
+Otu00114	Dry	0.531322505800464	1e-04	Bacteria	Bacteroidetes	Sphingobacteriia	Sphingobacteriales	Chitinophagaceae	Chitinophagaceae
+Otu00128	Dry	0.483823529411765	3e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00132	Dry	0.516819571865443	0.0067	Bacteria	Proteobacteria	Betaproteobacteria	Nitrosomonadales	Nitrosomonadaceae	Nitrosospira
+Otu00138	Dry	0.435789473684211	0.0058	Bacteria	Proteobacteria	Alphaproteobacteria	Rhodospirillales	Reyranella	Reyranella
+Otu00151	Dry	0.53030303030303	0.0022	Bacteria	Acidobacteria	Acidobacteria Gp6	Gp6	Gp6	Gp6
+Otu00153	Dry	0.790445168295331	1e-04	Bacteria	Proteobacteria	Gammaproteobacteria	Gammaproteobacteria	Gammaproteobacteria	Gammaproteobacteria
+Otu00161	Dry	0.466571834992888	1e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Rhodospirillales	Rhodospirillales	Rhodospirillales
+Otu00162	Dry	0.420634920634921	0.0037	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00163	Dry	0.513215859030837	0.0011	Bacteria	Actinobacteria	Actinobacteria	Actinomycetales	Actinomycetales	Actinomycetales
+Otu00170	Dry	0.65727002967359	1e-04	Bacteria	Proteobacteria	Gammaproteobacteria	Gammaproteobacteria	Gammaproteobacteria	Gammaproteobacteria
+Otu00175	Dry	0.465116279069767	2e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00186	Dry	0.540322580645161	0.0021	Bacteria	Verrucomicrobia	Spartobacteria	Spartobacteria	Spartobacteria	Spartobacteria
+Otu00242	Dry	0.469721767594108	0.001	Bacteria	Verrucomicrobia	Subdivision3	Subdivision3	Subdivision3	Subdivision3
+Otu00250	Dry	0.501557632398754	5e-04	Bacteria	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae
+Otu00260	Dry	0.51433389544688	0.0038	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00317	Dry	0.413509060955519	0.0094	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00017	Interim	0.394981852611646	0.0027	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Rhizobiales	Rhizobiales
+Otu00018	Interim	0.475494729054929	2e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1
+Otu00032	Interim	0.474585635359116	7e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00056	Interim	0.460779477059694	0.0011	Bacteria	Acidobacteria	Acidobacteria Gp3	Gp3	Gp3	Gp3
+Otu00057	Interim	0.484739676840215	0.0043	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00059	Interim	0.472058155383916	0.0015	Bacteria	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae
+Otu00072	Interim	0.480830670926518	5e-04	Bacteria	Proteobacteria	Deltaproteobacteria	Deltaproteobacteria	Deltaproteobacteria	Deltaproteobacteria
+Otu00073	Interim	0.463073852295409	0.0076	Bacteria	Proteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria
+Otu00085	Interim	0.442396313364055	0.008	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Hyphomicrobiaceae	Pedomicrobium
+Otu00087	Interim	0.425138632162662	0.0011	Bacteria	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae
+Otu00092	Interim	0.505464480874317	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp3	Gp3	Gp3	Gp3
+Otu00106	Interim	0.627450980392157	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp10	Gp10	Gp10	Gp10
+Otu00112	Interim	0.445853658536585	9e-04	Bacteria	Acidobacteria	Acidobacteria Gp7	Gp7	Gp7	Gp7
+Otu00118	Interim	0.465492957746479	0.001	Bacteria	Chloroflexi	Ktedonobacteria	Ktedonobacteria	Ktedonobacteria	Ktedonobacteria
+Otu00122	Interim	0.472785485592316	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp3	Gp3	Gp3	Gp3
+Otu00148	Interim	0.467625899280576	7e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Rhizobiales	Rhizobiales
+Otu00160	Interim	0.439834024896265	0.0083	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00164	Interim	0.563934426229508	0.0047	Bacteria	Proteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria
+Otu00166	Interim	0.474377745241581	9e-04	Bacteria	Proteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria	Betaproteobacteria
+Otu00174	Interim	0.468085106382979	0.0025	Bacteria	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae
+Otu00221	Interim	0.494505494505494	0.0011	Bacteria	Chloroflexi	Ktedonobacteria	Ktedonobacterales	Ktedonobacterales	Ktedonobacterales
+Otu00285	Interim	0.438028169014084	0.0011	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00311	Interim	0.646324549237171	4e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00003	Wet	0.559888121092465	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1
+Otu00008	Wet	0.48684066834116	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1
+Otu00012	Wet	0.671192052980133	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1
+Otu00025	Wet	0.480800593031875	2e-04	Bacteria	Actinobacteria	Actinobacteria	Solirubrobacterales	Solirubrobacterales	Solirubrobacterales
+Otu00036	Wet	0.430266343825666	0.0046	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Roseiarcaceae	Roseiarcus
+Otu00044	Wet	0.434140715109573	2e-04	Bacteria	Actinobacteria	Actinobacteria	Actinomycetales	Thermomonosporaceae	Actinoallomurus
+Otu00052	Wet	0.432835820895522	0.0014	Bacteria	Proteobacteria	Alphaproteobacteria	Alphaproteobacteria	Alphaproteobacteria	Alphaproteobacteria
+Otu00063	Wet	0.541482300884956	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1
+Otu00068	Wet	0.707482993197279	2e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Acidobacteria Gp1	Acidobacteria Gp1	Acidobacteria Gp1
+Otu00070	Wet	0.461432506887052	1e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Alphaproteobacteria incertae sedis	Rhizomicrobium	Rhizomicrobium
+Otu00075	Wet	0.617422012948793	1e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00080	Wet	0.675375208449138	1e-04	Bacteria	Proteobacteria	Deltaproteobacteria	Desulfuromonadales	Geobacteraceae	Geobacter
+Otu00105	Wet	0.589556769884639	5e-04	Bacteria	Chloroflexi	Chloroflexi	Chloroflexi	Chloroflexi	Chloroflexi
+Otu00113	Wet	0.583153347732181	1e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00117	Wet	0.736159169550173	1e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00119	Wet	0.653400868306802	1e-04	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Methylocystaceae	Methylocystis
+Otu00124	Wet	0.743194192377496	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1
+Otu00140	Wet	0.634171907756813	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1
+Otu00149	Wet	0.627380952380952	1e-04	Bacteria	Verrucomicrobia	Subdivision3	Subdivision3	Subdivision3	Subdivision3
+Otu00165	Wet	0.608974358974359	6e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00177	Wet	0.554098360655738	0.002	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00180	Wet	0.561170212765957	2e-04	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2	Gp2
+Otu00181	Wet	0.596599690880989	4e-04	Bacteria	Proteobacteria	Gammaproteobacteria	Gammaproteobacteria	Gammaproteobacteria	Gammaproteobacteria
+Otu00183	Wet	0.846437346437346	1e-04	Bacteria	Verrucomicrobia	Subdivision3	Subdivision3	Subdivision3	Subdivision3
+Otu00187	Wet	0.843790012804097	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1
+Otu00189	Wet	0.637698898408813	1e-04	Bacteria	Proteobacteria	Deltaproteobacteria	Syntrophobacterales	Syntrophobacteraceae	Syntrophobacter
+Otu00191	Wet	0.41025641025641	0.0047	Bacteria	Actinobacteria	Actinobacteria	Actinomycetales	Actinomycetales	Actinomycetales
+Otu00192	Wet	0.517711171662125	0.0013	Bacteria	Proteobacteria	Deltaproteobacteria	Desulfuromonadales	Geobacteraceae	Geobacter
+Otu00211	Wet	0.844319775596073	1e-04	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria	Bacteria
+Otu00231	Wet	0.487637362637363	0.0096	Bacteria	Acidobacteria	Acidobacteria Gp1	Acidobacteria Gp1	Acidobacteria Gp1	Acidobacteria Gp1
+Otu00238	Wet	0.681181959564541	6e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Acidobacteria Gp1	Acidobacteria Gp1	Acidobacteria Gp1
+Otu00291	Wet	0.93015873015873	1e-04	Archaea	Euryarchaeota	Methanobacteria	Methanobacteriales	Methanobacteriaceae	Methanobacterium
+Otu00303	Wet	0.466557911908646	1e-04	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1	Gp1

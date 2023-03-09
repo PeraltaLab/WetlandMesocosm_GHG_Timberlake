@@ -1,0 +1,11 @@
+{
+   "function" : "TMG_FeReduction_TIGRFam",
+   "contact_oid" : "124715",
+   "currDateTime" : "2022/12/22 12:38:39",
+   "program" : "Scaffold Function Profile",
+   "functype" : null,
+   "scaffold" : "3300036865_5_scaffold_set,3300036867_3_scaffold_set,3300036870_7_scaffold_set,3300036872_8_scaffold_set,3300036873_3_scaffold_set,3300036875_5_scaffold_set,3300036898_4_scaffold_set,3300036898_5_scaffold_set,3300036989_2_scaffold_set,3300036989_4_scaffold_set,3300036990_3_scaffold_set,3300036991_3_scaffold_set,3300036991_4_scaffold_set,3300036993_3_scaffold_set",
+   "jobname" : "TMG_Bins_FeReduction_TIGRFam",
+   "datatype" : "assembled",
+   "comment" : ""
+}
