@@ -19,9 +19,9 @@ Metagenome sequence files can be found at NCBI SRA [BioProject ID PRJNA641216](h
 ### Repo Contents
 
 * **analyses:** R Markdown files that include R script written by Regina Bledsoe, Colin Finlay, Ariane Peralta, and Mario Muscarella containing functions used in analysis of GHG, soil, and microbial sequence data:
- 	1. metaG_all_factors.Rmd: code for analysis of metagenomic data, **for manuscript in submission**
- 	2. metaG_in_depth.Rmd: in-progress metagenomic analysis, **not a part of manuscript in submission**
- 	3. timberlake_publicationV2.Rmd: 16S, edaphic, and greenhouse gas analysis, **for manuscript in submission**
+ 	1. metaG_all_factors.Rmd: code for analysis of metagenomic data, **for manuscript in review**
+ 	2. metaG_in_depth.Rmd: in-progress metagenomic analysis, **not a part of manuscript in review**
+ 	3. timberlake_publicationV2.Rmd: 16S, edaphic, and greenhouse gas analysis, **for manuscript in review**
 
 * **bin:** 
 	* *MothurTools.R*: An R script written by Mario Muscarella (Indiana University, now at University of Illinois) containing functions used in the analysis of community sequence data.
