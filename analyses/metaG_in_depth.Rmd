@@ -25,7 +25,7 @@ ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
 # Code dependencies:
 source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
-require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2"); require("ggpubr")
+require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2"); require("ggpubr"); require("glue"); require("tidyverse")
 ```
 
 # Load files
@@ -112,6 +112,37 @@ mtrBC_TIGR <- mtrBC_TIGR[match(sample_order, mtrBC_TIGR$Sample), ]
 
 ```
 
+```{r Import FeGenie output}
+#Gene summary:
+FeSummary <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/FeGenie_meta_full/FeGenie-geneSummaryRReady.csv", header = T)
+
+FeHeatmap <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/FeGenie_meta_full/FeGenie-heatmap-data.csv", header = T)
+```
+
+```{r Wrangle FeGenie Heatmap}
+# read in metagenomic metadata from IMG, that will be used to match genome IDs to Sample IDs:
+metaGmetaD <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/metaGmetaData.csv", header = T)
+
+# transpose heatmap:
+FeHeatTranspose <- as.data.frame(t(FeHeatmap))
+# Fix column names on FeHeatTranspose:
+colnames(FeHeatTranspose) <- FeHeatTranspose[1,]
+#Now get rid of column 'X' and extra column at bottom:
+FeHeatTranspose <- FeHeatTranspose[-c(1,26),]
+
+#String manipulation; cut out extra characters to match IMG taxon oid:
+taxon_oid <- as.vector(str_sub(rownames(FeHeatTranspose), start = 2, end = -7))
+#Add as new column to FeHeatTranspose:
+FeHeatTranspose$taxon_oid <- taxon_oid
+
+#Merge FeHeatTranspose and metaGmetaD by taxon_oid:
+FeMerged <- merge(FeHeatTranspose, metaGmetaD)
+
+# Match sample order:
+#mtrBC_TIGR <- mtrBC_TIGR[match(sample_order, mtrBC_TIGR$Sample), ]
+FeMerged <- FeMerged[match(sample_order, FeMerged$Sample), ]
+```
+
 
 ```{r Import metadata and greenhouse gas data}
 #Design file:
@@ -156,7 +187,7 @@ for (i in metaG_string_list) {
 # Data Wrangling
 
 ```{r Sample IDs to rownames}
-#For metegenomic data, make sample IDs rownames in a new data frame, to be further subsetted to numeric only data:
+#For metagenomic data, make sample IDs rownames in a new data frame, to be further subsetted to numeric only data:
 
 denitNumerical <- denit
 rownames(denitNumerical) <- denitNumerical$Sample
@@ -202,6 +233,9 @@ rownames(CH4_oxNumerical) <- CH4_oxNumerical$Sample
 
 mtrBC_TIGRNumerical <- mtrBC_TIGR
 rownames(mtrBC_TIGRNumerical) <- mtrBC_TIGRNumerical$Sample
+
+FeGenieNumerical <- FeMerged
+rownames(FeGenieNumerical) <- FeGenieNumerical$Sample 
 ```
 
 ```{r make numeric only data frames for functional genes}
@@ -234,6 +268,23 @@ NfixNumerical <- NfixNumerical[,-(1:2)]
 CH4_oxNumerical <- CH4_oxNumerical[,-(1:2)]
 
 mtrBC_TIGRNumerical <- mtrBC_TIGRNumerical[,-(1:2)]
+
+FeGenieNumerical <- FeGenieNumerical[, 2:14]
+# Must convert characters to numeric for all the data from FeGenie:
+#(using a brute force method for now, because struggling to find something more efficient)
+FeGenieNumerical$`iron_aquisition-iron_transport` <- as.numeric(FeGenieNumerical$`iron_aquisition-iron_transport`)
+FeGenieNumerical$`iron_aquisition-heme_transport` <- as.numeric(FeGenieNumerical$`iron_aquisition-heme_transport`)
+FeGenieNumerical$`iron_aquisition-heme_oxygenase` <- as.numeric(FeGenieNumerical$`iron_aquisition-heme_oxygenase`)
+FeGenieNumerical$`iron_aquisition-siderophore_synthesis` <- as.numeric(FeGenieNumerical$`iron_aquisition-siderophore_synthesis`)
+FeGenieNumerical$`iron_aquisition-siderophore_transport` <- as.numeric(FeGenieNumerical$`iron_aquisition-siderophore_transport`)
+FeGenieNumerical$`iron_aquisition-siderophore_transport_potential` <- as.numeric(FeGenieNumerical$`iron_aquisition-siderophore_transport_potential`)
+FeGenieNumerical$iron_gene_regulation <- as.numeric(FeGenieNumerical$iron_gene_regulation)
+FeGenieNumerical$iron_oxidation <- as.numeric(FeGenieNumerical$iron_oxidation)
+FeGenieNumerical$possible_iron_oxidation_and_possible_iron_reduction <- as.numeric(FeGenieNumerical$possible_iron_oxidation_and_possible_iron_reduction)
+FeGenieNumerical$probable_iron_reduction <- as.numeric(FeGenieNumerical$probable_iron_reduction)
+FeGenieNumerical$iron_reduction <- as.numeric(FeGenieNumerical$iron_reduction)
+FeGenieNumerical$iron_storage <- as.numeric(FeGenieNumerical$iron_storage)
+FeGenieNumerical$magnetosome_formation <- as.numeric(FeGenieNumerical$magnetosome_formation)
 ```
 
 ```{r for loop to generate text for RA calculations}
@@ -246,8 +297,7 @@ for (i in metaG_string_list) {
 # Output of loop to write following chunk
 ```
 
-
-```{r Convert KO counts to relative abundance}
+```{r Convert gene counts to relative abundance}
 #Convert denitrification KO counts to relative abundance:
 denitRA <- denitNumerical
 for(i in 1:dim(denitNumerical)[1]){
@@ -326,18 +376,24 @@ mtrBC_TIGRRA <- mtrBC_TIGRNumerical
 for(i in 1:dim(mtrBC_TIGRNumerical)[1]){
   mtrBC_TIGRRA[i,] <- mtrBC_TIGRNumerical[i,]/sum(mtrBC_TIGRNumerical[i,])
 }
+
+FeGenieRA <- FeGenieNumerical
+for(i in 1:dim(FeGenieNumerical)[1]){
+  FeGenieRA[i,] <- FeGenieNumerical[i,]/sum(FeGenieNumerical[i,])
+}
 ```
 
-```{r for loop to create start and finish subsets}
+```{r lists of start and finish samples}
 #Make a list for start and finish, so you don't have to re-write it each time below
 start_metaG_samples <- c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre")
 finish_metaG_samples <- c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC")
+```
 
+```{r for loop to create start and finish subsets}
 for (i in metaG_string_list) {
   cat(i, "RA_start <- ", i,"RA[start_metaG_samples, ]\n", sep = "")
   cat(i, "RA_finish <- ", i,"RA[finish_metaG_samples, ]\n\n", sep = "")
 }
-
 ```
 
 ```{r Subset start and finish samples from all gene sets}
@@ -403,7 +459,6 @@ for (i in metaG_string_list) {
   cat("dim(",i, "RA_finish)\n", sep = "")
 }
 ```
-
 
 ```{r Dimension check for RA matrices}
 #Check dimensions of each relative abundance (RA) matrix:
@@ -500,7 +555,6 @@ for (i in metaG_string_list) {
 }
 ```
 
-
 Calculate Bray Curtis dissimilarity:
 ```{r relative abundance to Bray Curtis dissimilarity}
 denitBC <- vegdist(denitRA, method = 'bray')
@@ -568,8 +622,6 @@ mtrBC_TIGRBC_finish <- vegdist(mtrBC_TIGRRA_finish, method = 'bray')
 
 Wrangling greenhouse gas (GHG) data:
 ```{r wrangling GHG data}
-## Use GHG wrangling from Gina's code, instead of the following.
-
 #Create a new GHG data frame with less columns:
 GHG_less_columns <- cbind(GHG[,1:4], GHG[24:32])
 
@@ -645,8 +697,6 @@ GHG_metaG <- GHG_metaG[,c(2,5,8)] #Subset to only have units in mg
 
 Distance-based partial least squares regression:
 ```{r distance-based partial least squares regression}
-#require(dbstats) # run if dbstats not already loaded
-
 start.denit.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.N2O.N.m.2 ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
 summary(start.denit.dbplsr)
 #plot(start.denit.dbplsr)
@@ -689,11 +739,16 @@ summary(finish.denit.dbplsr.co2)
 #plot(finish.denit.dbplsr.co2)
 ```
 
+```{r dbplsr continued}
+
+```
+
+
 ## PERMANOVA
 
 Permutational multivariate analysis of variance (PERMANOVA):
-```{r PERMANOVA}
-#PERMANOVA without History:
+```{r PERMANOVA without History}
+#PERMANOVA without History, used early on in analysis, but now performing PERMANOVAS with history as default:
 adonis_denit = adonis2(denitRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
 adonis_denit
 
@@ -705,7 +760,9 @@ adonis_carb_metab
 
 adonis_cytoCox = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
 adonis_cytoCox
+```
 
+```{r PERMANOVA with History}
 #PERMANOVA with History:
 adonis_denit_H = adonis2(denitRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
 adonis_denit_H
@@ -718,7 +775,42 @@ adonis_carb_metab_H
 
 adonis_cytoCox_H = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
 adonis_cytoCox_H
+
+adonis_SO4_S_Assim_H = adonis2(SO4_S_AssimRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_S_AssimRA_design, perm=10000, set.seed=42)
+adonis_SO4_S_Assim_H
+
+adonis_Assim_SO4_red_H = adonis2(Assim_SO4_redRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Assim_SO4_redRA_design, perm=10000, set.seed=42)
+adonis_Assim_SO4_red_H
+
+adonis_Dissim_SO4_red_H = adonis2(Dissim_SO4_redRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Dissim_SO4_redRA_design, perm=10000, set.seed=42)
+adonis_Dissim_SO4_red_H
+
+adonis_ThioSOX_H = adonis2(ThioSOXRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = ThioSOXRA_design, perm=10000, set.seed=42)
+adonis_ThioSOX_H
+
+adonis_DNRA_H = adonis2(DNRARA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = DNRARA_design, perm=10000, set.seed=42)
+adonis_DNRA_H
+
+adonis_ANRA_H = adonis2(ANRARA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = ANRARA_design, perm=10000, set.seed=42)
+adonis_ANRA_H
+
+adonis_Nitrific_H = adonis2(NitrificRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = NitrificRA_design, perm=10000, set.seed=42)
+adonis_Nitrific_H
+
+adonis_COMAMMOX_H = adonis2(COMAMMOXRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = COMAMMOXRA_design, perm=10000, set.seed=42)
+adonis_COMAMMOX_H
+
+adonis_Nfix_H = adonis2(NfixRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = NfixRA_design, perm=10000, set.seed=42)
+adonis_Nfix_H
+
+adonis_CH4_ox_H = adonis2(CH4_oxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = CH4_oxRA_design, perm=10000, set.seed=42)
+adonis_CH4_ox_H
+
+adonis_mtrBC_TIGR_H = adonis2(mtrBC_TIGRRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = mtrBC_TIGRRA_design, perm=10000, set.seed=42)
+adonis_mtrBC_TIGR_H
 ```
+
+
 ## PCoA
 
 Principal Coordinates Analysis (PCoA) denitrification:
@@ -782,7 +874,7 @@ plot1a <- ggplot(df1a, aes(x=V1, y=V2, shape = plant, colour=trt)) + theme_bw() 
   theme(axis.title = element_text(size=14), 
         axis.text = element_text(size=14),
         axis.text.x = element_text(size=14), 
-        panel.border = element_rect(colour = "black", size = 1.25)) + 
+        panel.border = element_rect(colour = "black", linewidth = 1.25)) + 
   theme(axis.ticks.length = unit(0.3, "cm")) + 
         xlab("PCoA 1 (44.6%)") + ylab("PCoA 2 (25.1%)") +
         labs(shape = "Plant", colour = "Treatment") +
@@ -857,7 +949,7 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
-          panel.border = element_rect(colour = "black", size=1.25)) +
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   theme(plot.title=element_text(size=14)) +
   theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
@@ -867,6 +959,85 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 
 plot2a
 ```
+
+
+```{r new denit PCoA}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_denit <- cmdscale(denitBC, k=2, eig=TRUE, add=TRUE) # changing k to 2 because we only want 2 dimensions anyway
+  # Now trying add = TRUE because of https://www.youtube.com/watch?v=G5Qckqq5Erw
+  # This does change the shape of the PCoA, and it's not clear that it's necessary
+
+explainvar1b_denit <- round(pcoa_denit$eig[1] / sum(pcoa_denit$eig), 3) * 100
+explainvar2b_denit <- round(pcoa_denit$eig[2] / sum(pcoa_denit$eig), 3) * 100
+sum.eigb <- sum(explainvar1b_denit, explainvar2b_denit)
+
+explainvar1b_denit # 27.1
+explainvar2b_denit # 16.3
+
+pcoa_denit2.groups <- paste(denitRA_design$Treat, denitRA_design$Plant, denitRA_design$Hist, sep = "_")
+pcoa_denit2.points <- data.frame(pcoa_denit$points, group = pcoa_denit2.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_denit2.L.centroids <- reshape2::melt(pcoa_denit2.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_denit2.centroids <- acast(pcoa_denit2.L.centroids, variable ~ group, mean)
+pcoa_denit2.centroids.se <- acast(pcoa_denit2.L.centroids, variable ~ group, se)
+pcoa_denit2.centroids.sd <- acast(pcoa_denit2.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_denit2.cent.dataframe <- cbind(t(pcoa_denit2.centroids), t(pcoa_denit2.centroids.se))
+colnames(pcoa_denit2.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# Adding columns with the factors. H: hydrologic history
+trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+history_plant_combined <- c(paste(history, plant_H, sep = "_"))
+
+pcoa_denit2.cent.dataframe.trts <- as.data.frame(pcoa_denit2.cent.dataframe) 
+pcoa_denit2.cent.dataframe.trts$trt <- as.factor(trt_H)
+pcoa_denit2.cent.dataframe.trts$plant <- as.factor(plant_H)
+pcoa_denit2.cent.dataframe.trts$history <- as.factor(history)
+pcoa_denit2.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined)
+
+#Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
+fit_denit <- envfit(pcoa_denit$points, GHG_metaG, permutations = 10000)
+fit_denit
+
+A_denit <-as.list(fit_denit$vectors)
+vec_denit <- as.data.frame(fit_denit$vectors$arrows*sqrt(fit_denit$vectors$r)*0.15)
+p_denit <- as.data.frame(A_denit$pvals)
+vec_denit <- cbind(vec_denit, p_denit)
+vec_denit <- subset(vec_denit, A_denit$pvals<=0.1)
+
+#Plot using ggplot2
+df2a <- as.data.frame(pcoa_denit2.cent.dataframe.trts)
+
+plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.005), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.005), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt), size=5, stroke=2) +  
+  theme_bw() +
+  scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
+  xlab(glue("PCo 1 ({explainvar1b_denit}%)")) + ylab(glue("PCo 2 ({explainvar2b_denit}%)")) + 
+  geom_segment(data=vec_denit, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
+ geom_text(data=vec_denit, aes(x=Dim1+0.03, y=Dim2), label= expression(paste("mg CO"[2],"-C m"^{-2})), size=3, inherit.aes=F)+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Denitrification")
+
+plot2a
+```
+
+
 
 Principal Coordinates Analysis (PCoA) methanogenesis:
 ```{r PCoA: methanogenesis}
@@ -942,7 +1113,7 @@ plot1b
 
 PCoA Methanogenesis, all factors, HISTORY AS SHAPE:
 ```{r PCoA: Methanogenesis; all factors}
-pcoa_meth <- cmdscale(methBC, k=3, eig=TRUE, add=FALSE)
+pcoa_meth <- cmdscale(methBC, k=2, eig=TRUE, add=FALSE)
 
 explainvar1b_meth <- round(pcoa_meth$eig[1] / sum(pcoa_meth$eig), 3) * 100
 explainvar2b_meth <- round(pcoa_meth$eig[2] / sum(pcoa_meth$eig), 3) * 100
