@@ -1110,8 +1110,8 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_denit}%)")) + ylab(glue("PCoA 2 ({explainvar2b_denit}%)")) + 
-  geom_segment(data=vec_denit_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
- geom_text(data=vec_denit_SSF, aes(x=Dim1+0.03, y=Dim2), label= expression(paste("mg CO"[2],"-C m"^{-2})), size=3, inherit.aes=F)+
+  geom_segment(data=vec_denit_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.5, inherit.aes=F)+ 
+ geom_text(data=vec_denit_SSF, aes(x=Dim1+0.04, y=Dim2), label= expression(paste("mg CO"[2],"-C m"^{-2})), fontface = "bold",size=3, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1215,7 +1215,7 @@ plot3a <- ggplot(df3a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_denit_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_denit_FIN}%)")) + 
-  geom_segment(data=vec_denit_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
+  geom_segment(data=vec_denit_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")), colour="black", alpha = 0.5,inherit.aes=F)+ 
  geom_text(data=vec_denit_SFO, aes(x=Dim1, y=Dim2+0.01), label= c(expression(paste("mg CO"[2],"-C m"^{-2})), expression(paste("mg N"[2],"O-N m"^{-2})), "CEC"), size=3, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
@@ -1325,8 +1325,8 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_meth}%)")) + ylab(glue("PCoA 2 ({explainvar2b_meth}%)")) + 
-  geom_segment(data=vec_meth_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
- geom_text(data=vec_meth_SSF, aes(x=Dim1, y=Dim2+0.005), label= c(expression(paste("mg CH"[4],"-C m"^{-2}), "%moisture")), size=3, inherit.aes=F)+
+  geom_segment(data=vec_meth_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha=0.5, inherit.aes=F)+ 
+ geom_text(data=vec_meth_SSF, aes(x=Dim1, y=Dim2, fontface = "bold"), label= c(expression(paste("mg CH"[4],"-C m"^{-2}), "%moisture")), size=3, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1415,7 +1415,8 @@ vec_meth_SFO <- cbind(vec_meth_SFO, p_meth_SFO)
 vec_meth_SFO <- subset(vec_meth_SFO, A_meth_SFO$pvals<=0.1)
 
 # Add column with labels, for plotting:
-vec_meth_SFO$labels <- c("%C","%N", "ppm P", "ppm Mg", "ppm Ca", "pH", "ppm Zn", "ppm Cu", "CEC")
+#vec_meth_SFO$labels <- c("%C","%N", "ppm P", "ppm Mg", "ppm Ca", "pH", "ppm Zn", "ppm Cu", "CEC")
+vec_meth_SFO$labels <- c("%C","%N", "P", "Mg", "Ca", "pH", "Zn", "Cu", "CEC")
 
 
 #Plot using ggplot2
@@ -1431,7 +1432,7 @@ plot3b <- ggplot(df3b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_meth_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_meth_FIN}%)")) + 
   geom_segment(data=vec_meth_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.5,inherit.aes=F)+ 
- geom_text(data=vec_meth_SFO, aes(x=Dim1, y=Dim2), label=vec_meth_SFO$labels, size=3, inherit.aes=F)+
+ geom_text(data=vec_meth_SFO, aes(x=Dim1, y=Dim2, fontface = "bold"), label=vec_meth_SFO$labels, size=3.5, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1540,8 +1541,8 @@ plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_carb_metab}%)")) + ylab(glue("PCoA 2 ({explainvar2b_carb_metab}%)")) + 
-  geom_segment(data=vec_carb_metab_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
- geom_text(data=vec_carb_metab_SSF, aes(x=Dim1+0.015, y=Dim2), label= c(expression(paste("mg CO"[2],"-C m"^{-2})), "%paint removed (redox)"), size=3, inherit.aes=F)+
+  geom_segment(data=vec_carb_metab_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.5, inherit.aes=F)+ 
+ geom_text(data=vec_carb_metab_SSF, aes(x=Dim1-0.01, y=Dim2-0.005, fontface = "bold"), label= c(expression(paste("mg CO"[2],"-C m"^{-2})), "%paint removed (redox)"), size=3, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1630,7 +1631,8 @@ vec_carb_metab_SFO <- cbind(vec_carb_metab_SFO, p_carb_metab_SFO)
 vec_carb_metab_SFO <- subset(vec_carb_metab_SFO, A_carb_metab_SFO$pvals<=0.1)
 
 # Add column with labels, for plotting:
-vec_carb_metab_SFO$labels <- c("%C","%N", "%paint removed (redox)", "ppm P", "ppm Mg", "ppm Ca", "pH", "ppm S", "ppm Mn", "ppm Fe", "ppm Cu", "HM", "CEC")
+#vec_carb_metab_SFO$labels <- c("%C","%N", "%paint removed (redox)", "ppm P", "ppm Mg", "ppm Ca", "pH", "ppm S", "ppm Mn", "ppm Fe", "ppm Cu", "HM", "CEC")
+vec_carb_metab_SFO$labels <- c("%C","%N", "%paint removed", "P", "Mg", "Ca", "pH", "S", "Mn", "Fe", "Cu", "HM", "CEC")
 
 
 #Plot using ggplot2
@@ -1646,7 +1648,7 @@ plot3c <- ggplot(df3c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_carb_metab_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_carb_metab_FIN}%)")) + 
   geom_segment(data=vec_carb_metab_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.5,inherit.aes=F)+ 
- geom_text(data=vec_carb_metab_SFO, aes(x=Dim1, y=Dim2), label=vec_carb_metab_SFO$labels, size=3, inherit.aes=F)+
+ geom_text(data=vec_carb_metab_SFO, aes(x=Dim1, y=Dim2, fontface = "bold"), label=vec_carb_metab_SFO$labels, size=3, check_overlap = T, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1843,7 +1845,8 @@ vec_cytoCox_SFO <- cbind(vec_cytoCox_SFO, p_cytoCox_SFO)
 vec_cytoCox_SFO <- subset(vec_cytoCox_SFO, A_cytoCox_SFO$pvals<=0.1)
 
 # Add column with labels, for plotting:
-vec_cytoCox_SFO$labels <- c("ppm P", "ppm Zn", "ppm Cu")
+#vec_cytoCox_SFO$labels <- c("ppm P", "ppm Zn", "ppm Cu")
+vec_cytoCox_SFO$labels <- c("P", "Zn", "Cu")
 
 
 #Plot using ggplot2
@@ -1859,7 +1862,7 @@ plot3d <- ggplot(df3d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_cytoCox_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_cytoCox_FIN}%)")) + 
   geom_segment(data=vec_cytoCox_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.5,inherit.aes=F)+ 
- geom_text(data=vec_cytoCox_SFO, aes(x=Dim1, y=Dim2), label=vec_cytoCox_SFO$labels, size=3, inherit.aes=F)+
+ geom_text(data=vec_cytoCox_SFO, aes(x=Dim1, y=Dim2, fontface = "bold"), label=vec_cytoCox_SFO$labels, size=3.5, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1880,13 +1883,21 @@ Create 4-panel figure of the 4 PCoA plots above:
 ```{r 4-panel PCoA plot}
 #require(ggpubr) #load in library for multi-panel figures (if not already loaded)
 
-# 4 panel metaG PCoA with History
-MetaG_pcoa_4panel_H <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
+# 4 panel metaG PCoA with History, start and finish sample (SSF)
+MetaG_pcoa_4panel_SSF <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
 
-MetaG_pcoa_4panel_H
+MetaG_pcoa_4panel_SSF
 
 #ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 300)
 
-#ggsave("../figures/pub/metaG_pcoa4panel_H.jpg", plot = MetaG_pcoa_4panel_H, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
+#ggsave("../figures/Thesis/metaG_pcoa4panel_SSF.jpg", plot = MetaG_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
+
+# 4 panel metaG PCoA with History, Finish samples only (SFO)
+
+MetaG_pcoa_4panel_SFO <- ggarrange(plot3a, plot3b, plot3c, plot3d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
+
+MetaG_pcoa_4panel_SFO
+
+#ggsave("../figures/Thesis/metaG_pcoa4panel_SFO.jpg", plot = MetaG_pcoa_4panel_SFO, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
