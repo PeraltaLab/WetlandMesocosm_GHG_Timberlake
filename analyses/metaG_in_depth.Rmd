@@ -142,6 +142,121 @@ FeMerged <- merge(FeHeatTranspose, metaGmetaD)
 FeMerged <- FeMerged[match(sample_order, FeMerged$Sample), ]
 ```
 
+```{r wrangle FeSummary}
+# purpose: create FeRed and FeOx dataframes with same layout as KEGG Module data from IMG/MER
+
+# create taxon_oid column
+FeSummary$taxon_oid <- as.vector(str_sub(FeSummary$genome.assembly, start = 1, end = -7))
+
+# subset metaGmetaD to get only taxon_oid and Sample:
+taxon_oid_sample <- metaGmetaD %>% dplyr::select(c(taxon_oid, Sample))
+
+# create sample column, matched with taxon oid
+FeSummary_sample <- merge(FeSummary, taxon_oid_sample, by = "taxon_oid") 
+
+# start by filtering only Fe Reduction category: 
+FeSummaryRED <- FeSummary %>% dplyr::filter(category == "iron_reduction")
+
+# create a df:
+FeReduction <- data.frame(matrix(nrow = length(sample_order), ncol = length(unique(FeSummaryRED$HMM))))
+rownames(FeReduction) <- sample_order
+colnames(FeReduction) <- unique(FeSummaryRED$HMM)
+```
+
+```{r Populate FeReduction}
+# Fill data frame with sums that match HMM and sample:
+
+# Try to do all at once using a for loop:
+
+x <- 1 # x is a counter that will be used to index rows, and add one after each loop. Must be set to 1 before loop starts
+for(i in rownames(FeReduction)){
+
+   FeReduction$MtrB_TIGR03509[x] <- sum(FeSummary_sample$HMM == "MtrB_TIGR03509" & FeSummary_sample$Sample == i)
+   
+   FeReduction$MtrA[x] <- sum(FeSummary_sample$HMM == "MtrA" & FeSummary_sample$Sample == i)
+   
+   FeReduction$MtrC_TIGR03507[x] <- sum(FeSummary_sample$HMM == "MtrC_TIGR03507" & FeSummary_sample$Sample == i)
+                                        
+   FeReduction$OmcS[x] <- sum(FeSummary_sample$HMM == "OmcS" & FeSummary_sample$Sample == i)
+                              
+   FeReduction$OmcF[x] <- sum(FeSummary_sample$HMM == "OmcF" & FeSummary_sample$Sample == i)
+                              
+   FeReduction$DFE_0462[x] <- sum(FeSummary_sample$HMM == "DFE_0462" & FeSummary_sample$Sample == i)
+                                  
+   FeReduction$DFE_0463[x] <- sum(FeSummary_sample$HMM == "DFE_0463" & FeSummary_sample$Sample == i)
+                                  
+   FeReduction$DFE_0461[x] <- sum(FeSummary_sample$HMM == "DFE_0461" & FeSummary_sample$Sample == i)
+                                  
+   FeReduction$t4ap[x] <- sum(FeSummary_sample$HMM == "t4ap" & FeSummary_sample$Sample == i)
+                              
+   FeReduction$DFE_0465[x] <- sum(FeSummary_sample$HMM == "DFE_0465" & FeSummary_sample$Sample == i)
+                                  
+   FeReduction$`643638980 YP_002537145 {omc} hypothetical protein [Geobacter sp. FRC-32: NC_011979]`[x] <- sum(FeSummary_sample$HMM == "643638980 YP_002537145 {omc} hypothetical protein [Geobacter sp. FRC-32: NC_011979]" & FeSummary_sample$Sample == i)
+                                                                                                               
+   FeReduction$`643638979 YP_002537144 {pc} hypothetical protein [Geobacter sp. FRC-32: NC_011979]`[x] <- sum(FeSummary_sample$HMM == "643638979 YP_002537144 {pc} hypothetical protein [Geobacter sp. FRC-32: NC_011979]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`637778187 YP_383875 {porin} hypothetical protein [Geobacter metallireducens GS-15: NC_007517]`[x] <- sum(FeSummary_sample$HMM == "637778187 YP_383875 {porin} hypothetical protein [Geobacter metallireducens GS-15: NC_007517]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`637127429 NP_953783 {pc} omaB cytochrome c family protein [Geobacter sulfurreducens PCA: NC_002939]`[x] <- sum(FeSummary_sample$HMM == "637127429 NP_953783 {pc} omaB cytochrome c family protein [Geobacter sulfurreducens PCA: NC_002939]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`2514223670 filler {omc} Geobacter sulfurreducens CxxxxCH...CXXCH domain-containing protein [Ignavibacterium album Mat9-16; JCM 16511 : NC_017464]`[x] <- sum(FeSummary_sample$HMM == "2514223670 filler {omc} Geobacter sulfurreducens CxxxxCH...CXXCH domain-containing protein [Ignavibacterium album Mat9-16; JCM 16511 : NC_017464]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`642764945 YP_002135816 {porin} hypothetical protein [Anaeromyxobacter sp. K: NC_011145]`[x] <- sum(FeSummary_sample$HMM == "642764945 YP_002135816 {porin} hypothetical protein [Anaeromyxobacter sp. K: NC_011145]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`642557020 CAJ74788 {pc} hypothetical multiheme cytochrome c protein [Kuenenia stuttgartiensis genome fragment KUST_E (5 of 5).: CT573071]`[x] <- sum(FeSummary_sample$HMM == "642557020 CAJ74788 {pc} hypothetical multiheme cytochrome c protein [Kuenenia stuttgartiensis genome fragment KUST_E (5 of 5).: CT573071]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`642557019 CAJ74787 {porin} unknown protein [Kuenenia stuttgartiensis genome fragment KUST_E (5 of 5).: CT573071]`[x] <- sum(FeSummary_sample$HMM == "642557019 CAJ74787 {porin} unknown protein [Kuenenia stuttgartiensis genome fragment KUST_E (5 of 5).: CT573071]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`637864947 YP_466596 {pc} hypothetical protein [Anaeromyxobacter dehalogenans 2CP-C: NC_007760]`[x] <- sum(FeSummary_sample$HMM == "637864947 YP_466596 {pc} hypothetical protein [Anaeromyxobacter dehalogenans 2CP-C: NC_007760]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`2514223672 filler {porin} hypothetical protein [Ignavibacterium album Mat9-16; JCM 16511 : NC_017464]`[x] <- sum(FeSummary_sample$HMM == "2514223672 filler {porin} hypothetical protein [Ignavibacterium album Mat9-16; JCM 16511 : NC_017464]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`2514223671 filler {pc} c(7)-type cytochrome triheme domain-containing protein [Ignavibacterium album Mat9-16; JCM 16511 : NC_017464]`[x] <- sum(FeSummary_sample$HMM == "2514223671 filler {pc} c(7)-type cytochrome triheme domain-containing protein [Ignavibacterium album Mat9-16; JCM 16511 : NC_017464]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`637127416 NP_953770 {pc} cytochrome c family protein [Geobacter sulfurreducens PCA: NC_002939]`[x] <- sum(FeSummary_sample$HMM == "637127416 NP_953770 {pc} cytochrome c family protein [Geobacter sulfurreducens PCA: NC_002939]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`640549330 YP_001230602 {porin} hypothetical protein [Geobacter uraniumreducens Rf4: NC_009483]`[x] <- sum(FeSummary_sample$HMM == "640549330 YP_001230602 {porin} hypothetical protein [Geobacter uraniumreducens Rf4: NC_009483]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`644868482 YP_003020691 {pc} hypothetical protein [Geobacter sp. M21: NC_012918]`[x] <- sum(FeSummary_sample$HMM == "644868482 YP_003020691 {pc} hypothetical protein [Geobacter sp. M21: NC_012918]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`637778190 YP_383878 {porin} hypothetical protein [Geobacter metallireducens GS-15: NC_007517]`[x] <- sum(FeSummary_sample$HMM == "637778190 YP_383878 {porin} hypothetical protein [Geobacter metallireducens GS-15: NC_007517]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`649931662 YP_004200173 {porin} hypothetical protein [Geobacter sp. M18 chromosome: NC_014973]`[x] <- sum(FeSummary_sample$HMM == "649931662 YP_004200173 {porin} hypothetical protein [Geobacter sp. M18 chromosome: NC_014973]"  & FeSummary_sample$Sample == i)
+                                                                                                                         
+   FeReduction$`640548487 YP_001229770 {porin} hypothetical protein [Geobacter uraniumreducens Rf4: NC_009483]`[x] <- sum(FeSummary_sample$HMM == "640548487 YP_001229770 {porin} hypothetical protein [Geobacter uraniumreducens Rf4: NC_009483]" & FeSummary_sample$Sample == i)
+                                                                                                                          
+   FeReduction$`640548488 YP_001229771 {pc} hypothetical protein [Geobacter uraniumreducens Rf4: NC_009483]`[x] <- sum(FeSummary_sample$HMM == "640548488 YP_001229771 {pc} hypothetical protein [Geobacter uraniumreducens Rf4: NC_009483]" & FeSummary_sample$Sample == i)
+                                                                                                                       
+   FeReduction$`649931668 YP_004200179 {porin} hypothetical protein [Geobacter sp. M18 chromosome: NC_014973]`[x] <- sum(FeSummary_sample$HMM == "649931668 YP_004200179 {porin} hypothetical protein [Geobacter sp. M18 chromosome: NC_014973]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`649931661 YP_004200172 {pc} cytochrome c family protein [Geobacter sp. M18 chromosome: NC_014973]`[x] <- sum(FeSummary_sample$HMM == "649931661 YP_004200172 {pc} cytochrome c family protein [Geobacter sp. M18 chromosome: NC_014973]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`637864946 YP_466595 {porin} hypothetical protein [Anaeromyxobacter dehalogenans 2CP-C: NC_007760]`[x] <- sum(FeSummary_sample$HMM == "637864946 YP_466595 {porin} hypothetical protein [Anaeromyxobacter dehalogenans 2CP-C: NC_007760]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`642764946 YP_002135817 {pc} hypothetical protein [Anaeromyxobacter sp. K: NC_011145]`[x] <- sum(FeSummary_sample$HMM == "642764946 YP_002135817 {pc} hypothetical protein [Anaeromyxobacter sp. K: NC_011145]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`637778189 YP_383877 {omc} hypothetical protein [Geobacter metallireducens GS-15: NC_007517]`[x] <- sum(FeSummary_sample$HMM == "637778189 YP_383877 {omc} hypothetical protein [Geobacter metallireducens GS-15: NC_007517]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`643638974 YP_002537139 {porin} hypothetical protein [Geobacter sp. FRC-32: NC_011979]`[x] <- sum(FeSummary_sample$HMM == "643638974 YP_002537139 {porin} hypothetical protein [Geobacter sp. FRC-32: NC_011979]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`640548483 YP_001229766 {porin} hypothetical protein [Geobacter uraniumreducens Rf4: NC_009483]`[x] <- sum(FeSummary_sample$HMM == "640548483 YP_001229766 {porin} hypothetical protein [Geobacter uraniumreducens Rf4: NC_009483]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`637778188 YP_383876 {pc} cytochrome c family protein [Geobacter metallireducens GS-15: NC_007517]`[x] <- sum(FeSummary_sample$HMM == "637778188 YP_383876 {pc} cytochrome c family protein [Geobacter metallireducens GS-15: NC_007517]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`642769372 YP_002140172 {porin} hypothetical protein [Geobacter bemidjiensis Bem: NC_011146]`[x] <- sum(FeSummary_sample$HMM == "642769372 YP_002140172 {porin} hypothetical protein [Geobacter bemidjiensis Bem: NC_011146]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`643596352 YP_002493935 {pc} hypothetical protein [Anaeromyxobacter dehalogenans 2CP-1: NC_011891]`[x] <- sum(FeSummary_sample$HMM == "643596352 YP_002493935 {pc} hypothetical protein [Anaeromyxobacter dehalogenans 2CP-1: NC_011891]" & FeSummary_sample$Sample == i)
+   
+   FeReduction$`642769371 YP_002140171 {pc} hypothetical protein [Geobacter bemidjiensis Bem: NC_011146]`[x] <- sum(FeSummary_sample$HMM == "642769371 YP_002140171 {pc} hypothetical protein [Geobacter bemidjiensis Bem: NC_011146]" & FeSummary_sample$Sample == i)
+
+   x <- x + 1
+  
+}
+
+
+
+```
+
 
 ```{r combined sulfate reduction}
 SO4_red_combined <- merge(Assim_SO4_red, Dissim_SO4_red, by=c("Genome", "Sample", "KO.K00958"))
@@ -423,16 +538,12 @@ SO4_red_combinedRA <- SO4_red_combinedNumerical
 for(i in 1:dim(SO4_red_combinedNumerical)[1]){
   SO4_red_combinedRA[i,] <- SO4_red_combinedNumerical[i,]/sum(SO4_red_combinedNumerical[i,])
 }
+
+FeReductionRA <- FeReduction
+for(i in 1:dim(FeReduction)[1]){
+  FeReductionRA[i,] <- FeReduction[i,]/sum(FeReduction[i,])
+}
 ```
-
-```{r subset FeRed and FeOx from FeGenieRA}
-# Subset iron reduction column from FeGenie heatmap data:
-FeRedRA <- subset(FeGenieRA, select = iron_reduction)
-
-# Subset iron oxidation column from FeGenie heatmap data:
-FeOxRA <- subset(FeGenieRA, select = iron_oxidation)
-```
-
 
 ```{r lists of start and finish samples}
 #Make a list for start and finish, so you don't have to re-write it each time below
@@ -499,11 +610,8 @@ FeGenieRA_finish <- FeGenieRA[finish_metaG_samples,]
 SO4_red_combinedRA_start <- SO4_red_combinedRA[start_metaG_samples,]
 SO4_red_combinedRA_finish <- SO4_red_combinedRA[finish_metaG_samples,]
 
-FeRedRA_start <- FeRedRA[start_metaG_samples,]
-FeRedRA_finish <- FeRedRA[finish_metaG_samples,]
-
-FeOxRA_start <- FeOxRA[start_metaG_samples,]
-FeOxRA_finish <- FeOxRA[finish_metaG_samples,]
+FeReductionRA_start <- FeReductionRA[start_metaG_samples,]
+FeReductionRA_finish <- FeReductionRA[finish_metaG_samples,]
 ```
 
 ```{r for loop to generate dimension checks}
@@ -611,8 +719,9 @@ mtrBC_TIGRRA_design <- cbind(design, mtrBC_TIGRRA)
 FeGenieRA_design <- cbind(design, FeGenieRA)
 
 SO4_red_combinedRA_design <- cbind(design, SO4_red_combinedRA)
-FeRedRA_design <- cbind(design, FeRedRA)
-FeOxRA_design <- cbind(design, FeOxRA)
+
+FeReductionRA_design <- cbind(design, FeReductionRA)
+
 ```
 
 ## Bray Curtis dissimilarity
@@ -693,6 +802,13 @@ FeGenieBC_start <- vegdist(FeGenieRA_start, method = 'bray')
 FeGenieBC_finish <- vegdist(FeGenieRA_finish, method = 'bray')
 
 # Resume with SO4_red_combined, FeRed, and FeOx:
+SO4_red_combinedBC <- vegdist(SO4_red_combinedRA, method = 'bray')
+SO4_red_combinedBC_start <- vegdist(SO4_red_combinedRA_start, method = 'bray')
+SO4_red_combinedBC_finish <- vegdist(SO4_red_combinedRA_finish, method = 'bray')
+
+FeReductionBC <- vegdist(FeReductionRA, method = 'bray')
+FeReductionBC_start <- vegdist(FeReductionRA_start, method = 'bray')
+FeReductionBC_finish <- vegdist(FeReductionRA_finish, method = 'bray')
 ```
 
 ## GHG wrangling
@@ -984,6 +1100,22 @@ adonis_mtrBC_TIGR_H
 
 adonis_FeGenie_H = adonis2(FeGenieRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeGenieRA_design, perm=10000, set.seed=42)
 adonis_FeGenie_H
+
+adonis_SO4_red_combined_H = adonis2(SO4_red_combinedRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_red_combinedRA_design, perm=10000, set.seed=42)
+adonis_SO4_red_combined_H
+
+adonis_FeReduction_H = adonis2(FeReductionRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeReductionRA_design, perm=10000, set.seed=42)
+adonis_FeReduction_H
+```
+
+```{r PERMANOVAs on Finish Only gene sets}
+# subset *RA_design to remove _pre samples
+
+# Filter 'pre' samples out of *RA_design to get final samples only
+#mtrBC_TIGRRA_FIN_design <- mtrBC_TIGRRA_design %>% dplyr::filter(Treat != "_pre" & Plant != "_pre")
+
+
+# PERMANOVAs:
 ```
 
 
@@ -1068,7 +1200,7 @@ A_denit_SSF <-as.list(fit_denit_SSF$vectors)
 vec_denit_SSF <- as.data.frame(fit_denit_SSF$vectors$arrows*sqrt(fit_denit_SSF$vectors$r)*0.15)
 p_denit_SSF <- as.data.frame(A_denit_SSF$pvals)
 vec_denit_SSF <- cbind(vec_denit_SSF, p_denit_SSF)
-vec_denit_SSF <- subset(vec_denit_SSF, A_denit_SSF$pvals<=0.05)
+vec_denit_SSF <- subset(vec_denit_SSF, A_denit_SSF$pvals<0.05)
 
 
 #Plot using ggplot2
@@ -1172,7 +1304,7 @@ A_denit_SFO <-as.list(fit_denit_SFO$vectors)
 vec_denit_SFO <- as.data.frame(fit_denit_SFO$vectors$arrows*sqrt(fit_denit_SFO$vectors$r)*0.15)
 p_denit_SFO <- as.data.frame(A_denit_SFO$pvals)
 vec_denit_SFO <- cbind(vec_denit_SFO, p_denit_SFO)
-vec_denit_SFO <- subset(vec_denit_SFO, A_denit_SFO$pvals<=0.05)
+vec_denit_SFO <- subset(vec_denit_SFO, A_denit_SFO$pvals<0.05)
 
 
 
@@ -1283,7 +1415,7 @@ A_meth_SSF <-as.list(fit_meth_SSF$vectors)
 vec_meth_SSF <- as.data.frame(fit_meth_SSF$vectors$arrows*sqrt(fit_meth_SSF$vectors$r)*0.15)
 p_meth_SSF <- as.data.frame(A_meth_SSF$pvals)
 vec_meth_SSF <- cbind(vec_meth_SSF, p_meth_SSF)
-vec_meth_SSF <- subset(vec_meth_SSF, A_meth_SSF$pvals<=0.05)
+vec_meth_SSF <- subset(vec_meth_SSF, A_meth_SSF$pvals<0.05)
 
 
 #Plot using ggplot2
@@ -1385,7 +1517,7 @@ A_meth_SFO <-as.list(fit_meth_SFO$vectors)
 vec_meth_SFO <- as.data.frame(fit_meth_SFO$vectors$arrows*sqrt(fit_meth_SFO$vectors$r)*0.15)
 p_meth_SFO <- as.data.frame(A_meth_SFO$pvals)
 vec_meth_SFO <- cbind(vec_meth_SFO, p_meth_SFO)
-vec_meth_SFO <- subset(vec_meth_SFO, A_meth_SFO$pvals<=0.05)
+vec_meth_SFO <- subset(vec_meth_SFO, A_meth_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
 vec_meth_SFO$labels <- c("P", "Mg", "Ca", "Zn", "Cu", "CEC")
@@ -1499,7 +1631,7 @@ A_carb_metab_SSF <-as.list(fit_carb_metab_SSF$vectors)
 vec_carb_metab_SSF <- as.data.frame(fit_carb_metab_SSF$vectors$arrows*sqrt(fit_carb_metab_SSF$vectors$r)*0.15)
 p_carb_metab_SSF <- as.data.frame(A_carb_metab_SSF$pvals)
 vec_carb_metab_SSF <- cbind(vec_carb_metab_SSF, p_carb_metab_SSF)
-vec_carb_metab_SSF <- subset(vec_carb_metab_SSF, A_carb_metab_SSF$pvals<=0.05)
+vec_carb_metab_SSF <- subset(vec_carb_metab_SSF, A_carb_metab_SSF$pvals<0.05)
 
 #Plot using ggplot2
 df2c <- as.data.frame(carb_metab_centroids_points_merged)
@@ -1600,7 +1732,7 @@ A_carb_metab_SFO <-as.list(fit_carb_metab_SFO$vectors)
 vec_carb_metab_SFO <- as.data.frame(fit_carb_metab_SFO$vectors$arrows*sqrt(fit_carb_metab_SFO$vectors$r)*0.15)
 p_carb_metab_SFO <- as.data.frame(A_carb_metab_SFO$pvals)
 vec_carb_metab_SFO <- cbind(vec_carb_metab_SFO, p_carb_metab_SFO)
-vec_carb_metab_SFO <- subset(vec_carb_metab_SFO, A_carb_metab_SFO$pvals<=0.05)
+vec_carb_metab_SFO <- subset(vec_carb_metab_SFO, A_carb_metab_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
 vec_carb_metab_SFO$labels <- c("Mg", "Ca", "pH", "S", "Mn", "Cu", "HM", "CEC")
@@ -1714,7 +1846,7 @@ A_cytoCox_SSF <-as.list(fit_cytoCox_SSF$vectors)
 vec_cytoCox_SSF <- as.data.frame(fit_cytoCox_SSF$vectors$arrows*sqrt(fit_cytoCox_SSF$vectors$r)*0.15)
 p_cytoCox_SSF <- as.data.frame(A_cytoCox_SSF$pvals)
 vec_cytoCox_SSF <- cbind(vec_cytoCox_SSF, p_cytoCox_SSF)
-vec_cytoCox_SSF <- subset(vec_cytoCox_SSF, A_cytoCox_SSF$pvals<=0.05)
+vec_cytoCox_SSF <- subset(vec_cytoCox_SSF, A_cytoCox_SSF$pvals<0.05)
 
 #Plot using ggplot2
 df2d <- as.data.frame(cytoCox_centroids_points_merged)
@@ -1813,7 +1945,7 @@ A_cytoCox_SFO <-as.list(fit_cytoCox_SFO$vectors)
 vec_cytoCox_SFO <- as.data.frame(fit_cytoCox_SFO$vectors$arrows*sqrt(fit_cytoCox_SFO$vectors$r)*0.15)
 p_cytoCox_SFO <- as.data.frame(A_cytoCox_SFO$pvals)
 vec_cytoCox_SFO <- cbind(vec_cytoCox_SFO, p_cytoCox_SFO)
-vec_cytoCox_SFO <- subset(vec_cytoCox_SFO, A_cytoCox_SFO$pvals<=0.05)
+vec_cytoCox_SFO <- subset(vec_cytoCox_SFO, A_cytoCox_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
 #vec_cytoCox_SFO$labels <- c("ppm P", "ppm Zn", "ppm Cu")
@@ -1939,7 +2071,7 @@ A_SO4_S_Assim_SSF <-as.list(fit_SO4_S_Assim_SSF$vectors)
 vec_SO4_S_Assim_SSF <- as.data.frame(fit_SO4_S_Assim_SSF$vectors$arrows*sqrt(fit_SO4_S_Assim_SSF$vectors$r)*0.15)
 p_SO4_S_Assim_SSF <- as.data.frame(A_SO4_S_Assim_SSF$pvals)
 vec_SO4_S_Assim_SSF <- cbind(vec_SO4_S_Assim_SSF, p_SO4_S_Assim_SSF)
-vec_SO4_S_Assim_SSF <- subset(vec_SO4_S_Assim_SSF, A_SO4_S_Assim_SSF$pvals<=0.059) # Not happy with cutting out a p = 0.052 value
+vec_SO4_S_Assim_SSF <- subset(vec_SO4_S_Assim_SSF, A_SO4_S_Assim_SSF$pvals<0.05)
 
 #Plot using ggplot2
 df4a <- as.data.frame(SO4_S_Assim_centroids_points_merged)
@@ -1954,7 +2086,7 @@ plot4a <- ggplot(df4a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_SO4_S_Assim}%)")) + ylab(glue("PCoA 2 ({explainvar2b_SO4_S_Assim}%)")) + 
   geom_segment(data=vec_SO4_S_Assim_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_SO4_S_Assim_SSF, aes(x=Dim1, y=Dim2), label= c(expression(paste("mg CO"[2],"-C m"^{-2})), "%paint removed (redox)"), size=3, inherit.aes=F)+
+ geom_text(data=vec_SO4_S_Assim_SSF, aes(x=Dim1, y=Dim2-0.003), label= "%paint removed (redox)", size=3, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2040,7 +2172,7 @@ A_SO4_S_Assim_SFO <-as.list(fit_SO4_S_Assim_SFO$vectors)
 vec_SO4_S_Assim_SFO <- as.data.frame(fit_SO4_S_Assim_SFO$vectors$arrows*sqrt(fit_SO4_S_Assim_SFO$vectors$r)*0.15)
 p_SO4_S_Assim_SFO <- as.data.frame(A_SO4_S_Assim_SFO$pvals)
 vec_SO4_S_Assim_SFO <- cbind(vec_SO4_S_Assim_SFO, p_SO4_S_Assim_SFO)
-vec_SO4_S_Assim_SFO <- subset(vec_SO4_S_Assim_SFO, A_SO4_S_Assim_SFO$pvals<=0.05)
+vec_SO4_S_Assim_SFO <- subset(vec_SO4_S_Assim_SFO, A_SO4_S_Assim_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
 vec_SO4_S_Assim_SFO$labels <- c("Mg", "Ca", "S", "Zn", "Mn", "Cu", "CEC")
@@ -2059,7 +2191,7 @@ plot5a <- ggplot(df5a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_SO4_S_Assim_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_SO4_S_Assim_FIN}%)")) + 
   geom_segment(data=vec_SO4_S_Assim_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_SO4_S_Assim_SFO, aes(x=Dim1, y=Dim2), label=vec_SO4_S_Assim_SFO$labels, size=3.5, inherit.aes=F)+
+ geom_text(data=vec_SO4_S_Assim_SFO, aes(x=Dim1-0.007, y=Dim2+0.003), label=vec_SO4_S_Assim_SFO$labels, size=3.5, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2141,7 +2273,7 @@ A_Assim_SO4_red_SSF <-as.list(fit_Assim_SO4_red_SSF$vectors)
 vec_Assim_SO4_red_SSF <- as.data.frame(fit_Assim_SO4_red_SSF$vectors$arrows*sqrt(fit_Assim_SO4_red_SSF$vectors$r)*0.15)
 p_Assim_SO4_red_SSF <- as.data.frame(A_Assim_SO4_red_SSF$pvals)
 vec_Assim_SO4_red_SSF <- cbind(vec_Assim_SO4_red_SSF, p_Assim_SO4_red_SSF)
-vec_Assim_SO4_red_SSF <- subset(vec_Assim_SO4_red_SSF, A_Assim_SO4_red_SSF$pvals<=0.05)
+vec_Assim_SO4_red_SSF <- subset(vec_Assim_SO4_red_SSF, A_Assim_SO4_red_SSF$pvals<0.05)
 
 #Plot using ggplot2
 df4b <- as.data.frame(Assim_SO4_red_centroids_points_merged)
@@ -2242,7 +2374,7 @@ A_Assim_SO4_red_SFO <-as.list(fit_Assim_SO4_red_SFO$vectors)
 vec_Assim_SO4_red_SFO <- as.data.frame(fit_Assim_SO4_red_SFO$vectors$arrows*sqrt(fit_Assim_SO4_red_SFO$vectors$r)*0.15)
 p_Assim_SO4_red_SFO <- as.data.frame(A_Assim_SO4_red_SFO$pvals)
 vec_Assim_SO4_red_SFO <- cbind(vec_Assim_SO4_red_SFO, p_Assim_SO4_red_SFO)
-vec_Assim_SO4_red_SFO <- subset(vec_Assim_SO4_red_SFO, A_Assim_SO4_red_SFO$pvals<=0.05)
+vec_Assim_SO4_red_SFO <- subset(vec_Assim_SO4_red_SFO, A_Assim_SO4_red_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
 vec_Assim_SO4_red_SFO$labels <- c("%C", "Mg", "Ca", "S", "Zn", "Mn", "Cu", "CEC")
@@ -2343,7 +2475,7 @@ A_Dissim_SO4_red_SSF <-as.list(fit_Dissim_SO4_red_SSF$vectors)
 vec_Dissim_SO4_red_SSF <- as.data.frame(fit_Dissim_SO4_red_SSF$vectors$arrows*sqrt(fit_Dissim_SO4_red_SSF$vectors$r)*0.15)
 p_Dissim_SO4_red_SSF <- as.data.frame(A_Dissim_SO4_red_SSF$pvals)
 vec_Dissim_SO4_red_SSF <- cbind(vec_Dissim_SO4_red_SSF, p_Dissim_SO4_red_SSF)
-vec_Dissim_SO4_red_SSF <- subset(vec_Dissim_SO4_red_SSF, A_Dissim_SO4_red_SSF$pvals<=0.05)
+vec_Dissim_SO4_red_SSF <- subset(vec_Dissim_SO4_red_SSF, A_Dissim_SO4_red_SSF$pvals<0.05)
 
 #Plot using ggplot2
 df4c <- as.data.frame(Dissim_SO4_red_centroids_points_merged)
@@ -2441,10 +2573,10 @@ A_Dissim_SO4_red_SFO <-as.list(fit_Dissim_SO4_red_SFO$vectors)
 vec_Dissim_SO4_red_SFO <- as.data.frame(fit_Dissim_SO4_red_SFO$vectors$arrows*sqrt(fit_Dissim_SO4_red_SFO$vectors$r)*0.15)
 p_Dissim_SO4_red_SFO <- as.data.frame(A_Dissim_SO4_red_SFO$pvals)
 vec_Dissim_SO4_red_SFO <- cbind(vec_Dissim_SO4_red_SFO, p_Dissim_SO4_red_SFO)
-vec_Dissim_SO4_red_SFO <- subset(vec_Dissim_SO4_red_SFO, A_Dissim_SO4_red_SFO$pvals<=0.05)
+vec_Dissim_SO4_red_SFO <- subset(vec_Dissim_SO4_red_SFO, A_Dissim_SO4_red_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
-vec_Dissim_SO4_red_SFO$labels <- c(expression(paste("mg CH"[4],"-C m"^{-2})), "P", "Ca", "Cu")
+vec_Dissim_SO4_red_SFO$labels <- c(expression(paste("mg CH"[4],"-C m"^{-2})), "P", "Cu")
 
 
 #Plot using ggplot2
@@ -2541,7 +2673,7 @@ A_ThioSOX_SSF <-as.list(fit_ThioSOX_SSF$vectors)
 vec_ThioSOX_SSF <- as.data.frame(fit_ThioSOX_SSF$vectors$arrows*sqrt(fit_ThioSOX_SSF$vectors$r)*0.15)
 p_ThioSOX_SSF <- as.data.frame(A_ThioSOX_SSF$pvals)
 vec_ThioSOX_SSF <- cbind(vec_ThioSOX_SSF, p_ThioSOX_SSF)
-vec_ThioSOX_SSF <- subset(vec_ThioSOX_SSF, A_ThioSOX_SSF$pvals<=0.05)
+vec_ThioSOX_SSF <- subset(vec_ThioSOX_SSF, A_ThioSOX_SSF$pvals<0.05)
 
 #Plot using ggplot2
 df4d <- as.data.frame(ThioSOX_centroids_points_merged)
@@ -2639,7 +2771,7 @@ A_ThioSOX_SFO <-as.list(fit_ThioSOX_SFO$vectors)
 vec_ThioSOX_SFO <- as.data.frame(fit_ThioSOX_SFO$vectors$arrows*sqrt(fit_ThioSOX_SFO$vectors$r)*0.15)
 p_ThioSOX_SFO <- as.data.frame(A_ThioSOX_SFO$pvals)
 vec_ThioSOX_SFO <- cbind(vec_ThioSOX_SFO, p_ThioSOX_SFO)
-vec_ThioSOX_SFO <- subset(vec_ThioSOX_SFO, A_ThioSOX_SFO$pvals<=0.05)
+vec_ThioSOX_SFO <- subset(vec_ThioSOX_SFO, A_ThioSOX_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
 vec_ThioSOX_SFO$labels <- c("Mg", "Ca", "pH", "S", "CEC")
@@ -2685,7 +2817,7 @@ S_pcoa_4panel_SSF
 
 #ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 300)
 
-ggsave("../figures/Thesis/S_pcoa4panel_SSF.jpg", plot = S_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
+#ggsave("../figures/Thesis/S_pcoa4panel_SSF.jpg", plot = S_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 
 # 4 panel Sulfur PCoA, Finish samples only (SFO)
 
@@ -2693,7 +2825,7 @@ S_pcoa_4panel_SFO <- ggarrange(plot5a, plot5b, plot5c, plot5d, labels = c("A", "
 
 S_pcoa_4panel_SFO
 
-ggsave("../figures/Thesis/S_pcoa4panel_SFO.jpg", plot = S_pcoa_4panel_SFO, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
+#ggsave("../figures/Thesis/S_pcoa4panel_SFO.jpg", plot = S_pcoa_4panel_SFO, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
 ```{r FeGenie total: SSF}
@@ -2761,7 +2893,7 @@ A_FeGenie_SSF <-as.list(fit_FeGenie_SSF$vectors)
 vec_FeGenie_SSF <- as.data.frame(fit_FeGenie_SSF$vectors$arrows*sqrt(fit_FeGenie_SSF$vectors$r)*0.15)
 p_FeGenie_SSF <- as.data.frame(A_FeGenie_SSF$pvals)
 vec_FeGenie_SSF <- cbind(vec_FeGenie_SSF, p_FeGenie_SSF)
-vec_FeGenie_SSF <- subset(vec_FeGenie_SSF, A_FeGenie_SSF$pvals<=0.05)
+vec_FeGenie_SSF <- subset(vec_FeGenie_SSF, A_FeGenie_SSF$pvals<0.05)
 
 # Add column with labels, for plotting:
 #vec_FeGenie_SSF$labels <- c(expression(paste("mg CH"[4],"-C m"^{-2})), "P", "Ca", "Cu")
@@ -2792,7 +2924,6 @@ plot6a <- ggplot(df6a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 
 plot6a
 ```
-
 
 ```{r FeGenie total: SFO}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -2863,7 +2994,7 @@ A_FeGenie_SFO <-as.list(fit_FeGenie_SFO$vectors)
 vec_FeGenie_SFO <- as.data.frame(fit_FeGenie_SFO$vectors$arrows*sqrt(fit_FeGenie_SFO$vectors$r)*0.15)
 p_FeGenie_SFO <- as.data.frame(A_FeGenie_SFO$pvals)
 vec_FeGenie_SFO <- cbind(vec_FeGenie_SFO, p_FeGenie_SFO)
-vec_FeGenie_SFO <- subset(vec_FeGenie_SFO, A_FeGenie_SFO$pvals<=0.05)
+vec_FeGenie_SFO <- subset(vec_FeGenie_SFO, A_FeGenie_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
 vec_FeGenie_SFO$labels <- c("Ca", "pH")
@@ -2902,7 +3033,7 @@ plot6b
 # extract legend that includes baseline:
 leg <- get_legend(plot2a, position = "right") #Extract legend as a legend Grob
 
-# panel with common legend = F and add legend grob
+# panel and add legend grob
 FeGenieTotal_2panel <- ggarrange(plot6a, plot6b, ncol = 1, nrow = 2, labels = c("A", "B"), legend.grob = leg, legend = "right")
 
 FeGenieTotal_2panel
@@ -2910,8 +3041,421 @@ FeGenieTotal_2panel
 #ggsave("../figures/Thesis/FeGenieTotal_2panel.jpg", plot = FeGenieTotal_2panel, device=NULL, path=NULL, scale=1, height = 10, width = 7, limitsize = TRUE, dpi = 600)
 ```
 
+```{r Fe reduction FeGenie: SSF}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_FeReduction <- cmdscale(FeReductionBC, k=2, eig=TRUE, add=T)
+
+explainvar1_FeReduction <- round(pcoa_FeReduction$eig[1] / sum(pcoa_FeReduction$eig), 3) * 100
+explainvar2_FeReduction <- round(pcoa_FeReduction$eig[2] / sum(pcoa_FeReduction$eig), 3) * 100
+
+explainvar1_FeReduction # 24.4
+explainvar2_FeReduction # 16.7
+
+pcoa_FeReduction.groups <- paste(FeReductionRA_design$Treat, FeReductionRA_design$Plant, FeReductionRA_design$Hist, sep = "_")
+pcoa_FeReduction.points <- data.frame(pcoa_FeReduction$points, group = pcoa_FeReduction.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_FeReduction.L.centroids <- reshape2::melt(pcoa_FeReduction.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_FeReduction.centroids <- acast(pcoa_FeReduction.L.centroids, variable ~ group, mean)
+pcoa_FeReduction.centroids.se <- acast(pcoa_FeReduction.L.centroids, variable ~ group, se)
+pcoa_FeReduction.centroids.sd <- acast(pcoa_FeReduction.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_FeReduction.cent.dataframe <- cbind(t(pcoa_FeReduction.centroids), t(pcoa_FeReduction.centroids.se))
+colnames(pcoa_FeReduction.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# No need to run again if these lists have already been declared:
+#trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+#plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+#history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+#trt_plant_combined <- c(paste(trt, plant, sep = "_"))
+
+pcoa_FeReduction.cent.dataframe.trts <- as.data.frame(pcoa_FeReduction.cent.dataframe) 
+pcoa_FeReduction.cent.dataframe.trts$trt <- as.factor(trt_H)
+pcoa_FeReduction.cent.dataframe.trts$plant <- as.factor(plant_H)
+pcoa_FeReduction.cent.dataframe.trts$history <- as.factor(history)
+pcoa_FeReduction.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined)
+pcoa_FeReduction.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_FeReduction.points_ForPlot <- pcoa_FeReduction.points
+colnames(pcoa_FeReduction.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_FeReduction.points_ForPlot$trt <- FeReductionRA_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_FeReduction.points_ForPlot$plant <- FeReductionRA_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_FeReduction.points_ForPlot$history <- FeReductionRA_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_FeReduction.points_ForPlot$history_plant <- c(paste(pcoa_FeReduction.points_ForPlot$history, pcoa_FeReduction.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_FeReduction.points_ForPlot <- pcoa_FeReduction.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_FeReduction.points_ForPlot$V1e <- numeric(24)
+pcoa_FeReduction.points_ForPlot$V2e <- numeric(24)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_FeReduction.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+FeReduction_centroids_points_merged <- rbind(pcoa_FeReduction.cent.dataframe.trts, pcoa_FeReduction.points_ForPlot)
+```
+```{r Fe reduction FeGenie SSF envit and plot}
+#Run envfit with new Soil data (SSF = Soil Start & Finish):
+fit_FeReduction_SSF <- envfit(pcoa_FeReduction$points, SoilGHG_StartFinish_Envfit, permutations = 10000)
+fit_FeReduction_SSF
+
+A_FeReduction_SSF <-as.list(fit_FeReduction_SSF$vectors)
+vec_FeReduction_SSF <- as.data.frame(fit_FeReduction_SSF$vectors$arrows*sqrt(fit_FeReduction_SSF$vectors$r)*0.15)
+p_FeReduction_SSF <- as.data.frame(A_FeReduction_SSF$pvals)
+vec_FeReduction_SSF <- cbind(vec_FeReduction_SSF, p_FeReduction_SSF)
+vec_FeReduction_SSF <- subset(vec_FeReduction_SSF, A_FeReduction_SSF$pvals<0.05)
+
+# Add column with labels, for plotting:
+#vec_FeReduction_SSF$labels <- c(expression(paste("mg CH"[4],"-C m"^{-2})), "P", "Ca", "Cu")
+
+#Plot using ggplot2
+df7a <- as.data.frame(FeReduction_centroids_points_merged)
+
+plot7a <- ggplot(df7a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1_FeReduction}%)")) + ylab(glue("PCoA 2 ({explainvar2_FeReduction}%)")) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14), legend.position = "none")+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Fe Reduction Start/Finish")
+
+plot7a
+```
+
+```{r Fe reduction FeGenie: SFO}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_FeReduction_FINAL <- cmdscale(FeReductionBC_finish, k=2, eig=TRUE, add=TRUE) # k = 2 because we only plot 2 dimensions, add=TRUE corrects highly negative eigenvalues
 
 
+explainvar1_FeReduction_FIN <- round(pcoa_FeReduction_FINAL$eig[1] / sum(pcoa_FeReduction_FINAL$eig), 3) * 100
+explainvar2_FeReduction_FIN <- round(pcoa_FeReduction_FINAL$eig[2] / sum(pcoa_FeReduction_FINAL$eig), 3) * 100
+
+explainvar1_FeReduction_FIN # 25.1
+explainvar2_FeReduction_FIN # 21.8
+
+# Filter 'pre' samples out of *RA_design to get final samples only
+FeReductionRA_FIN_design <- FeReductionRA_design %>% dplyr::filter(Treat != "_pre" & Plant != "_pre")
+
+pcoa_FeReduction_FIN.groups <- paste(FeReductionRA_FIN_design$Treat, FeReductionRA_FIN_design$Plant, FeReductionRA_FIN_design$Hist, sep = "_")
+pcoa_FeReduction_FIN.points <- data.frame(pcoa_FeReduction_FINAL$points, group = pcoa_FeReduction_FIN.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_FeReduction_FIN.L.centroids <- reshape2::melt(pcoa_FeReduction_FIN.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_FeReduction_FIN.centroids <- acast(pcoa_FeReduction_FIN.L.centroids, variable ~ group, mean)
+pcoa_FeReduction_FIN.centroids.se <- acast(pcoa_FeReduction_FIN.L.centroids, variable ~ group, se)
+pcoa_FeReduction_FIN.centroids.sd <- acast(pcoa_FeReduction_FIN.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_FeReduction_FIN.cent.dataframe <- cbind(t(pcoa_FeReduction_FIN.centroids), t(pcoa_FeReduction_FIN.centroids.se))
+colnames(pcoa_FeReduction_FIN.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# Adding columns with the factors. (No need to run again if already in Global Environment)
+#trt_FIN <- c("Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+#plant_FIN <- c("No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+#history_FIN <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+#history_plant_combined_FIN <- c(paste(history_FIN, plant_FIN, sep = "_"))
+
+pcoa_FeReduction_FIN.cent.dataframe.trts <- as.data.frame(pcoa_FeReduction_FIN.cent.dataframe) 
+pcoa_FeReduction_FIN.cent.dataframe.trts$trt <- as.factor(trt_FIN)
+pcoa_FeReduction_FIN.cent.dataframe.trts$plant <- as.factor(plant_FIN)
+pcoa_FeReduction_FIN.cent.dataframe.trts$history <- as.factor(history_FIN)
+pcoa_FeReduction_FIN.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined_FIN)
+pcoa_FeReduction_FIN.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_FeReduction_FIN.points_ForPlot <- pcoa_FeReduction_FIN.points
+colnames(pcoa_FeReduction_FIN.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_FeReduction_FIN.points_ForPlot$trt <- FeReductionRA_FIN_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_FeReduction_FIN.points_ForPlot$plant <- FeReductionRA_FIN_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_FeReduction_FIN.points_ForPlot$history <- FeReductionRA_FIN_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_FeReduction_FIN.points_ForPlot$history_plant <- c(paste(pcoa_FeReduction_FIN.points_ForPlot$history, pcoa_FeReduction_FIN.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_FeReduction_FIN.points_ForPlot <- pcoa_FeReduction_FIN.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_FeReduction_FIN.points_ForPlot$V1e <- numeric(16)
+pcoa_FeReduction_FIN.points_ForPlot$V2e <- numeric(16)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_FeReduction_FIN.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+FeReduction_FIN_centroids_points_merged <- rbind(pcoa_FeReduction_FIN.cent.dataframe.trts, pcoa_FeReduction_FIN.points_ForPlot)
+
+
+#Run envfit with new Soil data (SFO = Soil Finish Only):
+fit_FeReduction_SFO <- envfit(pcoa_FeReduction_FINAL$points, envfit_FINISH_numerical, permutations = 10000)
+fit_FeReduction_SFO
+
+A_FeReduction_SFO <-as.list(fit_FeReduction_SFO$vectors)
+vec_FeReduction_SFO <- as.data.frame(fit_FeReduction_SFO$vectors$arrows*sqrt(fit_FeReduction_SFO$vectors$r)*0.4) # adjusting to dodge points
+p_FeReduction_SFO <- as.data.frame(A_FeReduction_SFO$pvals)
+vec_FeReduction_SFO <- cbind(vec_FeReduction_SFO, p_FeReduction_SFO)
+vec_FeReduction_SFO <- subset(vec_FeReduction_SFO, A_FeReduction_SFO$pvals<0.05)
+
+# Add column with labels, for plotting:
+vec_FeReduction_SFO$labels <- c(expression(paste("mg CH"[4],"-C m"^{-2})), "%C, %N", "%N, %C", "P", "Ca", "Cu", "CEC")
+  # %C and %N will overlap below, and one label needs to be removed using check_overlap = T. So, the label for both has been combined into one
+
+#Plot using ggplot2
+df7b <- as.data.frame(FeReduction_FIN_centroids_points_merged)
+
+plot7b <- ggplot(df7b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1_FeReduction_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_FeReduction_FIN}%)")) + 
+  geom_segment(data=vec_FeReduction_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_FeReduction_SFO, aes(x=Dim1, y=Dim2+0.02), label=vec_FeReduction_SFO$labels, size=3.5, check_overlap = T,inherit.aes=F)+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14), legend.position = "none")+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Fe Reduction Finish")
+
+plot7b
+```
+
+```{r SO4 reduction combined: SSF}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_SO4_red_combined <- cmdscale(SO4_red_combinedBC, k=2, eig=TRUE, add=TRUE)
+
+explainvar1_SO4_red_combined <- round(pcoa_SO4_red_combined$eig[1] / sum(pcoa_SO4_red_combined$eig), 3) * 100
+explainvar2_SO4_red_combined <- format(round(pcoa_SO4_red_combined$eig[2] / sum(pcoa_SO4_red_combined$eig), 3) * 100, nsmall = 1) # Using format() to get .0
+
+explainvar1_SO4_red_combined # 31.7
+explainvar2_SO4_red_combined # 17.0
+
+
+pcoa_SO4_red_combined.groups <- paste(SO4_red_combinedRA_design$Treat, SO4_red_combinedRA_design$Plant, SO4_red_combinedRA_design$Hist, sep = "_")
+pcoa_SO4_red_combined.points <- data.frame(pcoa_SO4_red_combined$points, group = pcoa_SO4_red_combined.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_SO4_red_combined.L.centroids <- reshape2::melt(pcoa_SO4_red_combined.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_SO4_red_combined.centroids <- acast(pcoa_SO4_red_combined.L.centroids, variable ~ group, mean)
+pcoa_SO4_red_combined.centroids.se <- acast(pcoa_SO4_red_combined.L.centroids, variable ~ group, se)
+pcoa_SO4_red_combined.centroids.sd <- acast(pcoa_SO4_red_combined.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_SO4_red_combined.cent.dataframe <- cbind(t(pcoa_SO4_red_combined.centroids), t(pcoa_SO4_red_combined.centroids.se))
+colnames(pcoa_SO4_red_combined.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# No need to run again if these lists have already been declared:
+#trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+#plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+#history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+#trt_plant_combined <- c(paste(trt, plant, sep = "_"))
+
+pcoa_SO4_red_combined.cent.dataframe.trts <- as.data.frame(pcoa_SO4_red_combined.cent.dataframe) 
+pcoa_SO4_red_combined.cent.dataframe.trts$trt <- as.factor(trt_H)
+pcoa_SO4_red_combined.cent.dataframe.trts$plant <- as.factor(plant_H)
+pcoa_SO4_red_combined.cent.dataframe.trts$history <- as.factor(history)
+pcoa_SO4_red_combined.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined)
+pcoa_SO4_red_combined.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_SO4_red_combined.points_ForPlot <- pcoa_SO4_red_combined.points
+colnames(pcoa_SO4_red_combined.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_SO4_red_combined.points_ForPlot$trt <- SO4_red_combinedRA_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_SO4_red_combined.points_ForPlot$plant <- SO4_red_combinedRA_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_SO4_red_combined.points_ForPlot$history <- SO4_red_combinedRA_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_SO4_red_combined.points_ForPlot$history_plant <- c(paste(pcoa_SO4_red_combined.points_ForPlot$history, pcoa_SO4_red_combined.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_SO4_red_combined.points_ForPlot <- pcoa_SO4_red_combined.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_SO4_red_combined.points_ForPlot$V1e <- numeric(24)
+pcoa_SO4_red_combined.points_ForPlot$V2e <- numeric(24)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_SO4_red_combined.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+SO4_red_combined_centroids_points_merged <- rbind(pcoa_SO4_red_combined.cent.dataframe.trts, pcoa_SO4_red_combined.points_ForPlot)
+```
+```{r SO4 reduction combined SSF envit and plot}
+#Run envfit with new Soil data (SSF = Soil Start & Finish):
+fit_SO4_red_combined_SSF <- envfit(pcoa_SO4_red_combined$points, SoilGHG_StartFinish_Envfit, permutations = 10000)
+fit_SO4_red_combined_SSF
+
+A_SO4_red_combined_SSF <-as.list(fit_SO4_red_combined_SSF$vectors)
+vec_SO4_red_combined_SSF <- as.data.frame(fit_SO4_red_combined_SSF$vectors$arrows*sqrt(fit_SO4_red_combined_SSF$vectors$r)*0.15)
+p_SO4_red_combined_SSF <- as.data.frame(A_SO4_red_combined_SSF$pvals)
+vec_SO4_red_combined_SSF <- cbind(vec_SO4_red_combined_SSF, p_SO4_red_combined_SSF)
+vec_SO4_red_combined_SSF <- subset(vec_SO4_red_combined_SSF, A_SO4_red_combined_SSF$pvals<0.05)
+
+# Add column with labels, for plotting:
+vec_SO4_red_combined_SSF$labels <- "%moisture"
+
+#Plot using ggplot2
+df7c <- as.data.frame(SO4_red_combined_centroids_points_merged)
+
+plot7c <- ggplot(df7c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1_SO4_red_combined}%)")) + ylab(glue("PCoA 2 ({explainvar2_SO4_red_combined}%)")) + 
+  geom_segment(data=vec_SO4_red_combined_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_SO4_red_combined_SSF, aes(x=Dim1, y=Dim2-0.004), label=vec_SO4_red_combined_SSF$labels, size=3.5, inherit.aes=F)+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14), legend.position = "none")+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Sulfate Reduction Start/Finish")
+
+plot7c
+```
+
+```{r SO4 reduction combined total: SFO}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_SO4_red_combined_FINAL <- cmdscale(SO4_red_combinedBC_finish, k=2, eig=TRUE, add=TRUE) # k = 2 because we only plot 2 dimensions, add=TRUE corrects highly negative eigenvalues
+
+
+explainvar1_SO4_red_combined_FIN <- round(pcoa_SO4_red_combined_FINAL$eig[1] / sum(pcoa_SO4_red_combined_FINAL$eig), 3) * 100
+explainvar2_SO4_red_combined_FIN <- round(pcoa_SO4_red_combined_FINAL$eig[2] / sum(pcoa_SO4_red_combined_FINAL$eig), 3) * 100
+
+explainvar1_SO4_red_combined_FIN # 43.5
+explainvar2_SO4_red_combined_FIN # 13.5
+
+# Filter 'pre' samples out of *RA_design to get final samples only
+SO4_red_combinedRA_FIN_design <- SO4_red_combinedRA_design %>% dplyr::filter(Treat != "_pre" & Plant != "_pre")
+
+pcoa_SO4_red_combined_FIN.groups <- paste(SO4_red_combinedRA_FIN_design$Treat, SO4_red_combinedRA_FIN_design$Plant, SO4_red_combinedRA_FIN_design$Hist, sep = "_")
+pcoa_SO4_red_combined_FIN.points <- data.frame(pcoa_SO4_red_combined_FINAL$points, group = pcoa_SO4_red_combined_FIN.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_SO4_red_combined_FIN.L.centroids <- reshape2::melt(pcoa_SO4_red_combined_FIN.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_SO4_red_combined_FIN.centroids <- acast(pcoa_SO4_red_combined_FIN.L.centroids, variable ~ group, mean)
+pcoa_SO4_red_combined_FIN.centroids.se <- acast(pcoa_SO4_red_combined_FIN.L.centroids, variable ~ group, se)
+pcoa_SO4_red_combined_FIN.centroids.sd <- acast(pcoa_SO4_red_combined_FIN.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_SO4_red_combined_FIN.cent.dataframe <- cbind(t(pcoa_SO4_red_combined_FIN.centroids), t(pcoa_SO4_red_combined_FIN.centroids.se))
+colnames(pcoa_SO4_red_combined_FIN.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# Adding columns with the factors. (No need to run again if already in Global Environment)
+#trt_FIN <- c("Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+#plant_FIN <- c("No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+#history_FIN <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+#history_plant_combined_FIN <- c(paste(history_FIN, plant_FIN, sep = "_"))
+
+pcoa_SO4_red_combined_FIN.cent.dataframe.trts <- as.data.frame(pcoa_SO4_red_combined_FIN.cent.dataframe) 
+pcoa_SO4_red_combined_FIN.cent.dataframe.trts$trt <- as.factor(trt_FIN)
+pcoa_SO4_red_combined_FIN.cent.dataframe.trts$plant <- as.factor(plant_FIN)
+pcoa_SO4_red_combined_FIN.cent.dataframe.trts$history <- as.factor(history_FIN)
+pcoa_SO4_red_combined_FIN.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined_FIN)
+pcoa_SO4_red_combined_FIN.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_SO4_red_combined_FIN.points_ForPlot <- pcoa_SO4_red_combined_FIN.points
+colnames(pcoa_SO4_red_combined_FIN.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_SO4_red_combined_FIN.points_ForPlot$trt <- SO4_red_combinedRA_FIN_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_SO4_red_combined_FIN.points_ForPlot$plant <- SO4_red_combinedRA_FIN_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_SO4_red_combined_FIN.points_ForPlot$history <- SO4_red_combinedRA_FIN_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_SO4_red_combined_FIN.points_ForPlot$history_plant <- c(paste(pcoa_SO4_red_combined_FIN.points_ForPlot$history, pcoa_SO4_red_combined_FIN.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_SO4_red_combined_FIN.points_ForPlot <- pcoa_SO4_red_combined_FIN.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_SO4_red_combined_FIN.points_ForPlot$V1e <- numeric(16)
+pcoa_SO4_red_combined_FIN.points_ForPlot$V2e <- numeric(16)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_SO4_red_combined_FIN.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+SO4_red_combined_FIN_centroids_points_merged <- rbind(pcoa_SO4_red_combined_FIN.cent.dataframe.trts, pcoa_SO4_red_combined_FIN.points_ForPlot)
+
+
+#Run envfit with new Soil data (SFO = Soil Finish Only):
+fit_SO4_red_combined_SFO <- envfit(pcoa_SO4_red_combined_FINAL$points, envfit_FINISH_numerical, permutations = 10000)
+fit_SO4_red_combined_SFO
+
+A_SO4_red_combined_SFO <-as.list(fit_SO4_red_combined_SFO$vectors)
+vec_SO4_red_combined_SFO <- as.data.frame(fit_SO4_red_combined_SFO$vectors$arrows*sqrt(fit_SO4_red_combined_SFO$vectors$r)*0.15)
+p_SO4_red_combined_SFO <- as.data.frame(A_SO4_red_combined_SFO$pvals)
+vec_SO4_red_combined_SFO <- cbind(vec_SO4_red_combined_SFO, p_SO4_red_combined_SFO)
+vec_SO4_red_combined_SFO <- subset(vec_SO4_red_combined_SFO, A_SO4_red_combined_SFO$pvals<0.05)
+
+# Add column with labels, for plotting:
+vec_SO4_red_combined_SFO$labels <- c("Mg", "Ca", "S", "Mn", "Cu", "CEC")
+
+
+#Plot using ggplot2
+df7d <- as.data.frame(SO4_red_combined_FIN_centroids_points_merged)
+
+plot7d <- ggplot(df7d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1_SO4_red_combined_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_SO4_red_combined_FIN}%)")) + 
+  geom_segment(data=vec_SO4_red_combined_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_SO4_red_combined_SFO, aes(x=Dim1, y=Dim2+0.005), label=vec_SO4_red_combined_SFO$labels, size=3.5, inherit.aes=F)+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14), legend.position = "none")+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Sulfate Reduction Finish")
+
+plot7d
+```
+
+```{r four panel Fe and SO4 reduction}
+# use same 'leg' for legend grob
+
+# panel and add legend grob
+FeRed_SO4Red_4panel <- ggarrange(plot7a, plot7b, plot7c, plot7d, ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), legend.grob = leg, legend = "right")
+
+FeRed_SO4Red_4panel
+
+#ggsave("../figures/Thesis/FeRed_SO4Red_4panel.jpg", plot = FeRed_SO4Red_4panel, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
+```
 
 
 
