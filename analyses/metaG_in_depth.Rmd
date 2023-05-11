@@ -143,7 +143,7 @@ FeMerged <- FeMerged[match(sample_order, FeMerged$Sample), ]
 ```
 
 ```{r wrangle FeSummary}
-# purpose: create FeRed and FeOx dataframes with same layout as KEGG Module data from IMG/MER
+# purpose: create FeRed dataframe with same layout as KEGG Module data from IMG/MER
 
 # create taxon_oid column
 FeSummary$taxon_oid <- as.vector(str_sub(FeSummary$genome.assembly, start = 1, end = -7))
@@ -154,7 +154,7 @@ taxon_oid_sample <- metaGmetaD %>% dplyr::select(c(taxon_oid, Sample))
 # create sample column, matched with taxon oid
 FeSummary_sample <- merge(FeSummary, taxon_oid_sample, by = "taxon_oid") 
 
-# start by filtering only Fe Reduction category: 
+# Filter only Fe Reduction category: 
 FeSummaryRED <- FeSummary %>% dplyr::filter(category == "iron_reduction")
 
 # create a df:
@@ -1029,7 +1029,32 @@ summary(finish.denit.dbplsr.co2)
 ```
 
 ```{r dbplsr continued}
+# CO2 ~ Assimilatory sulfate reduction:
+start.Assim_SO4_red.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CO2.N.m.2 ~ as.matrix(Assim_SO4_redBC_start), ncomp = 7, method = "GCV")
+summary(start.Assim_SO4_red.dbplsr)
+#plot(start.Assim_SO4_red.dbplsr)
 
+finish.Assim_SO4_red.dbplsr <- dbplsr(GHG_finish_metaG$mg.CO2.N.m.2 ~ as.matrix(Assim_SO4_redBC_finish), ncomp = 15, method = "GCV")
+summary(finish.Assim_SO4_red.dbplsr)
+#plot(finish.Assim_SO4_red.dbplsr)
+
+# CH4 ~ Dissimilatory sulfate reduction:
+start.Dissim_SO4_red.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CH4.N.m.2~ as.matrix(Dissim_SO4_redBC_start), ncomp = 7, method = "GCV")
+summary(start.Dissim_SO4_red.dbplsr)
+#plot(start.Dissim_SO4_red.dbplsr)
+
+finish.Dissim_SO4_red.dbplsr <- dbplsr(GHG_finish_metaG$mg.CH4.N.m.2 ~ as.matrix(Dissim_SO4_redBC_finish), ncomp = 15, method = "GCV")
+summary(finish.Dissim_SO4_red.dbplsr)
+#plot(finish.Dissim_SO4_red.dbplsr)
+
+# CH4 ~ Fe reduction:
+start.FeReduction.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CH4.N.m.2 ~ as.matrix(FeReductionBC_start), ncomp = 7, method = "GCV")
+summary(start.FeReduction.dbplsr)
+#plot(start.FeReduction.dbplsr)
+
+finish.FeReduction.dbplsr <- dbplsr(GHG_finish_metaG$mg.CH4.N.m.2 ~ as.matrix(FeReductionBC_finish), ncomp = 15, method = "GCV")
+summary(finish.FeReduction.dbplsr)
+#plot(finish.FeReduction.dbplsr)
 ```
 
 
@@ -1111,9 +1136,11 @@ adonis_FeReduction_H
 ```{r PERMANOVAs on Finish Only gene sets}
 # subset *RA_design to remove _pre samples
 
+
 # Filter 'pre' samples out of *RA_design to get final samples only
 #mtrBC_TIGRRA_FIN_design <- mtrBC_TIGRRA_design %>% dplyr::filter(Treat != "_pre" & Plant != "_pre")
 
+# already done in PCoA code; moving this chunk below PCoAs.
 
 # PERMANOVAs:
 ```
@@ -1297,7 +1324,7 @@ denit_FIN_centroids_points_merged <- rbind(pcoa_denit_FIN.cent.dataframe.trts, p
 
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_denit_SFO <- envfit(pcoa_denit_FINAL$points, envfit_FINISH_numerical, permutations = 100000)
+fit_denit_SFO <- envfit(pcoa_denit_FINAL$points, envfit_FINISH_numerical, permutations = 10000)
 fit_denit_SFO
 
 A_denit_SFO <-as.list(fit_denit_SFO$vectors)
@@ -2064,7 +2091,7 @@ SO4_S_Assim_centroids_points_merged <- rbind(pcoa_SO4_S_Assim2.cent.dataframe.tr
 ```
 ```{r SO4_S_Assim envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_SO4_S_Assim_SSF <- envfit(pcoa_SO4_S_Assim$points, SoilGHG_StartFinish_Envfit, permutations = 100000)
+fit_SO4_S_Assim_SSF <- envfit(pcoa_SO4_S_Assim$points, SoilGHG_StartFinish_Envfit, permutations = 10000)
 fit_SO4_S_Assim_SSF
 
 A_SO4_S_Assim_SSF <-as.list(fit_SO4_S_Assim_SSF$vectors)
@@ -3457,7 +3484,121 @@ FeRed_SO4Red_4panel
 #ggsave("../figures/Thesis/FeRed_SO4Red_4panel.jpg", plot = FeRed_SO4Red_4panel, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
 ```
 
+```{r PERMANOVA on Finish only gene sets}
+# this chunk is down here because *RA_FIN_design data frames were made in PCoAs. This chunk, and the creation of *RA_FIN_design data frames may be re positioned later.
 
+# data frame name example: SO4_red_combinedRA_FIN_design
+
+# Denit final:
+adonis_denit_FIN = adonis2(denitRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = denitRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_denit_FIN
+
+# Methanogenesis final:
+adonis_meth_FIN = adonis2(methRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = methRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_meth_FIN
+
+# Central Carb metab final:
+adonis_carb_metab_FIN = adonis2(carb_metabRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = carb_metabRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_carb_metab_FIN
+
+# CcO final:
+adonis_cytoCox_FIN = adonis2(cytoCoxRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = cytoCoxRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_cytoCox_FIN
+
+# Sulfate-S assim final:
+adonis_SO4_S_Assim_FIN = adonis2(SO4_S_AssimRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_S_AssimRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_SO4_S_Assim_FIN
+
+# Assimilatory sulfate reduction final:
+adonis_Assim_SO4_red_FIN = adonis2(Assim_SO4_redRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Assim_SO4_redRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_Assim_SO4_red_FIN
+
+# Dissimilatory sulfate reduction final:
+adonis_Dissim_SO4_red_FIN = adonis2(Dissim_SO4_redRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Dissim_SO4_redRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_Dissim_SO4_red_FIN
+
+# Thiosulfate oxidaiton by SOX complex final:
+adonis_ThioSOX_FIN = adonis2(ThioSOXRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = ThioSOXRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_ThioSOX_FIN
+
+# FeGenie (total Fe genes) final:
+adonis_FeGenie_FIN = adonis2(FeGenieRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeGenieRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_FeGenie_FIN
+
+# Fe reduction final:
+adonis_FeReduction_FIN = adonis2(FeReductionRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeReductionRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_FeReduction_FIN
+
+# Sulfate reduction (combined) final:
+adonis_SO4_red_combined_FIN = adonis2(SO4_red_combinedRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_red_combinedRA_FIN_design, perm=10000, set.seed=42)
+
+adonis_SO4_red_combined_FIN
+
+
+
+```
+
+```{r Mantel tests}
+# Using Pat Schloss code club as reference: https://www.youtube.com/watch?v=EXNOgmUyPfY
+
+# Make a tibble of bray-curtis matrix
+FeReductionBC_tbl <- FeReductionBC %>%
+  as.matrix() %>%
+  as_tibble(rownames="A") %>%
+  pivot_longer(-A, names_to = "B", values_to = "bray_Fe")
+
+SO4_red_combinedBC_tbl <- SO4_red_combinedBC %>%
+  as.matrix() %>%
+  as_tibble(rownames="A") %>%
+  pivot_longer(-A, names_to = "B", values_to = "bray_SO4")
+
+Assim_SO4_redBC_tbl <- Assim_SO4_redBC %>%
+  as.matrix() %>%
+  as_tibble(rownames="A") %>%
+  pivot_longer(-A, names_to = "B", values_to = "bray_Assim_SO4")
+
+# combine the respective tibbles:
+combined_BC_tbls <- inner_join(FeReductionBC_tbl, SO4_red_combinedBC_tbl, by=c("A", "B")) # not sure if I need this.
+
+combined_BC_FeRed_AssSO4 <- inner_join(FeReductionBC_tbl, Assim_SO4_redBC_tbl, by=c("A", "B"))
+
+# plotting:
+combined_BC_tbls %>%
+  filter(A < B) %>%
+  ggplot(aes(x=bray_Fe, y=bray_SO4)) +
+  geom_point()+
+  geom_smooth(se=FALSE)
+
+combined_BC_FeRed_AssSO4 %>%
+  filter(A < B) %>%
+  ggplot(aes(x=bray_Fe, y=bray_Assim_SO4)) +
+  geom_point()+
+  geom_smooth(se=FALSE)
+
+# mantel tests:
+mantel(FeReductionBC, SO4_red_combinedBC, permutations = 10000, set.seed(42))
+
+mantel(FeReductionBC, Assim_SO4_redBC, permutations = 10000, set.seed(42))
+
+mantel(FeReductionBC, Dissim_SO4_redBC, permutations = 10000, set.seed(42))
+
+mantel(denitBC, ThioSOXBC, permutations = 10000, set.seed(42))
+
+mantel(DNRABC, ThioSOXBC, permutations = 10000, set.seed(42))
+
+mantel(ANRABC, ThioSOXBC, permutations = 10000, set.seed(42))
+
+```
 
 
 
