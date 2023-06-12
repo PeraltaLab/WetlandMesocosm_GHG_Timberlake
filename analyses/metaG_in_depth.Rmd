@@ -1050,6 +1050,60 @@ summary(finish.FeReduction.dbplsr)
 #plot(finish.FeReduction.dbplsr)
 ```
 
+```{r DBPLSR barplots}
+# read in formatted table of dbplsr component 2 adjuste R2 results:
+dbplsr_comp2 <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/dbplsr_comp2.csv")
+
+
+# Methane:
+dbplsr_meth_modules <- dplyr::filter(dbplsr_comp2, dbplsr_comp2$GHG == "CH4", .preserve = T)
+dbplsr_meth_modules <- dbplsr_meth_modules[-c(3,4),] #remove soil and 16S
+
+methane.dbplsr.plot <- ggplot(data = dbplsr_meth_modules, aes(x=Timepoint, y=Comp2_adjR2, fill = Dist_matrix)) +
+  geom_bar(stat = "identity", position = position_dodge())+
+  scale_fill_manual(values=c("#009E73","#D55E00","#0072B2"), name = "Functional Genes")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Timepoint", y = "% Variance Explained: Methane", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+methane.dbplsr.plot
+
+ggsave("../figures/Thesis/methane_dbplsr_plot.png", plot=methane.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=300, limitsize=TRUE, bg = "white")
+
+# CO2:
+dbplsr_CO2_modules <- dplyr::filter(dbplsr_comp2, dbplsr_comp2$GHG == "CO2", .preserve = T)
+dbplsr_CO2_modules <- dbplsr_CO2_modules[-c(5,6),] #remove soil and 16S
+
+CO2.dbplsr.plot <- ggplot(data = dbplsr_CO2_modules, aes(x=Timepoint, y=Comp2_adjR2, fill = Dist_matrix)) +
+  geom_bar(stat = "identity", position = position_dodge())+
+  scale_fill_manual(values=c("#F0E442","#56B4E9","#CC79A7"), name = "Functional Genes")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Timepoint", y = "% Variance Explained: Carbon Dioxide", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+CO2.dbplsr.plot
+
+ggsave("../figures/Thesis/CO2_dbplsr_plot.png", plot=CO2.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=300, limitsize=TRUE, bg = "white")
+```
+
 
 ## PERMANOVA
 
@@ -1452,6 +1506,8 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Methanogenesis")
 
 plot2b
+
+#ggsave("../figures/Thesis/MethanogenesisPCoA.png", plot = plot2b, path=NULL, device="png", scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
 ```{r meth FINAL PCoA}
@@ -2313,9 +2369,11 @@ plot4b <- ggplot(df4b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Assimilatory Sulfate Reduction")
 
 plot4b
+
+ggsave("../figures/Thesis/Assim_sulf_red.png", plot = plot4b, path=NULL, device="png", scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
-```{r PCoA: Assim_SO4_red, finish only}
+```{r PCoA: Assim_SO4_red finish only}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
 # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
 pcoa_Assim_SO4_red_FINAL <- cmdscale(Assim_SO4_redBC_finish, k=2, eig=TRUE, add=TRUE) # k = 2 because we only plot 2 dimensions, add=TRUE corrects highly negative eigenvalues
@@ -2618,6 +2676,8 @@ plot5c <- ggplot(df5c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Dissimilatory Sulfate Reduction")
 
 plot5c
+
+#ggsave("../figures/Thesis/Dissim_sulf_red_wk8.png", plot = plot5c, path=NULL, device="png", scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
 ```{r PCoA: Thiosulfate oxidation by SOX complex}
@@ -3253,6 +3313,8 @@ plot7b <- ggplot(df7b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
     ggtitle("Fe Reduction Week 8")
 
 plot7b
+
+#ggsave("../figures/Thesis/Fe_red_wk8.png", plot = plot7b, path=NULL, device="png", scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
 ```{r SO4 reduction combined: SSF}
@@ -3469,6 +3531,15 @@ FeRed_SO4Red_4panel
 
 #ggsave("../figures/Thesis/FeRed_SO4Red_4panel.jpg", plot = FeRed_SO4Red_4panel, device=NULL, path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
 ```
+
+```{r 3-panel ASR/DSR/FeR}
+ASR_DSR_FeR_3panel <- ggarrange(plot4b, plot4c, plot7a, ncol = 3, nrow = 1, labels = c("A", "B", "C"), common.legend = T, legend = "right")
+
+ASR_DSR_FeR_3panel
+
+ggsave("../figures/Thesis/ASR_DSR_FeR_3panel.png", plot = ASR_DSR_FeR_3panel, device="png", path=NULL, scale=1, height = 5, width = 20, limitsize = F, dpi = 300, bg = "white")
+```
+
 
 ```{r PERMANOVA on Finish only gene sets}
 # this chunk is down here because *RA_FIN_design data frames were made in PCoAs. This chunk, and the creation of *RA_FIN_design data frames may be re positioned later.
