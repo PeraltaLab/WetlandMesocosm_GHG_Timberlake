@@ -1266,6 +1266,8 @@ ch4.redox.regress.plot
 #ggsave("../figures/pub/ch4_redox.tiff", plot=ch4.redox.regress.plot, device="tiff", path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 #ggsave("../figures/pub/ch4_redox.jpg", plot=ch4.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/Thesis/ch4_redox.png", plot=ch4.redox.regress.plot, device="png", path=NULL, scale=1, width=6.3, height=4.4, dpi=300, limitsize=TRUE)
 ```
 
 ```{r CO2 redox regression}
@@ -1295,6 +1297,8 @@ co2.redox.regress.plot
 #ggsave("../figures/pub/co2_redox.tiff", plot=co2.redox.regress.plot, device="tiff", path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 #ggsave("../figures/pub/co2_redox.jpg", plot=co2.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/Thesis/co2_redox.png", plot=co2.redox.regress.plot, device="png", path=NULL, scale=1, width=6.3, height=4.4, dpi=300, limitsize=TRUE)
 ```
 
 ```{r N2O redox regression}
