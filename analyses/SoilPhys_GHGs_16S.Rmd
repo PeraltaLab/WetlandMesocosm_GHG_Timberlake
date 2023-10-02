@@ -1,0 +1,1475 @@
+---
+title: "TOWeR GHG microcosm experiment - Summer 2016"
+author: "Regina B. Bledsoe, Colin G. Finlay, Ariane L. Peralta"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: paged
+---
+# Setup
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
+#use to set working directory 
+knitr::opts_knit$set(root.dir="~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
+```
+
+# Load packages and functions
+
+```{r load packages and functions, include FALSE }
+#Set source R tools
+source("../bin/DiversityFunctions.R")
+source("../bin/MothurTools.R")
+
+#load required packages
+require("vegan")
+require("tidyverse")
+require("nlme")
+require("reshape2")
+require("ecodist")
+require("MASS")
+require("phyloseq")
+require("MuMIn")
+require("AICcmodavg")
+require("emmeans")
+require("lme4")
+require("car")
+require("dbstats")
+require("plyr")
+require("ggpubr")
+require("labdsv")
+require("grid")
+require("multcomp")
+require("multcompView")
+
+```
+
+```{r Phyloseq install and load}
+# If phyloseq not installed, un-comment and run:
+#if (!require("BiocManager", quietly = TRUE))
+    #install.packages("BiocManager")
+
+#BiocManager::install("phyloseq")
+
+require("phyloseq")
+```
+
+```{r Standard error and confidence intervals}
+#Set Std Err and Conf Int
+se <- function(x, ...) {
+  sd(x, na.rm = TRUE)/sqrt(length(na.omit(x)))
+}
+ci <- function(x, ...) {
+  1.96 * sd(x, na.rm = TRUE)
+}
+```
+# Load files
+
+```{r load files paths}
+#Load data files
+#Assign file names to variables
+sharedfile = "../data/tmg2016.with.archaeaopti_mcc.shared"
+taxfile = "../data/tmg2016.with.archaea.opti_mcc.0.03.cons.taxonomy"
+metafile = "../data/tmg_design.csv"
+```
+
+```{r read in otu file and trim}
+#Read in OTU file
+otu <- read.otu(sharedfile)
+rownames(otu)
+
+#remove rogue sample... looks like there was a naming error at some point resulting in the additional sample below
+otu.2 <- otu[!(rownames(otu) %in% "13PN"),]
+
+#Removing microbial samples from "box" soils and keeping samples collected from within the chamber area since these should more directly relate to GHG flux data
+c <- grep("*B", rownames(otu.2), value=T)
+otu.2 <- otu.2[!(rownames(otu.2) %in% c),]
+
+#REMOVING STARTING SAMPLES
+c <- grep("*S", rownames(otu.2), value=T)
+otu.2 <- otu.2[!(rownames(otu.2) %in% c),]
+
+#Remove Field samples. 
+otu.2.nofield <- otu.2[!(rownames(otu.2) %in% "TL1"),]
+otu.2.nofield <- otu.2.nofield[!(rownames(otu.2.nofield) %in% "TL2"),]
+otu.2.nofield <- otu.2.nofield[!(rownames(otu.2.nofield) %in% "TL3"),]
+otu.2.nofield <- otu.2.nofield[!(rownames(otu.2.nofield) %in% "TL4"),]
+otu.2.nofield <- otu.2.nofield[!(rownames(otu.2.nofield) %in% "TL5"),]
+otu.2.nofield <- otu.2.nofield[!(rownames(otu.2.nofield) %in% "TL6"),]
+
+otu.2 <- otu.2.nofield
+
+#Remove OTUs with less than 10 occurrences across all sites
+b <- ncol(otu.2) #67355 OTUs,
+
+# !=0 35,897
+# =0 31,458
+# =1 15,582
+# =2  5,536
+# =3  2,580
+# =4  1,613
+# =5  1,029
+# =6    853
+# =7    669
+# =8    535
+# =9    474
+#=10    402
+
+s<- sum(colSums(otu.2)) #1570135
+otu.2 <- otu.2[, which(colSums(otu.2) >= 10)]
+a <- ncol(otu.2) #7026 OTUs
+sf<- sum(colSums(otu.2)) #1505797
+
+#What sample has lowest read count? 
+otu2<- colSums(t(otu.2))
+otu2[which.min(colSums(t(otu.2)))]
+otu2[which.max(colSums(t(otu.2)))]
+
+#Lowest sample is 8NS 20370, highest 16NS 154034
+#Most sample fall between 20370 and ~60000 with only a few higher than that so not removing the lowest sample 
+
+#graph of read counts
+d<-as.data.frame(otu.2)
+d$colsum <- colSums(t(d))
+d$group <- rownames(d)
+p<-ggplot(d, aes(x=group,y=colsum))+geom_bar(stat="identity")+coord_flip()
+p
+
+#Rarefy
+#Set min sample number
+min.N <- min(rowSums(otu.2))
+#rrarefy returns a randomly rarefied community data frame or vector of selected size
+#This is the otu set that should be used for beta diversity metrics
+otu.2 <- rrarefy(otu.2, min.N)
+```
+
+```{r read in meta data}
+#Read in design file
+meta <- read.csv(metafile)
+
+#Remove mock, field, and box samples. 
+rownames(meta) <- meta$sample
+meta <- meta[!(rownames(meta) %in% "MOCK"),]
+meta <- meta[!(rownames(meta) %in% "TL1"),]
+meta <- meta[!(rownames(meta) %in% "TL2"),]
+meta <- meta[!(rownames(meta) %in% "TL3"),]
+meta <- meta[!(rownames(meta) %in% "TL4"),]
+meta <- meta[!(rownames(meta) %in% "TL5"),]
+meta <- meta[!(rownames(meta) %in% "TL6"),]
+meta <- meta[!(meta$source %in% "b"),]
+meta <- meta[!(meta$source %in% "s"),]
+```
+
+```{r soil}
+soil <- read.csv("../data/Design_and_soil.csv",  header=T)
+
+soil <- soil %>%
+  filter(time!="field")%>%
+  filter(time!="start")
+
+by_time_plant_treatment <- soil %>%
+  column_to_rownames("chamber")%>%
+  dplyr::select(-history, -time) %>%
+  group_by(plant, treatment) %>%
+  dplyr::summarise_all(list(mean,sd, min, max), na.rm=T)
+
+#write.csv(x = by_time_plant_treatment, file = "../figures/pub/soil_chem.csv")
+```
+
+# PERMANOVA
+
+```{r PERMANOVA with just end samples}
+#transforms read counts to relative abundance
+otu.2.rel <- otu.2
+for(i in 1:dim(otu.2)[1]){
+  otu.2.rel[i,] <- otu.2[i,]/sum(otu.2[i,])
+}
+
+rownames(meta) <- rownames(otu.2.rel)
+all.equal(rownames(otu.2.rel), rownames(meta))
+metaotu <- cbind(meta, otu.2.rel)
+
+# PERMANOVA:
+metaotu.ad <- adonis2(metaotu[,-c(1:9)] ~ plant * history + plant * treatment, method = "bray", data = metaotu, perm=10000, set.seed=42)
+metaotu.ad 
+```
+# PCoA
+
+```{r Calculate distance matrix and PCoA components without field, end samples only}
+otu.2.rel.dist<-vegdist(otu.2.rel, method="bray")
+
+# Principal Coordinates Analysis
+otu.2.rel.dist.pcoa <- cmdscale(otu.2.rel.dist, k=3, eig=TRUE, add=FALSE)
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1a <- round(otu.2.rel.dist.pcoa$eig[1] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
+explainvar2a <- round(otu.2.rel.dist.pcoa$eig[2] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
+sum.eiga <- sum(explainvar1a, explainvar2a)
+
+explainvar1a #25% (rounding)
+explainvar2a #11% (rounding)
+```
+
+```{r plot PCoA without field, end samples only}
+all.equal(rownames(meta), rownames(otu.2.rel))
+# Set treatments
+treat1 <- as.factor(meta$history)
+droplevels(treat1)
+treat2 <- as.factor(meta$treatment)
+droplevels(treat2)
+#levels(treat2) <- c("I","W","D")
+treat3 <- as.factor(meta$plant)
+droplevels(treat3)
+
+pcoa.groups <- paste(meta$history, meta$treatment, meta$plant, sep = "_")
+
+pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.plant <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3))  #plant
+pcoa.trt <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) #treatment
+pcoa.history <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  #history 
+
+pcoa.trt <- ordered(pcoa.trt, levels=c("D", "I", "W"))
+pcoa.trt <-revalue(pcoa.trt, c("D"="Dry", "I"="Interim","W"="Wet"))
+
+pcoa.history <- ordered(pcoa.history, levels=c("D", "I", "W"))
+pcoa.history <-revalue(pcoa.history, c("D"="Dry", "I"="Interim","W"="Wet"))
+
+pcoa.plant <- ordered(pcoa.plant, levels=c("n", "p"))
+pcoa.plant <-revalue(pcoa.plant, c("n"="No Plant","p"="Plant"))
+
+soil.finish <- soil %>% 
+dplyr::select(chamber, time, treatment, moisture.percent, pH, nh4.mg.l, no2.no3.mg.l, c.percent, n.percent, P.ppm, K.ppm, Mg.ppm, S.ppm, Fe.ppm, Mn.ppm, HM, CEC)
+
+c<-cor(soil.finish[, -c(1:3,7)]) #design fields and no3 because many missing values
+c<-cor(soil.finish[, -c(1:3,7,9,12,14,17)]) # %N Mg Fe CEC
+
+# envfit:
+meta.env <- soil.finish[, -c(1:3,7,9,12,14,17)]
+fit<-envfit(otu.2.rel.dist.pcoa$points, meta.env, perm=1000,na.rm=T, set.seed(42))
+A <-as.list(fit$vectors)
+vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.25) #Scale vector by correlation
+p<- as.data.frame(A$pvals)
+
+vec <- cbind(vec, p) 
+vec <-  subset(vec, A$pvals<=0.05)
+
+vec$parm<-rownames(vec)
+colnames(vec)
+rownames(vec)
+vec$parm<-c("pH", "%C", "Sulfur", "Manganese") # Check that these readable labels match the originals
+
+# To use open and closed shapes, must create a combined category for History and Plant:
+history_plant_combined <- c(paste(pcoa.history, pcoa.plant, sep = "_"))
+
+#Make new PCoA data frame, then append experimental factors (plant, treatment, history) as new columns:
+pcoa.cent.dataframe.trts <- as.data.frame(pcoa.cent.dataframe)
+pcoa.cent.dataframe.trts$history <- as.factor(pcoa.history)
+pcoa.cent.dataframe.trts$trt <- as.factor(pcoa.trt)
+pcoa.cent.dataframe.trts$plant <- as.factor(pcoa.plant)
+pcoa.cent.dataframe.trts$history_plant <- as.factor(history_plant_combined)
+
+#Plotting:
+plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +   
+  geom_point(aes(shape = history_plant, color=pcoa.trt), size=5, stroke=2) +  
+  theme_bw() +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant") +
+  xlab("PCoA 1 (25%)") + ylab("PCoA 2 (11%)") + 
+  geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
+  #Label soil vectors 
+  geom_text(data=vec,aes(x=Dim1-0.014,y=Dim2+0.011,label=parm),size=5, inherit.aes=F)+
+  ggtitle("") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=18), 
+          axis.text.x = element_text(size=18),  axis.text.y = element_text(size=18),
+          panel.border = element_rect(colour = "black", size=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=18)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(fill = guide_legend(override.aes=list(shape=21)))
+
+plot16S_PCoA
+
+#ggsave("../figures/pub/16S_PCoA.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
+
+#ggsave("../figures/pub/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=300, limitsize=TRUE)
+
+#ggsave("../figures/pub/16SrRNA_timberlake_end_vectors.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
+```
+# Indicator species
+
+```{r read and clean taxonomy file}
+tax <- import_mothur(mothur_constaxonomy_file =  taxfile)
+tax.df <- as.data.frame(tax)
+
+tax.df <- tax.df %>% 
+  rownames_to_column(var = "otu")
+
+colnames(tax.df)=c("otu","domain","Phylum","Class", "Order","Family","Genus")
+
+#Clean up taxonomy file. Remove underscores and unclassified
+tax.df <- tax.df %>%
+    mutate(Family = str_replace(Family, "_family_incertae_sedis", ""), Genus = str_replace(Genus, "_genera_incertae_sedis", "")) %>%
+  mutate(Phylum = str_replace_all(Phylum,"_unclassified", ""), Order = str_replace_all(Order,"_unclassified", ""),Class = str_replace_all(Class,"_unclassified", ""), Family = str_replace_all(Family,"_unclassified", ""), Genus = str_replace_all(Genus,"_unclassified", "")) %>%
+  mutate(Phylum = str_replace_all(Phylum,"_", " "), Order = str_replace_all(Order,"_", " "),Class = str_replace_all(Class,"_", " "), Family = str_replace_all(Family,"_", " "), Genus = str_replace_all(Genus,"_", " ")) 
+```
+
+```{r Indicator Species}
+#Final sampling, no field
+new.data <-metaotu
+new.data$history <- as.factor(new.data$history)
+new.data$treatment <- as.factor(new.data$treatment)
+
+#group = interaction(new.data$plant, new.data$treatment, new.data$history) #Setup to analyze all three factors
+# Only History and Treatment had significant results in PERMANOVA (i.e., adonis) (see above)
+# Therefore, only History and Treatment will be used to group bacterial indicator species analysis:
+group.hist <- new.data$history
+group.trt <- new.data$treatment
+
+dataREL <- new.data[,-c(1:9)] # Only OTU columns (i.e., relative [REL] abundance data), no metadata columns
+
+dataREL <- dataREL[, colSums(dataREL) > 0.025] # Drop very rare OTUs from the analysis; only analyze most abundant 2.5%
+
+bac.ind_hist <- indval(dataREL, group.hist, numitr = 10000, set.seed(42))
+bac.ind_trt <- indval(dataREL, group.trt, numitr = 10000, set.seed(42))
+
+summary(bac.ind_hist)
+summary(bac.ind_trt)
+
+# p-value cutoff:
+inds_hist <- which(bac.ind_hist$pval <= 0.01)
+inds_trt <- which(bac.ind_trt$pval <= 0.01)
+
+# Make data frame skeleton:
+bac.indicators_hist <- as.data.frame(matrix(NA, nrow = length(inds_hist), ncol = 4))
+bac.indicators_trt <- as.data.frame(matrix(NA, nrow = length(inds_trt), ncol = 4))
+
+# Set column names:
+colnames(bac.indicators_hist) <- c("OTU", "Cluster", "IndVal", "Prob")
+colnames(bac.indicators_trt) <- c("OTU", "Cluster", "IndVal", "Prob")
+
+# Poplulate OTU column:
+bac.indicators_hist$OTU <- names(inds_hist)
+bac.indicators_trt$OTU <- names(inds_trt)
+
+# Populate Cluster column:
+bac.indicators_hist$Cluster <- bac.ind_hist$maxcls[inds_hist]
+bac.indicators_trt$Cluster <- bac.ind_trt$maxcls[inds_trt]
+
+# Populate IndVal column:
+bac.indicators_hist$IndVal <- bac.ind_hist$indcls[inds_hist]
+bac.indicators_trt$IndVal <- bac.ind_trt$indcls[inds_trt]
+
+# Populate p-value column:
+bac.indicators_hist$Prob <- bac.ind_hist$pval[inds_hist]
+bac.indicators_trt$Prob <- bac.ind_trt$pval[inds_trt]
+
+otu.tax <- as.data.frame(tax.df)
+
+ind.tax_hist <- otu.tax[which(as.character(otu.tax$otu) %in% bac.indicators_hist$OTU), ]
+ind.tax_trt <- otu.tax[which(as.character(otu.tax$otu) %in% bac.indicators_trt$OTU), ]
+
+ind.tax_hist <- ind.tax_hist[match(ind.tax_hist$otu, bac.indicators_hist$OTU), ]
+ind.tax_trt <- ind.tax_trt[match(ind.tax_trt$otu, bac.indicators_trt$OTU), ]
+
+# Add taxonomic information:
+indicator.bac_hist <- cbind(bac.indicators_hist, ind.tax_hist[, -c(1)])
+indicator.bac_trt <- cbind(bac.indicators_trt, ind.tax_trt[, -c(1)])
+
+# Order rows by Cluster:
+indicator.bac_hist <- indicator.bac_hist[order(as.numeric(indicator.bac_hist$Cluster)), ]
+indicator.bac_trt <- indicator.bac_trt[order(as.numeric(indicator.bac_trt$Cluster)), ]
+
+# Print information from tables:
+table(indicator.bac_hist$Cluster)
+table(indicator.bac_trt$Cluster)
+
+table(indicator.bac_hist$Phylum)
+table(indicator.bac_trt$Phylum)
+
+# Identify what the Cluster numbers mean:
+levels(group.hist)
+levels(group.trt)
+
+#Replace cluster numbers with factor names:
+indicator.bac_hist["Cluster"][indicator.bac_hist["Cluster"] == 1] <- "Dry"
+indicator.bac_trt["Cluster"][indicator.bac_trt["Cluster"] == 1] <- "Dry"
+
+indicator.bac_hist["Cluster"][indicator.bac_hist["Cluster"] == 2] <- "Interim"
+indicator.bac_trt["Cluster"][indicator.bac_trt["Cluster"] == 2] <- "Interim"
+
+indicator.bac_hist["Cluster"][indicator.bac_hist["Cluster"] == 3] <- "Wet"
+indicator.bac_trt["Cluster"][indicator.bac_trt["Cluster"] == 3] <- "Wet"
+
+#Find overlapping indicator tax in hist and trt:
+common_indicators <- generics::intersect(indicator.bac_hist$OTU, indicator.bac_trt$OTU)
+common_indicators <- as.data.frame(common_indicators) #Make it a data frame
+colnames(common_indicators) <- "OTU" #Rename column header to "OTU" to match with indicator.bac_hist and indicator.bac_trt
+
+common_indicators <- left_join(common_indicators, indicator.bac_hist, by = "OTU") #Add data from indicator.bac_hist
+colnames(common_indicators)[2:4] <- c("Cluster_hist", "IndVal_hist", "Prob_hist") #Rename to not confuse with treatment indicators, added next:
+  #Add data from indicator.bac_trt:
+common_indicators <- left_join(common_indicators, indicator.bac_trt, by = c("OTU", "domain", "Phylum", "Class", "Order", "Family", "Genus")) 
+colnames(common_indicators)[11:13] <- c("Cluster_treatment", "IndVal_treatment", "Prob_treatment")
+
+# Export Bacteria Indicator Tables:
+#write.table(indicator.bac_hist, "../figures/pub/BacterialIndicators_History.txt",
+           #sep="\t", row.names = F, quote = F)
+
+#write.table(indicator.bac_trt, "../figures/pub/BacterialIndicators_Treatment.txt",
+            #sep="\t", row.names = F, quote = F)
+```
+
+# Soil parameters
+
+```{r soil parameters}
+soil <- read.csv("../data/Design_and_soil.csv",  header=T)
+
+# Remove field samples:
+soil_nofield <- soil %>%
+  filter(soil$time!="field")
+
+# For axes titles, change abbreviations (D, I, W) to full words (Dry, Interim, Wet):
+soil_nofield$treatment <-revalue(soil_nofield$treatment, c("D" = "Dry", "I" = "Interim","W" = "Wet"))
+
+# For axes titles, change abbreviations (N, P) to full words (No Plant, Plant):
+soil_nofield$plant <- revalue(soil_nofield$plant, c("N" = "No Plant", "P" = "Plant"))
+
+# Make soil_nofield$time uppercase, first letter only:
+soil_nofield$time <- str_to_title(soil_nofield$time)
+
+write.csv(soil_nofield, file="../figures/soil.csv")
+
+#Subset Start and Finish for plotting:
+soil_nofield.Start <- subset(soil_nofield, time == "Start")
+soil_nofield.Finish <- subset(soil_nofield, time == "Finish")
+
+#Plotting:
+#Start:
+iris_tubes.Start <- ggplot(soil_nofield.Start, aes(x=treatment, y=(redox.percent.paint.removed*100))) +
+  geom_boxplot(outlier.shape = NA) +
+  facet_grid(~plant) +
+  geom_point(aes(color=factor(treatment)), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
+  theme_bw() +
+  #Remove plot grid lines
+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+#Set axis title and text properties, tick marks, and labels
+theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = "IRIS Percent", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+iris_tubes.Start
+
+#Finish:
+iris_tubes.Finish <- ggplot(soil_nofield.Finish, aes(x=treatment, y=(redox.percent.paint.removed*100))) +
+  geom_boxplot(outlier.shape = NA) +
+  facet_grid(~plant) +
+  geom_point(aes(color=factor(treatment)), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
+  theme_bw() +
+  #Remove plot grid lines
+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+#Set axis title and text properties, tick marks, and labels
+theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Treatment", y = "IRIS Percent", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+iris_tubes.Finish
+
+#Panel together using ggarrange{ggpubr}:
+iris_tubes.Combined <- ggarrange(iris_tubes.Start, iris_tubes.Finish, labels = c("Start (Week 0)", "Finish (Week 8)"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+
+iris_tubes.Combined
+
+#ggsave("../figures/pub/iris_tubes.tiff", plot=iris_tubes.Combined, device="tiff", path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE, bg="white")
+
+#ggsave("../figures/pub/iris_tubes.jpg", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
+
+#ggsave("../figures/pub/iris_tubes.pdf", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
+```
+
+```{r soil moisture boxplot}
+soil_moisture <- ggplot(soil_nofield, aes(x=treatment, y=moisture.percent, fill=plant)) + 
+  geom_boxplot() +
+  facet_grid(~ fct_rev(time)) +
+ scale_fill_manual(values=c("gray", "darkgreen"), labels=c("No Plant", "Plant")) +
+#Set plot elements
+theme_bw()  +
+#Remove plot gridlines
+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+#Set axis title and text properties, tick marks, and labels
+theme(axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right") + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = "Moisture Percent", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+soil_moisture
+
+#ggsave("../figure/pub/soil_moisture.tiff", plot=soil_moisture, device="tiff", path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE, bg="transparent")
+
+#ggsave("../figures/pub/soil_moisture.jpg", plot=soil_moisture, device=NULL, path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE , bg="transparent")
+
+#ggsave("../figures/pub/soil_moisture.pdf", plot=soil_moisture, device=NULL, path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE , bg="transparent")
+```
+
+```{r soil plots}
+ammonium <- ggplot(soil_nofield, aes(x=treatment, y=nh4.mg.l)) + 
+  geom_boxplot(aes(x=treatment, y=nh4.mg.l, fill=treatment)) +
+  scale_fill_manual(values=c("#997700","#6699CC","#004488"), name="Treatment")+
+  facet_wrap(. ~plant) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor =element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black",size=1)) + 
+  #stat_summary(fun.data=mean_cl_boot,size=1.25, position=position_dodge(width=0.75)) + 
+#scale_color_manual(values=cbbPalette, name="Treatment")+
+labs(x = "Treatment", y = "Ammonium (mg/L)") + theme(axis.title=element_text(vjust=1,size=16,face="bold"), axis.text=element_text(size=14))
+
+ammonium
+
+nitrate <- ggplot(soil_nofield, aes(x=treatment, y=no2.no3.mg.l)) + 
+  geom_boxplot(aes(x=treatment, y=no2.no3.mg.l, fill=treatment)) +
+  scale_fill_manual(values=c("#997700","#6699CC","#004488"), name="Treatment")+
+  facet_wrap(. ~plant) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor =element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black",size=1)) + 
+  #stat_summary(fun.data=mean_cl_boot,size=1.25, position=position_dodge(width=0.75)) + 
+#scale_color_manual(values=cbbPalette, name="Treatment")+
+labs(x = "Treatment", y = "Nitrate (mg/L)") + theme(axis.title=element_text(vjust=1,size=16,face="bold"), axis.text=element_text(size=14))
+
+nitrate
+
+soil_Fe <- ggplot(soil_nofield, aes(x=treatment, y=Fe.ppm)) + 
+  geom_boxplot(aes(x=treatment, y=Fe.ppm, fill=treatment)) +
+  scale_fill_manual(values=c("#997700","#6699CC","#004488"), name="Treatment", labels=c("Dry", "Interim", "Wet"))+
+  scale_x_discrete(labels=c("Dry", "Interim", "Wet"), name="") +
+  facet_wrap(. ~plant) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor =element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black",size=1)) + 
+  #stat_summary(fun.data=mean_cl_boot,size=1.25, position=position_dodge(width=0.75)) + 
+#scale_color_manual(values=cbbPalette, name="Treatment")+
+labs(x = "Treatment", y = "Iron (mg/L)") + theme(axis.title=element_text(vjust=1,size=16,face="bold"), axis.text=element_text(size=14))
+
+soil_Fe
+```
+
+# Greenhouse gases (GHGs)
+
+```{r GHG T1 concentration analysis}
+#read in gas data
+ghg <- read.csv("../data/TMG_GHG-Flux_T1_Pub_2-2020.csv", header=TRUE)
+
+# Version of ghg with labels for T1 through T4 analysis:
+ghg2 <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv", header=TRUE)
+
+ghg <- ghg %>%
+  dplyr::select('date', 'chamber', 'timepoint', 'plant', 'mg.CH4.N.m.2', 'mg.CO2.N.m.2', 'mg.N2O.N.m.2')%>%
+  dplyr::filter(timepoint=='T1' & date !='7/24/2016' & date != '6/13/2016')
+
+# ghg2, select T1 through T4, and all ppm measurements (typo: c2o should be co2)
+ghg_ppm <- ghg2 %>%
+  dplyr::select('date', 'chamber', 'timepoint', 'plant', 'ch4_ppm', 'c2o_ppm', 'n2o_ppm')%>%
+  dplyr::filter(date !='7/24/2016' & date != '6/13/2016')
+
+# Set factors:
+ghg$chamber <- as.factor(ghg$chamber)
+ghg$date <- as.factor(ghg$date)
+
+ghg_ppm$chamber <- as.factor(ghg_ppm$chamber)
+ghg_ppm$date <- as.factor(ghg_ppm$date)
+
+# Change design$box to design$chamber in order to join with ghg$chamber
+colnames(meta)[2] <- "chamber"
+
+ghg <- ghg %>%
+  left_join(meta[,-c(3, 4, 7, 8, 9)], by="chamber")
+
+ghg_ppm <- ghg_ppm %>%
+  left_join(meta[,-c(3, 4, 7, 8, 9)], by="chamber")
+
+# Add new date column, to shorten:
+ghg$date_short <- ghg$date
+ghg_ppm$date_short <- ghg_ppm$date
+# remove "/2016" from data_short:
+ghg$date_short <- str_remove(ghg$date_short, "/2016")
+ghg_ppm$date_short <- str_remove(ghg_ppm$date_short, "/2016")
+
+# Separate data frames for "No Plant" and "Plant", for plotting:
+ghg.noplant <- ghg %>%
+  filter(plant=="N")
+
+ghg.plant <- ghg %>%
+  filter(plant=="P")
+
+# These should go after adding T1-T4 average
+#ghg_ppm.noplant <- ghg_ppm %>%
+  #filter(plant=="N")
+
+#ghg_ppm.plant <- ghg_ppm %>%
+ # filter(plant=="P")
+```
+
+```{r add T1-T4 averages to ghg}
+install.packages("slider")
+library(slider)
+
+# Copy ghg, then add on averages (because dimensions match)
+ghg_avg <- ghg
+
+# Average CH4 ppm:
+ghg_ppm$ch4_ppm_avg <- slide(
+  ghg_ppm$ch4_ppm,
+  ~mean(.x, na.rm = T),
+  .after = 3,
+  .step = 4,
+  .complete = F
+)
+
+# Average CO2 ppm:
+ghg_ppm$co2_ppm_avg <- slide(
+  ghg_ppm$c2o_ppm,
+  ~mean(.x, na.rm = T),
+  .after = 3,
+  .step = 4,
+  .complete = F
+)
+
+# Average N2O ppm:
+ghg_ppm$n2o_ppm_avg <- slide(
+  ghg_ppm$n2o_ppm,
+  ~mean(.x, na.rm = T),
+  .after = 3,
+  .step = 4,
+  .complete = F
+)
+
+# Convert one of the averaged column to character, then use it to filter:
+ghg_ppm$ch4_ppm_avg <- as.character(ghg_ppm$ch4_ppm_avg)
+
+ghg_ppm_filtered <- ghg_ppm %>%
+  dplyr::filter(ch4_ppm_avg != "NULL")
+
+# After filtering, convert all averaged columns to numeric:
+ghg_ppm_filtered$ch4_ppm_avg <- as.numeric(ghg_ppm_filtered$ch4_ppm_avg)
+ghg_ppm_filtered$co2_ppm_avg <- as.numeric(ghg_ppm_filtered$co2_ppm_avg)
+ghg_ppm_filtered$n2o_ppm_avg <- as.numeric(ghg_ppm_filtered$n2o_ppm_avg)
+
+```
+
+
+```{r ghg stats}
+# Could simply do two-tailed T-test, is e.g., ch4_ppm different from ch4_ppm_avg?
+t.test(ghg_ppm_filtered$ch4_ppm, ghg_ppm_filtered$ch4_ppm_avg, alternative = "two.sided", mu = 0)
+
+t.test(ghg_ppm_filtered$c2o_ppm, ghg_ppm_filtered$co2_ppm_avg, alternative = "two.sided", mu = 0)
+
+t.test(ghg_ppm_filtered$n2o_ppm, ghg_ppm_filtered$n2o_ppm_avg, alternative = "two.sided", mu = 0)
+
+# Paired:
+t.test(ghg_ppm_filtered$ch4_ppm, ghg_ppm_filtered$ch4_ppm_avg, alternative = "two.sided", mu = 0, paired = T)
+
+t.test(ghg_ppm_filtered$c2o_ppm, ghg_ppm_filtered$co2_ppm_avg, alternative = "two.sided", mu = 0, paired = T)
+
+t.test(ghg_ppm_filtered$n2o_ppm, ghg_ppm_filtered$n2o_ppm_avg, alternative = "two.sided", mu = 0, paired = T)
+
+# Paired T test of plant vs no plant, compare results of T1 only to averaged (non of the inferences would be changed):
+t.test(ch4_ppm ~ plant, data = ghg_ppm_filtered, alternative = "two.sided", mu = 0, paired = T)
+t.test(ch4_ppm_avg ~ plant, data = ghg_ppm_filtered, alternative = "two.sided", mu = 0, paired = T)
+
+t.test(c2o_ppm ~ plant, data = ghg_ppm_filtered, alternative = "two.sided", mu = 0, paired = T)
+t.test(co2_ppm_avg ~ plant, data = ghg_ppm_filtered, alternative = "two.sided", mu = 0, paired = T)
+
+t.test(n2o_ppm ~ plant, data = ghg_ppm_filtered, alternative = "two.sided", mu = 0, paired = T)
+t.test(n2o_ppm_avg ~ plant, data = ghg_ppm_filtered, alternative = "two.sided", mu = 0, paired = T)
+```
+
+```{r ANOVAS}
+# https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
+#(also, just make the bar plots real quick to show AP)
+
+library(rstatix)
+
+# Use to make summary stats table (per reviewer comments):
+selfesteem %>%
+  group_by(time) %>%
+  get_summary_stats(score, type = "mean_sd")
+
+# Individual identifiers (wid) must be factor:
+ghg_ppm_filtered$chamber <- as.factor(ghg_ppm_filtered$chamber)
+ghg_ppm_filtered$date_short <- as.factor(ghg_ppm_filtered$date_short)
+
+# one-way repeated measures ANOVA:
+res.aov.CH4 <- anova_test(data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber, within = date_short)
+get_anova_table(res.aov.CH4)
+
+res.aov.CH4_AVG <- anova_test(data = ghg_ppm_filtered, dv = ch4_ppm_avg, wid = chamber, within = date_short)
+get_anova_table(res.aov.CH4_AVG) # Averaging does not change inference here (non-significant for both)
+```
+
+
+```{r CH4 plot}
+plot.CH4.noplant <- ggplot(ghg.noplant, aes(x=date_short, y=mg.CH4.N.m.2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg CH"[4],"-C m"^{-2})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  scale_y_continuous(limits = c(0,175))
+ 
+plot.CH4.noplant
+
+
+plot.CH4.plant <- ggplot(ghg.plant, aes(x=date_short, y=mg.CH4.N.m.2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Date", y = expression(paste("mg CH"[4],"-C m"^{-2})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  scale_y_continuous(limits = c(0, 175))
+
+ 
+plot.CH4.plant
+
+#Panel together using ggarrange{ggpubr}:
+
+#CH4.Combined <- ggarrange(plot.CH4.noplant, plot.CH4.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+
+#No legend version, for combining figures later:
+CH4.Combined <- ggarrange(plot.CH4.noplant, plot.CH4.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
+
+CH4.Combined
+
+#ggsave("../figures/pub/Fig3/CH4_BasePlot.tiff", plot=CH4.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
+
+# Add an inset to show small values for the 'plant' treatment:
+# First, render plot with no axes labels and smaller axes text:
+plot.CH4.plant.autoScale <- ggplot(ghg.plant, aes(x=date_short, y=mg.CH4.N.m.2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
+                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=30),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = NULL, y = NULL, title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+ 
+plot.CH4.plant.autoScale
+
+#ggsave("../figures/pub/Fig3/CH4_Inset.tiff", plot=plot.CH4.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+
+# Create a viewport (vp) with appropriate dimensions for inset. Two different versions for combined figure with or without legend:
+#subvp_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
+
+#subvp_NO_legend <- viewport(width = 0.35, height = 0.3, x = 0.81, y = 0.34)
+
+# This viewport approach works, but only if ran in console, one line followed by the next. To save the image, must manually click through "Export" on "Plots" tab.
+#CH4.Combined
+#print(plot.CH4.plant.autoScale, vp=subvp_NO_legend)
+```
+
+```{r CO2 plot}
+plot.CO2.noplant <- ggplot(ghg.noplant, aes(x=date_short, y=mg.CO2.N.m.2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg CO"[2],"-C m"^{-2})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  scale_y_continuous(limits = c(0,180))
+ 
+plot.CO2.noplant
+
+
+plot.CO2.plant <- ggplot(ghg.plant, aes(x=date_short, y=mg.CO2.N.m.2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Date", y = expression(paste("mg CO"[2],"-C m"^{-2})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  scale_y_continuous(limits = c(0, 180))
+
+ 
+plot.CO2.plant
+
+#Panel together using ggarrange{ggpubr}:
+#CO2.Combined <- ggarrange(plot.CO2.noplant, plot.CO2.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "bottom", common.legend = T)
+
+#No legend version, for combining figures later:
+CO2.Combined <- ggarrange(plot.CO2.noplant, plot.CO2.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
+
+CO2.Combined
+
+#ggsave("../figures/pub/Fig3/CO2_BoxPlot.tiff", plot=CO2.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
+
+#ggsave("../figures/pub/CO2_boxplot.jpg", plot=CO2.Combined, device=NULL, path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE ,bg="white")
+
+#ggsave("../figures/pub/CO2_boxplot.pdf", plot=CO2.Combined, device=NULL, path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE ,bg="white")
+```
+
+```{r N2O Boxplot}
+plot.N2O.noplant <- ggplot(ghg.noplant, aes(x=date_short, y=mg.N2O.N.m.2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg N"[2],"O-N m"^{-2})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  scale_y_continuous(limits = c(0, 1.6))
+ 
+plot.N2O.noplant
+
+
+plot.N2O.plant <- ggplot(ghg.plant, aes(x=date_short, y=mg.N2O.N.m.2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Date", y = expression(paste("mg N"[2],"O-N m"^{-2})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  scale_y_continuous(limits = c(0, 1.6))
+
+plot.N2O.plant
+
+
+#Panel together using ggarrange{ggpubr}:
+#N2O.Combined <- ggarrange(plot.N2O.noplant, plot.N2O.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+
+# Version without legend for multi-panel figure:
+N2O.Combined <- ggarrange(plot.N2O.noplant, plot.N2O.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
+
+N2O.Combined
+
+#ggsave("../figures/pub/Fig3/N2O_BasePlot.tiff", plot=N2O.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
+
+# Add an inset to show small values for the 'plant' treatment:
+# First, render plot with no axes labels and smaller axes text:
+plot.N2O.plant.autoScale <- ggplot(ghg.plant, aes(x=date_short, y=mg.N2O.N.m.2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
+                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=30),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = NULL, y = NULL, title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+ 
+plot.N2O.plant.autoScale
+
+#ggsave("../figures/pub/Fig3/N2O_Inset.tiff", plot=plot.N2O.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+
+# Create a viewport (vp) with appropriate dimensions for inset:
+#subvp2_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
+
+#subvp2_NO_legend <- viewport(width = 0.35, height = 0.3, x = 0.81, y = 0.34)
+
+# This viewport approach works, but only if ran in console, one line followed by the next. To save the image, must manually click through "Export" on "Plots" tab.
+#N2O.Combined
+#print(plot.N2O.plant.autoScale, vp=subvp2_NO_legend)
+```
+
+```{r Extract and save GHG boxplot legend}
+leg <- get_legend(plot.N2O.noplant, position = "right") #Extract legend as a legend Grob
+legend_plot <- as_ggplot(leg) #Asign the grob as a ggplot
+legend_plot #View the plot
+
+#ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=900, limitsize=TRUE, bg="white")
+```
+
+```{r Combined GHG Boxplot}
+comb_GHG_BoxPlot <- ggarrange(CH4.Combined, CO2.Combined, N2O.Combined, labels = c("A", "B", "C"), ncol = 3, nrow = 1, legend = "none")
+
+comb_GHG_BoxPlot
+
+#ggsave("../figures/pub/Fig3/BasePlots_ggpubr.tiff", plot=comb_GHG_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=900, limitsize=TRUE, bg="white")
+```
+
+
+
+```{r GHG summary}
+#Quick Data Summaries:
+
+# History:
+ghg.summary.history <- ghg %>%
+  group_by(history)%>%
+  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
+
+ghg.summary.history
+
+# Treatment:
+ghg.summary.treatment <- ghg %>%
+  group_by(treatment)%>%
+  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
+
+ghg.summary.treatment
+
+# Plant:
+ghg.summary.plant <- ghg %>%
+  group_by(plant)%>%
+  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
+
+ghg.summary.plant
+
+# Treatment and plant (tp):
+ghg.summary.tp <- ghg %>%
+  group_by(treatment, plant)%>%
+  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
+
+ghg.summary.tp
+
+# Inlcude all factors: history, treatment, and plant (htp):
+ghg.summary.htp <- ghg %>%
+  group_by(history, treatment, plant)%>%
+  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
+
+ghg.summary.htp
+```
+
+# Mixed-effects modeling
+
+```{r CH4 Do we have normaility?}
+#First check the distribution of residuals --- not so great
+ch4.lm <- lmer(mg.CH4.N.m.2~ (1|date) +(1|chamber), data=ghg, REML=TRUE)
+summary(ch4.lm)
+confint(ch4.lm)
+p=profile(ch4.lm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(ch4.lm), main="QQ Plot")
+shapiro.test(resid(ch4.lm))
+
+ghg$log.ch4 <- log(ghg$mg.CH4.N.m.2) # Log transforming (all GHGs) for better normality
+
+ch4.lm <- lmer(log.ch4~ (1|date) + (1|chamber), data=ghg, REML=TRUE)
+summary(ch4.lm)
+confint(ch4.lm)
+p=profile(ch4.lm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(ch4.lm), main="QQ Plot")
+shapiro.test(resid(ch4.lm))
+```
+
+```{r CH4 hyposthesis testing}
+ch4.lm1 <- lmer(log.ch4 ~ (1|date) + (1|chamber) , data=ghg, REML=FALSE)
+
+ch4.lm2 <- lmer(log.ch4~treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+ch4.lm3 <- lmer(log.ch4~plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+ch4.lm4 <- lmer(log.ch4~treatment * plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+ch4.lm5 <- lmer(log.ch4~ history + plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+#ch4.lm6 <- lmer(log.ch4 ~ (1|chamber) , data=ghg, REML=FALSE)
+
+#ch4.lm7 <- lmer(log.ch4 ~ (1|date), data=ghg, REML=FALSE)
+
+ch4.lm8 <- lmer(log.ch4~ plant + treatment + history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+ch4.lm9 <- lmer(log.ch4~ history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+ch4.lm10 <- lmer(log.ch4~ plant + treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+ch4.lm11 <- lmer(log.ch4~ plant * history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+ch4.lm12 <- lmer(log.ch4~ treatment + history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+#This is a likelihood ratio test to get Chi squared value and p-value
+##a <- anova(ch4.lm1, ch4.lm2, ch4.lm3,ch4.lm4,ch4.lm5, ch4.lm6, ch4.lm7, ch4.lm8, ch4.lm9, ch4.lm4a, ch4.lm7a, ch4.lm8a)
+##a
+##anova(ch4.lm6)
+
+#AIC weights
+c.mod <- list(ch4.lm1, ch4.lm2, ch4.lm3,ch4.lm4,ch4.lm5, ch4.lm8, ch4.lm9, ch4.lm10, ch4.lm11, ch4.lm12)
+Modnames <- c("null", "treatment", "plant", "t*p", "h + p", "P+T+H", "H", "p+T", "p*h", "h+t")
+aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
+
+#Variance explained by fixed effects and the entire model
+r.squaredGLMM(ch4.lm1) #null
+r.squaredGLMM(ch4.lm2) #treatment
+r.squaredGLMM(ch4.lm3) #plant
+r.squaredGLMM(ch4.lm4) #t * p
+r.squaredGLMM(ch4.lm5) #h + p
+r.squaredGLMM(ch4.lm8) #p+t+h
+r.squaredGLMM(ch4.lm9) #h
+r.squaredGLMM(ch4.lm10)#p+t
+r.squaredGLMM(ch4.lm11)#p*h
+r.squaredGLMM(ch4.lm12)#h+t
+
+summary(ch4.lm8, ddf="Kenward-Roger")
+confint.merMod(ch4.lm8, oldNames = FALSE)
+p=profile(ch4.lm8)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(ch4.lm8), main="QQ Plot")
+shapiro.test(resid(ch4.lm8))
+
+#Interaction not significant so did not run post hoc
+#Post hoc Tests
+#Estimated marginal means - similar to lsmeans, uses t distribution
+#https://cran.rstudio.com/web/packages/emmeans/vignettes/interactions.html
+
+ emm <- emmeans(ch4.lm8, ~ treatment , adjust = "tukey")
+ pairs(emm)
+ multcomp::cld(emm, Letters=letters)
+ 
+ emm <- emmeans(ch4.lm8, ~ history , adjust = "tukey")
+ pairs(emm)
+ multcomp::cld(emm, Letters=letters)
+ 
+ emm <- emmeans(ch4.lm8, ~ plant , adjust = "tukey")
+ pairs(emm)
+ multcomp::cld(emm, Letters=letters)
+  #p <-contrast(emm, "consec", simple="each", combine =TRUE, adjust="mvt")
+  #p
+```
+
+```{r co2 Do we have normaility?}
+#First check the distibution of residuals --- not so great
+co2.lm <- lmer(mg.CO2.N.m.2~(1|chamber), data=ghg, REML=TRUE)
+summary(co2.lm, ddf="Kenward-Roger")
+confint(co2.lm)
+p=profile(co2.lm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(co2.lm), main="QQ Plot")
+shapiro.test(resid(co2.lm))
+
+ghg$log.co2 <- log(ghg$mg.CO2.N.m.2)
+
+co2.lm <- lmer(log.co2~(1|chamber), data=ghg, REML=TRUE)
+summary(co2.lm, ddf="Kenward-Roger")
+confint(co2.lm)
+p=profile(co2.lm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(co2.lm), main="QQ Plot")
+shapiro.test(resid(co2.lm))
+```
+
+```{r co2 hyposthesis testing}
+co2.lm1 <- lmer(log.co2 ~ (1|date) + (1|chamber) , data=ghg, REML=FALSE)
+
+co2.lm2 <- lmer(log.co2~treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+co2.lm3 <- lmer(log.co2~plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+co2.lm4 <- lmer(log.co2~treatment * plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+co2.lm5 <- lmer(log.co2~ history + plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+#co2.lm6 <- lmer(log.co2 ~ (1|chamber) , data=ghg, REML=FALSE)
+
+#co2.lm7 <- lmer(log.co2 ~ (1|date), data=ghg, REML=FALSE)
+
+co2.lm8 <- lmer(log.co2~ treatment + history + plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+co2.lm9 <- lmer(log.co2~ history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+co2.lm10 <- lmer(log.co2~ plant+ treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+co2.lm11 <- lmer(log.co2~ plant* history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+co2.lm12 <- lmer(log.co2~ treatment +history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+#This is a likelihood ratio test to get Chi squared value and p-value
+##a <- anova(co2.lm1, co2.lm2, co2.lm3,co2.lm4,co2.lm5, co2.lm6, co2.lm7, co2.lm8, co2.lm9, co2.lm4a, co2.lm7a, co2.lm8a)
+##a
+##anova(co2.lm6)
+
+#AIC weights
+c.mod <- list(co2.lm1, co2.lm2, co2.lm3,co2.lm4,co2.lm5, co2.lm8, co2.lm9, co2.lm10, co2.lm11, co2.lm12)
+Modnames <- c("null", "treatment", "plant", "t * p", "h + p","h+t+p", "H", "p+T", "p*h", "h+t")
+aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
+
+#Variance explained by fixed effects and the entire model
+r.squaredGLMM(co2.lm1) #null
+r.squaredGLMM(co2.lm2) #treatment
+r.squaredGLMM(co2.lm3) #plant
+r.squaredGLMM(co2.lm4) #t * p
+r.squaredGLMM(co2.lm5) #h + p
+#r.squaredGLMM(co2.lm6) #chamber
+#r.squaredGLMM(co2.lm7) #date
+r.squaredGLMM(co2.lm8) #p+t+h
+r.squaredGLMM(co2.lm9) #h
+r.squaredGLMM(co2.lm10)#p+t
+r.squaredGLMM(co2.lm11) #p*h
+r.squaredGLMM(co2.lm12) #h+t
+
+summary(co2.lm4, ddf="Kenward-Roger")
+confint.merMod(co2.lm4, oldNames = FALSE)
+p=profile(co2.lm4)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(co2.lm4), main="QQ Plot")
+shapiro.test(resid(co2.lm4))
+
+#Post hoc Tests
+#Estimated marginal means - similar to lsmeans, uses t distribution
+#https://cran.rstudio.com/web/packages/emmeans/vignettes/interactions.html
+
+emm <- emmeans(co2.lm4, ~ plant*treatment , adjust = "tukey")
+pairs(emm)
+multcomp::cld(emm, Letters=letters)
+ 
+  #p <-contrast(emm, "consec", simple="each", combine =TRUE, adjust="mvt")
+  #p
+```
+
+```{r n2o Do we have normaility?}
+#First check the distibution of residuals --- not so great
+n2o.lm <- lmer(mg.N2O.N.m.2~(1|chamber), data=ghg, REML=TRUE)
+summary(n2o.lm, ddf="Kenward-Roger")
+confint(n2o.lm)
+p=profile(n2o.lm)
+xyplot(p)
+#densityplot(p)
+qqPlot(resid(n2o.lm), main="QQ Plot")
+shapiro.test(resid(n2o.lm))
+
+ghg$log.n2o <- log(ghg$mg.N2O.N.m.2)
+
+#ghg.n2o <- ghg[-c(45,73, 111, 139),]
+n2o.lm <- lmer(log.n2o~(1|chamber), data=ghg, REML=TRUE)
+summary(n2o.lm, ddf="Kenward-Roger")
+confint(n2o.lm)
+p=profile(n2o.lm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(n2o.lm), main="QQ Plot")
+shapiro.test(resid(n2o.lm))
+```
+
+```{r n2o hyposthesis testing}
+n2o.lm1 <- lmer(log.n2o ~ (1|date) + (1|chamber) , data=ghg, REML=FALSE)
+
+n2o.lm2 <- lmer(log.n2o~treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+n2o.lm3 <- lmer(log.n2o~plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+n2o.lm4 <- lmer(log.n2o~treatment * plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+n2o.lm5 <- lmer(log.n2o~ history + plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+#n2o.lm6 <- lmer(log.n2o ~ (1|chamber) , data=ghg, REML=FALSE)
+
+#n2o.lm7 <- lmer(log.n2o ~ (1|date), data=ghg, REML=FALSE)
+
+n2o.lm8 <- lmer(log.n2o~ treatment + history + plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+n2o.lm9 <- lmer(log.n2o~ history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+n2o.lm10 <- lmer(log.n2o~ plant + treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+n2o.lm11 <- lmer(log.n2o~ plant * history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+
+n2o.lm12 <- lmer(log.n2o~ history + treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
+#This is a liklihood ratio test to get Chi squared value and p-value
+##a <- anova(n2o.lm1, n2o.lm2, n2o.lm3,n2o.lm4,n2o.lm5, n2o.lm6, n2o.lm7, n2o.lm8, n2o.lm9, n2o.lm4a, n2o.lm7a, n2o.lm8a)
+##a
+##anova(n2o.lm6)
+
+#AIC weights
+c.mod <- list(n2o.lm1, n2o.lm2, n2o.lm3,n2o.lm4,n2o.lm5, n2o.lm8, n2o.lm9, n2o.lm10, n2o.lm11, n2o.lm12)
+Modnames <- c("null", "treatment", "plant", "t * p", "h + p","h+t+p", "H", "p+T", "p*h", "h+t")
+aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
+
+#Variance explained by fixed effects and the entire model
+r.squaredGLMM(n2o.lm1) #null
+r.squaredGLMM(n2o.lm2) #treatment
+r.squaredGLMM(n2o.lm3) #plant
+r.squaredGLMM(n2o.lm4) #t * p
+r.squaredGLMM(n2o.lm5) #h + p
+#r.squaredGLMM(n2o.lm6) #chamber
+#r.squaredGLMM(n2o.lm7) #date
+r.squaredGLMM(n2o.lm8) #p+t+h
+r.squaredGLMM(n2o.lm9) #h
+r.squaredGLMM(n2o.lm10) #p+t
+r.squaredGLMM(n2o.lm11) #p*h
+r.squaredGLMM(n2o.lm12)#h+t
+
+summary(n2o.lm10, ddf="Kenward-Roger")
+confint.merMod(n2o.lm10, oldNames = FALSE)
+p=profile(n2o.lm10)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(n2o.lm10), main="QQ Plot")
+shapiro.test(resid(n2o.lm10))
+
+emm <- emmeans(co2.lm10, ~ plant + treatment , adjust = "tukey")
+ pairs(emm)
+ multcomp::cld(emm, Letters=letters)
+```
+
+# Distance-based partial least squares regression (dbplsr)
+
+```{r only ending samples}
+#Using end samples for GHG because microbial community analyses was on end samples
+#make df of design, soil, and ghg
+ghg.filter.soil <- ghg %>%
+  dplyr::select('date', 'chamber', 'timepoint', 'mg.CH4.N.m.2', 'mg.CO2.N.m.2', 'mg.N2O.N.m.2')%>%
+  filter(timepoint=='T1' & date == '8/11/2016') 
+
+soil.ghg <- soil %>% 
+dplyr::select('chamber', 'time', 'plant', 'treatment', 'moisture.percent', 'pH', 'nh4.mg.l', 'c.percent', 'n.percent', 'P.ppm', 'K.ppm', 'Mg.ppm', 'S.ppm', 'Fe.ppm', 'Mn.ppm', 'HM', 'redox.percent.paint.removed') %>%
+  filter(time=="finish") %>%
+  bind_cols(ghg.filter.soil)
+  
+rownames(soil.ghg) <- rownames(otu.2.rel)
+
+# Drop the two 'Chamber' columns (because Chambers are now row names)
+soil.ghg <- soil.ghg[,-c(1,19)]
+
+# Calculate euclidean distances for soil parameters only, soil parameters and GHGs, and GHGs only:
+soilonly.dist <- vegdist(x = scale(soil.ghg[, -c(1:3, 17:21)]), "euclid")
+soilghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:3,17:18)]), "euclid")
+ghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:18)]), "euclid")
+```
+
+```{r dbplsr analysis}
+#distance based partial least squares regression
+#Compares distance matrices. can use mixture of continuous and qualitative variables. 
+#Method good when factors are may and highly colinear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
+
+# GHGs compared to Bray-Curtis Distance matrix of rarified OTUs: 
+dbplsr.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+summary(dbplsr.ch4)
+
+dbplsr.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+summary(dbplsr.co2)
+
+dbplsr.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+summary(dbplsr.n2o)
+
+# GHGs compared to euclidean distance matrix of soil parameters (sp): 
+dbplsr.sp.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.ch4)
+
+dbplsr.sp.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.co2)
+
+dbplsr.sp.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.n2o)
+```
+
+# Mantel test: soil and bacterial community
+
+```{r mantel soil and bac comm }
+# For reproducibility, confirm that random seed is set:
+set.seed(42)
+
+#soil only
+bac.soil.mantel.1 <- vegan::mantel(as.matrix(soilonly.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
+bac.soil.mantel.1
+
+#soil and ghg
+bac.soil.mantel.2 <- vegan::mantel(as.matrix(soilghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
+bac.soil.mantel.2
+
+#ghg only 
+bac.soil.mantel.3 <- vegan::mantel(as.matrix(ghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
+bac.soil.mantel.3
+```
+
+# Greenhouse gas and redox regressions
+
+```{r CH4 redox regressions}
+ch4.lm <- lm(log(mg.CH4.N.m.2) ~ redox.percent.paint.removed, data=soil.ghg)
+anova(ch4.lm)
+summary(ch4.lm)
+
+#Outlier excluded, improves R2 slightly:
+ch4.lm2 <- lm(log(mg.CH4.N.m.2) ~ redox.percent.paint.removed, data=soil.ghg[-c(17),])
+anova(ch4.lm2)
+summary(ch4.lm2)
+
+
+ch4.redox.regress.plot <- ggplot(soil.ghg)  +
+  geom_point(aes(x=(redox.percent.paint.removed *100), y=mg.CH4.N.m.2, color=plant), size=5)+ 
+  scale_color_manual(values=c("gray", "darkgreen"), labels=c("No Plant", "Plant"), name = "") +
+  scale_fill_manual(values=c("gray", "darkgreen")) +
+  geom_smooth(aes(x=(redox.percent.paint.removed*100), y=mg.CH4.N.m.2), method=lm, se=T, color="black")+
+  #annotate("text",x=4.0,y=7, size =7, label="C")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=18),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CH"[4],"-C m"^{-2}))) + 
+    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
+          legend.position = "right")
+
+ch4.redox.regress.plot
+
+#ggsave("../figures/pub/ch4_redox.tiff", plot=ch4.redox.regress.plot, device="tiff", path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+
+#ggsave("../figures/pub/ch4_redox.jpg", plot=ch4.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/Thesis/ch4_redox.png", plot=ch4.redox.regress.plot, device="png", path=NULL, scale=1, width=6.3, height=4.4, dpi=300, limitsize=TRUE)
+```
+
+```{r CO2 redox regression}
+co2.lm <- lm(mg.CO2.N.m.2 ~ redox.percent.paint.removed, data=soil.ghg)
+anova(co2.lm)
+summary(co2.lm)
+
+co2.redox.regress.plot <- ggplot(soil.ghg)  +
+  geom_point(aes(x=(redox.percent.paint.removed *100), y=mg.CO2.N.m.2, color=plant), size=5)+ 
+  scale_color_manual(values=c("gray", "darkgreen"), labels=c("No Plant", "Plant"), name = "") +
+  scale_fill_manual(values=c("gray", "darkgreen")) +
+  geom_smooth(aes(x=(redox.percent.paint.removed *100), y=mg.CO2.N.m.2), method=lm, se=T, color="black")+
+  #annotate("text",x=4.0,y=7, size =7, label="C")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=18),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CO"[2],"-C m"^{-2}))) + 
+    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
+          legend.position = "right")
+
+co2.redox.regress.plot
+
+#ggsave("../figures/pub/co2_redox.tiff", plot=co2.redox.regress.plot, device="tiff", path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+
+#ggsave("../figures/pub/co2_redox.jpg", plot=co2.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/Thesis/co2_redox.png", plot=co2.redox.regress.plot, device="png", path=NULL, scale=1, width=6.3, height=4.4, dpi=300, limitsize=TRUE)
+```
+
+```{r N2O redox regression}
+n2o.lm <- lm(mg.N2O.N.m.2 ~ redox.percent.paint.removed, data=soil.ghg)
+anova(n2o.lm)
+summary(n2o.lm)
+
+n2o.redox.regress.plot <- ggplot(soil.ghg)  +
+  geom_point(aes(x=(redox.percent.paint.removed *100), y=mg.N2O.N.m.2, color=plant), size=5)+ 
+  scale_color_manual(values=c("gray", "darkgreen"), labels=c("No Plant", "Plant"), name = "") +
+  scale_fill_manual(values=c("gray", "darkgreen")) +
+  geom_smooth(aes(x=(redox.percent.paint.removed *100), y=mg.N2O.N.m.2), method=lm, se=T, color="black")+
+  #annotate("text",x=4.0,y=7, size =7, label="C")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=18),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "IRIS Percent", y = expression(paste("mg N"[2],"O-N m"^{-2}))) + 
+    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
+          legend.position = "right")
+
+n2o.redox.regress.plot
+
+#ggsave("../figures/pub/n2o_redox.tiff", plot=n2o.redox.regress.plot, device="tiff", path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+
+#ggsave("../figures/pub/n2o_redox.jpg", plot=n2o.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+```
+
+```{r Panel together GHG ~ redox regressions}
+GHG_redox_3panel <- ggarrange(ch4.redox.regress.plot, co2.redox.regress.plot, n2o.redox.regress.plot, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "right", common.legend = T)
+
+GHG_redox_3panel
+
+ggsave("../figures/pub/redox_regres.tiff", plot=GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=7, height=10, dpi=900, limitsize=TRUE, bg="white")
+```
+
