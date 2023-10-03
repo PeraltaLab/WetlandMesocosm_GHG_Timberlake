@@ -613,7 +613,7 @@ ghg_ppm <- ghg_ppm %>%
 # Add new date column, to shorten:
 ghg$date_short <- ghg$date
 ghg_ppm$date_short <- ghg_ppm$date
-# remove "/2016" from data_short:
+# remove "/2016" from date_short:
 ghg$date_short <- str_remove(ghg$date_short, "/2016")
 ghg_ppm$date_short <- str_remove(ghg_ppm$date_short, "/2016")
 
@@ -633,7 +633,7 @@ ghg.plant <- ghg %>%
 ```
 
 ```{r add T1-T4 averages to ghg}
-install.packages("slider")
+#install.packages("slider")
 library(slider)
 
 # Copy ghg, then add on averages (because dimensions match)
@@ -681,7 +681,7 @@ ghg_ppm_filtered$n2o_ppm_avg <- as.numeric(ghg_ppm_filtered$n2o_ppm_avg)
 
 
 ```{r ghg stats}
-# Could simply do two-tailed T-test, is e.g., ch4_ppm different from ch4_ppm_avg?
+# Two-tailed T-test, is e.g., ch4_ppm different from ch4_ppm_avg?
 t.test(ghg_ppm_filtered$ch4_ppm, ghg_ppm_filtered$ch4_ppm_avg, alternative = "two.sided", mu = 0)
 
 t.test(ghg_ppm_filtered$c2o_ppm, ghg_ppm_filtered$co2_ppm_avg, alternative = "two.sided", mu = 0)
@@ -713,21 +713,106 @@ t.test(n2o_ppm_avg ~ plant, data = ghg_ppm_filtered, alternative = "two.sided", 
 library(rstatix)
 
 # Use to make summary stats table (per reviewer comments):
-selfesteem %>%
-  group_by(time) %>%
-  get_summary_stats(score, type = "mean_sd")
+#selfesteem %>%
+  #group_by(time) %>%
+  #get_summary_stats(score, type = "mean_sd")
 
 # Individual identifiers (wid) must be factor:
 ghg_ppm_filtered$chamber <- as.factor(ghg_ppm_filtered$chamber)
 ghg_ppm_filtered$date_short <- as.factor(ghg_ppm_filtered$date_short)
 
 # one-way repeated measures ANOVA:
+  # CH4:
 res.aov.CH4 <- anova_test(data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber, within = date_short)
 get_anova_table(res.aov.CH4)
 
 res.aov.CH4_AVG <- anova_test(data = ghg_ppm_filtered, dv = ch4_ppm_avg, wid = chamber, within = date_short)
 get_anova_table(res.aov.CH4_AVG) # Averaging does not change inference here (non-significant for both)
+
+  # CO2
+res.aov.CO2 <- anova_test(data = ghg_ppm_filtered, dv = c2o_ppm, wid = chamber, within = date_short)
+get_anova_table(res.aov.CO2) # Sig. different within time points
+
+# Pair-wise comparisons (PWC):
+pwc_CO2 <- ghg_ppm_filtered %>%
+  pairwise_t_test(
+    c2o_ppm ~ date_short, paired = TRUE,
+    p.adjust.method = "fdr"
+    )
+pwc_CO2
+
+res.aov.CO2_AVG <- anova_test(data = ghg_ppm_filtered, dv = co2_ppm_avg, wid = chamber, within = date_short)
+get_anova_table(res.aov.CO2_AVG) # Not sig. different within time points. Averaging DOES change inference.
+
+# Pair-wise comparisons (PWC):
+pwc_CO2_AVG <- ghg_ppm_filtered %>%
+  pairwise_t_test(
+    co2_ppm_avg ~ date_short, paired = TRUE,
+    p.adjust.method = "fdr"
+    )
+pwc_CO2_AVG #Also identifies 7/11 to 7/25 differences (as with non-averaged), but additionally identifies 7/11 to 8/11 difference
+
+  # N2O:
+res.aov.N2O <- anova_test(data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber, within = date_short)
+get_anova_table(res.aov.N2O)
+
+res.aov.N2O_AVG <- anova_test(data = ghg_ppm_filtered, dv = n2o_ppm_avg, wid = chamber, within = date_short)
+get_anova_table(res.aov.N2O_AVG) # Averaging does not change inference here (non-significant for both)
 ```
+
+```{r three-way repeated measure ANOVA}
+# Set factors:
+ghg_ppm_filtered$plant <- as.factor(ghg_ppm_filtered$plant)
+ghg_ppm_filtered$treatment <- as.factor(ghg_ppm_filtered$treatment)
+ghg_ppm_filtered$history <- as.factor(ghg_ppm_filtered$history)
+
+# 4-way (?) ANOVAs:
+  # CH4:
+fourwayAOV_CH4 <- anova_test(
+  data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
+  between = c(plant, treatment, history),
+  within = date_short
+  )
+get_anova_table(fourwayAOV_CH4)
+
+fourwayAOV_CH4_AVG <- anova_test(
+  data = ghg_ppm_filtered, dv = ch4_ppm_avg, wid = chamber,
+  between = c(plant, treatment, history),
+  within = date_short
+  )
+get_anova_table(fourwayAOV_CH4_AVG) # Averaging does not change statistical inferences
+
+  # CO2:
+fourwayAOV_CO2 <- anova_test(
+  data = ghg_ppm_filtered, dv = c2o_ppm, wid = chamber,
+  between = c(plant, treatment, history),
+  within = date_short
+  )
+get_anova_table(fourwayAOV_CO2)
+
+fourwayAOV_CO2_AVG <- anova_test(
+  data = ghg_ppm_filtered, dv = co2_ppm_avg, wid = chamber,
+  between = c(plant, treatment, history),
+  within = date_short
+  )
+get_anova_table(fourwayAOV_CO2_AVG) # Averaging DOES change statistical inferences
+
+  # N2O:
+fourwayAOV_N2O <- anova_test(
+  data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
+  between = c(plant, treatment, history),
+  within = date_short
+  )
+get_anova_table(fourwayAOV_N2O)
+
+fourwayAOV_N2O_AVG <- anova_test(
+  data = ghg_ppm_filtered, dv = n2o_ppm_avg, wid = chamber,
+  between = c(plant, treatment, history),
+  within = date_short
+  )
+get_anova_table(fourwayAOV_N2O_AVG) # Averaging does not change statistical inferences
+```
+
 
 
 ```{r CH4 plot}
