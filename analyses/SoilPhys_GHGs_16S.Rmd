@@ -726,7 +726,11 @@ colnames(n2o_flux_input)[5] <- "C"
 # Must omit NAs before using gasfluxes():
 ch4_flux_input <- na.omit(ch4_flux_input)
 co2_flux_input <- na.omit(co2_flux_input)
+
+# n2o_flux_input has negative values, will need to be converted to NAs, then all NAs omitted
+n2o_flux_input$C[n2o_flux_input$C<0] <- NA
 n2o_flux_input <- na.omit(n2o_flux_input)
+
 ```
 
 ```{r GHG flux calculation}
@@ -734,7 +738,71 @@ n2o_flux_input <- na.omit(n2o_flux_input)
 require("gasfluxes")
 
 ch4_flux.results <- gasfluxes(ch4_flux_input, method = c("linear","robust linear", "HMR"), plot = TRUE)
-ch4_flux.results
+
+co2_flux.results <- gasfluxes(co2_flux_input, method = c("linear","robust linear", "HMR"), plot = TRUE)
+
+n2o_flux.results <- gasfluxes(n2o_flux_input, method = c("linear","robust linear", "HMR"), plot = TRUE)
+
+```
+
+```{r GHG flux results wrangling}
+# If HMR is available, use HMR
+# If HMR is not available, use robust linear
+# If robust linear is not available use linear
+
+# new DF for HMR f0 and IDS, then NA omit, then list of IDs, repeat for linear robust, then use list to insert into linear list
+
+# or, new DF with all three f0s and NAs included. Then create a new column (f0 selected) and use a control structure to insert HMR, but if NA, then linear robust, but if NA, then linear.
+
+# New DF with all three f0s:
+ch4_fluxes_only <- ch4_flux.results[,c(1:2, 11, 17)]
+
+co2_fluxes_only <- co2_flux.results[,c(1:2, 11, 17)]
+
+n2o_fluxes_only <- n2o_flux.results[,c(1:2, 11, 17)]
+
+# New column for final flux selection:
+ch4_fluxes_only$f0_selected <- ch4_fluxes_only$HMR.f0
+
+co2_fluxes_only$f0_selected <- co2_fluxes_only$HMR.f0
+
+n2o_fluxes_only$f0_selected <- n2o_flux.results$HMR.f0
+
+# Where HMR = NA, replace with the robust linear value:
+ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$HMR.f0))] <- ch4_fluxes_only$robust.linear.f0[na.action(na.omit(ch4_fluxes_only$HMR.f0))]
+
+co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$HMR.f0))] <- co2_fluxes_only$robust.linear.f0[na.action(na.omit(co2_fluxes_only$HMR.f0))]
+
+n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$HMR.f0))] <- n2o_fluxes_only$robust.linear.f0[na.action(na.omit(n2o_fluxes_only$HMR.f0))]
+
+# Where f0_selected still has NAs, replace with the linear.f0:
+ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$f0_selected))] <- ch4_fluxes_only$linear.f0[na.action(na.omit(ch4_fluxes_only$f0_selected))]
+
+co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$f0_selected))] <- co2_fluxes_only$linear.f0[na.action(na.omit(co2_fluxes_only$f0_selected))]
+
+n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$f0_selected))] <- n2o_fluxes_only$linear.f0[na.action(na.omit(n2o_fluxes_only$f0_selected))]
+
+# Combine separate DFs back into one DF for statistics
+select_fluxes_combined <- ch4_fluxes_only[,c(1,5)] # start with CH4 IDs and f0 for a base dataframe
+
+colnames(select_fluxes_combined)[2] <- "f0_CH4" # rename to distinguish between GHGs
+
+select_fluxes_combined$f0_CO2 <- co2_fluxes_only$f0_selected # add on CO2 fluxes
+
+select_fluxes_combined$f0_N2O <- n2o_fluxes_only$f0_selected # add on N2O fluxes
+
+# Add date_short back onto DFs for plotting
+select_fluxes_combined$date_short <- ghg_ppm_filtered$date_short
+
+# Add on 'plant'
+select_fluxes_combined$plant <- ghg_ppm_filtered$plant
+
+# Add on 'treatment'
+select_fluxes_combined$treatment <- ghg_ppm_filtered$treatment
+
+# Add on 'history'
+select_fluxes_combined$history <- ghg_ppm_filtered$history
+
 ```
 
 
@@ -1629,6 +1697,266 @@ comb_Avg_ppm_BoxPlot
 
 #ggsave("../figures/pub/Fig3/BasePlots_ggpubr.tiff", plot=comb_GHG_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=900, limitsize=TRUE, bg="white")
 ```
+
+## GHG plots flux
+
+```{r subset plant and no plant flux data}
+fluxes.noplant <- select_fluxes_combined %>%
+  filter(plant=="N")
+
+fluxes.plant <- select_fluxes_combined %>%
+  filter(plant=="P")
+```
+
+```{r CH4 flux plot}
+plot.CH4.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_CH4)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+  #scale_y_continuous(limits = c(-2, 18))
+ 
+plot.CH4.flux.noplant
+
+
+plot.CH4.flux.plant <- ggplot(fluxes.plant, aes(x=date_short, y=f0_CH4)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+  #scale_y_continuous(limits = c(-2, 18))
+ 
+plot.CH4.flux.plant
+
+#Panel together using ggarrange{ggpubr}:
+
+#CH4.Combined <- ggarrange(plot.CH4.noplant, plot.CH4.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+
+#No legend version, for combining figures later:
+CH4.flux.Combined <- ggarrange(plot.CH4.flux.noplant, plot.CH4.flux.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
+
+CH4.flux.Combined
+
+#ggsave("../figures/pub/Fig3/CH4_BasePlot.tiff", plot=CH4.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
+
+```
+
+```{r CO2 flux plot}
+plot.CO2.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_CO2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+  #scale_y_continuous(limits = c(0, 1800))
+ 
+plot.CO2.flux.noplant
+
+
+plot.CO2.flux.plant <- ggplot(fluxes.plant, aes(x=date_short, y=f0_CO2)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+  #scale_y_continuous(limits = c(0, 1800))
+ 
+plot.CO2.flux.plant
+
+#Panel together using ggarrange{ggpubr}:
+
+#No legend version, for combining figures later:
+CO2.flux.Combined <- ggarrange(plot.CO2.flux.noplant, plot.CO2.flux.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
+
+CO2.flux.Combined
+
+#ggsave("../figures/pub/Fig3/CH4_BasePlot.tiff", plot=CH4.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
+
+# Average ppm with plants is much lower than without plants. This is likely the result of photosynthesis over the longer timeperiod. Will create an inset, autscaled version for this:
+
+plot.CO2.Avg_ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=co2_ppm_avg)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
+                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=30),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = NULL, y = NULL, title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+ 
+plot.CO2.Avg_ppm.plant.autoScale
+
+#ggsave("../figures/pub/Fig3/CH4_Inset.tiff", plot=plot.CH4.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+```
+
+```{r N2O T30 ppm Boxplot}
+plot.N2O.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_N2O)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+  #scale_y_continuous(limits = c(-1, 1))
+ 
+plot.N2O.flux.noplant
+
+
+plot.N2O.flux.plant <- ggplot(fluxes.plant, aes(x=date_short, y=f0_N2O)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=14),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+  #scale_y_continuous(limits = c(-1, 1))
+ 
+plot.N2O.flux.plant
+
+#Panel together using ggarrange{ggpubr}:
+
+#No legend version, for combining figures later:
+N2O.flux.Combined <- ggarrange(plot.N2O.flux.noplant, plot.N2O.flux.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
+
+N2O.flux.Combined
+
+#ggsave("../figures/pub/Fig3/CH4_BasePlot.tiff", plot=CH4.Combined, device="tiff", path=NULL, scale=1, width=7, height=6, dpi=900, limitsize=TRUE, bg="white")
+
+# Average ppm with plants is much lower than without plants. This is likely the result of photosynthesis over the longer timeperiod. Will create an inset, autscaled version for this:
+
+plot.CO2.Avg_ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=co2_ppm_avg)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
+                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=30),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = NULL, y = NULL, title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+ 
+plot.CO2.Avg_ppm.plant.autoScale
+
+#ggsave("../figures/pub/Fig3/CH4_Inset.tiff", plot=plot.CH4.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+
+# Add an inset to show small values for the 'plant' treatment:
+# First, render plot with no axes labels and smaller axes text:
+plot.N2O.Avg_ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=n2o_ppm_avg)) +
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
+                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
+          axis.text=element_text(size=30),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = NULL, y = NULL, title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
+ 
+plot.N2O.Avg_ppm.plant.autoScale
+
+#ggsave("../figures/pub/Fig3/N2O_Inset.tiff", plot=plot.N2O.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+
+# Create a viewport (vp) with appropriate dimensions for inset:
+#subvp2_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
+
+#subvp2_NO_legend <- viewport(width = 0.35, height = 0.3, x = 0.81, y = 0.34)
+
+# This viewport approach works, but only if ran in console, one line followed by the next. To save the image, must manually click through "Export" on "Plots" tab.
+#N2O.Combined
+#print(plot.N2O.plant.autoScale, vp=subvp2_NO_legend)
+```
+
+```{r Combined GHG Boxplot}
+comb_flux_BoxPlot <- ggarrange(CH4.flux.Combined, CO2.flux.Combined, N2O.flux.Combined, labels = c("A", "B", "C"), ncol = 3, nrow = 1, legend = "none")
+
+comb_flux_BoxPlot
+
+#ggsave("../figures/pub/Fig3/BasePlots_ggpubr.tiff", plot=comb_GHG_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=900, limitsize=TRUE, bg="white")
+```
+
+
 
 
 ```{r GHG summary}
