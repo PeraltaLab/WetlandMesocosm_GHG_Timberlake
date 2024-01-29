@@ -826,110 +826,6 @@ select_fluxes_combined$plant <- as.factor(select_fluxes_combined$plant)
 select_fluxes_combined$treatment <- as.factor(select_fluxes_combined$treatment)
 ```
 
-```{r ANOVA assumption testing: outliers}
-# CH4 PPM
-Outliers_ch4_ppm <- ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  identify_outliers(ch4_ppm)
-  # There are extreme outliers. Could run with and without outliers.
-
-# Filter extreme outliers only:
-Extreme_Outliers_ch4_ppm <- Outliers_ch4_ppm %>%
-  dplyr::filter(is.extreme == TRUE)
-
-# Create unique key for filtering:
-Extreme_Outliers_ch4_ppm$chamber_date <-paste(Extreme_Outliers_ch4_ppm$chamber, Extreme_Outliers_ch4_ppm$date_short)
-
-# New CH4 dataframe with extreme outliers dropped:
-ch4_ppm_no_outliers <- ghg_ppm_filtered
-ch4_ppm_no_outliers$chamber_date <- paste(ch4_ppm_no_outliers$chamber, ch4_ppm_no_outliers$date_short) 
-
-# If values appear in Extreme_Outliers, drop them from 'no_outliers' dataframe:
-ch4_ppm_no_outliers <- ch4_ppm_no_outliers[!(ch4_ppm_no_outliers$chamber_date %in% Extreme_Outliers_ch4_ppm$chamber_date),]
-
-# Test for extreme outliers again:
-ch4_ppm_no_outliers %>%
-  group_by(date_short) %>%
-  identify_outliers(ch4_ppm)
-  # still extreme outliers, but different ones now
-
-
-```
-  
-```{r}  
-  # log transform
-ghg_ppm_filtered$log10_CH4 <- log(ghg_ppm_filtered$ch4_ppm, 10)
-
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  identify_outliers(log10_CH4)
-  # Reduces number of extreme outliers by 2, but still not great
-
-
-
-# CO2 PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  identify_outliers(co2_ppm)
-  # There are extreme outliers. Could run with and without outliers.
-
-# N2O PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  identify_outliers(n2o_ppm)
-  # There are extreme outliers. Could run with and without outliers.
-```
-
-```{r ANOVA assumption testing: normality}
-# CH4 PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  shapiro_test(ch4_ppm)
-  # Not normally distributed
-
-  # QQ plot:
-ggqqplot(ghg_ppm_filtered, "ch4_ppm", facet.by = "date_short")
-
-
-  # log transform:
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  shapiro_test(log10_CH4)
-  # Not normally distributed
-
-ggqqplot(ghg_ppm_filtered, "log10_CH4", facet.by = "date_short")
-  # seems to be an improvement, but not good enough
-
-  # outliers dropped:
-ch4_ppm_no_outliers %>%
-  group_by(date_short) %>%
-  shapiro_test(ch4_ppm)
-  # Not normally distributed
-
-ggqqplot(ch4_ppm_no_outliers, "ch4_ppm", facet.by = "date_short")
-  # seems to be an improvement, but not good enough
-
-# CO2 PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  shapiro_test(co2_ppm)
-  # Not normally distributed
-
-  # QQ plot:
-ggqqplot(ghg_ppm_filtered, "co2_ppm", facet.by = "date_short")
-
-# N2O PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  shapiro_test(n2o_ppm)
-  # Not normally distributed
-
-  # QQ plot:
-ggqqplot(ghg_ppm_filtered, "n2o_ppm", facet.by = "date_short")
-```
-
-
-
 ```{r one-way repeated measures ANOVA}
 # CH4:
 res.aov.CH4 <- anova_test(data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber, within = date_short)
@@ -970,9 +866,22 @@ get_anova_table(res.aov.N2O_AVG) # Averaging does not change inference here (non
 ```
 
 ```{r Independent Measures ANOVA and Mixed ANOVA}
-# Pseudo replication because date is not a within subjects factor
-# CH4: 
-  # PPM:
+# CH4:
+  # Gina Method (between-subjects factors only is an Independent Measures ANOVA(IMANOVA))
+IMANOVA_CH4_Gina <- anova_test(
+  data = ghg, dv = mg.CH4.N.m.2, wid = chamber,
+  between = c(plant, treatment))
+get_anova_table(IMANOVA_CH4_Gina)
+  # would want to later do Tukey on treatment
+
+    # Gina Method with date (with date is a Mixed, or split-plot ANOVA(MixANOVA))
+MixANOVA_CH4_Gina <- anova_test(
+  data = ghg, dv = mg.CH4.N.m.2, wid = chamber,
+  between = c(plant, treatment),
+  within = date_short)
+get_anova_table(MixANOVA_CH4_Gina)
+ 
+ # PPM:
 IMANOVA_CH4_ppm <- anova_test(
   data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
   between = c(plant, treatment))
@@ -986,6 +895,20 @@ MixANOVA_CH4_ppm <- anova_test(
   within = date_short)
 get_anova_table(MixANOVA_CH4_ppm)
 
+  # Average PPM
+IMANOVA_CH4_Avg <- anova_test(
+  data = ghg_ppm_filtered, dv = ch4_ppm_avg, wid = chamber,
+  between = c(plant, treatment))
+get_anova_table(IMANOVA_CH4_Avg)
+  # would want to later do Tukey on treatment
+    
+  # Average PPM with date
+MixANOVA_CH4_Avg <- anova_test(
+  data = ghg_ppm_filtered, dv = ch4_ppm_avg, wid = chamber,
+  between = c(plant, treatment),
+  within = date_short)
+get_anova_table(MixANOVA_CH4_Avg)
+
   # Flux
 IMANOVA_CH4_Flux <- anova_test(
   data = select_fluxes_combined, dv = f0_CH4, wid = chamber,
@@ -998,6 +921,22 @@ MixANOVA_CH4_Flux <- anova_test(
   between = c(plant, treatment),
   within = date_short)
 get_anova_table(MixANOVA_CH4_Flux)
+
+# CO2:
+  # Gina Method (between-subjects factors only is an Independent Measures ANOVA(IMANOVA))
+IMANOVA_CO2_Gina <- anova_test(
+  data = ghg, dv = mg.CO2.N.m.2, wid = chamber,
+  between = c(plant, treatment))
+get_anova_table(IMANOVA_CO2_Gina)
+  # would want to later do Tukey on treatment and plant:treatment
+
+    # Gina Method with date (with date is a Mixed, or split-plot ANOVA(MixANOVA))
+MixANOVA_CO2_Gina <- anova_test(
+  data = ghg, dv = mg.CO2.N.m.2, wid = chamber,
+  between = c(plant, treatment),
+  within = date_short)
+get_anova_table(MixANOVA_CO2_Gina)
+  # would later do Tukey on all except 'plant' 
 
  # PPM:
 IMANOVA_CO2_ppm <- anova_test(
@@ -1042,6 +981,21 @@ MixANOVA_CO2_Flux <- anova_test(
   within = date_short)
 get_anova_table(MixANOVA_CO2_Flux)
 
+# N2O:
+  # Gina Method (between-subjects factors only is an Independent Measures ANOVA(IMANOVA))
+IMANOVA_N2O_Gina <- anova_test(
+  data = ghg, dv = mg.N2O.N.m.2, wid = chamber,
+  between = c(plant, treatment))
+get_anova_table(IMANOVA_N2O_Gina)
+  # would want to later do Tukey on treatment
+
+    # Gina Method with date (with date is a Mixed, or split-plot ANOVA(MixANOVA))
+MixANOVA_N2O_Gina <- anova_test(
+  data = ghg, dv = mg.N2O.N.m.2, wid = chamber,
+  between = c(plant, treatment),
+  within = date_short)
+get_anova_table(MixANOVA_N2O_Gina)
+ 
  # PPM:
 IMANOVA_N2O_ppm <- anova_test(
   data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
@@ -1084,195 +1038,140 @@ MixANOVA_N2O_Flux <- anova_test(
 get_anova_table(MixANOVA_N2O_Flux)
 ```
 
-```{r Mixed ANOVA, limit factors}
-# CH4: 
-    # PPM with date, PLANT:
-MixANOVA_CH4_ppm_plant <- anova_test(
-  data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
-  between = plant,
-  within = date_short)
-get_anova_table(MixANOVA_CH4_ppm_plant)
+```{r ANOVAs for boxplot comparison: CH4}
+# CH4:
+  # Gina method
+TwoWayAOV_CH4_Gina <- anova_test(
+  data = ghg, dv = mg.CH4.N.m.2, wid = chamber,
+  within = c(plant, treatment))
 
-    # PPM with date, TREATMENT:
-MixANOVA_CH4_ppm_treatment <- anova_test(
-  data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
-  between = treatment,
-  within = date_short)
-get_anova_table(MixANOVA_CH4_ppm_treatment)
+get_anova_table(TwoWayAOV_CH4_Gina)
 
-# CO2:
-    # PPM with date, PLANT:
-MixANOVA_CO2_ppm_plant <- anova_test(
-  data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
-  between = plant,
-  within = date_short)
-get_anova_table(MixANOVA_CO2_ppm_plant)
-
-    # PPM with date, TREATMENT:
-MixANOVA_CO2_ppm_treatment <- anova_test(
-  data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
-  between = treatment,
-  within = date_short)
-get_anova_table(MixANOVA_CO2_ppm_treatment)
-  # Do a Tukey on treatment:
     # Tukey on treatment
-tukey_AOV_CH4_treatment <- tukey_hsd(ghg_ppm_filtered, co2_ppm ~ treatment)
-tukey_AOV_CH4_treatment
+tukey_TwoWayAOV_CH4_Gina <- tukey_hsd(ghg, mg.CH4.N.m.2 ~ treatment)
+tukey_TwoWayAOV_CH4_Gina
 
+  # T30 ppm
+TwoWayAOV_CH4_T30ppm <- anova_test(
+  data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_CH4_T30ppm)
+
+    # Tukey on treatment
+tukey_TwoWayAOV_CH4_T30ppm <- tukey_hsd(ghg_ppm_filtered, ch4_ppm ~ treatment)
+tukey_TwoWayAOV_CH4_T30ppm
+
+  # T1-T4 Average
+TwoWayAOV_CH4_AVG <- anova_test(
+  data = ghg_ppm_filtered, dv = ch4_ppm_avg, wid = chamber,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_CH4_AVG)
+
+    # Tukey on treatment
+tukey_TwoWayAOV_CH4_AVG <- tukey_hsd(ghg_ppm_filtered, ch4_ppm_avg ~ treatment)
+tukey_TwoWayAOV_CH4_AVG
+
+  # Flux
+TwoWayAOV_CH4_Flux <- anova_test(
+  data = select_fluxes_combined, dv = f0_CH4, wid = ID,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_CH4_Flux)
+
+    # add on chamber and see if there's a difference:
+select_fluxes_combined$chamber <- ghg$chamber
+
+TwoWayAOV_CH4_Flux_2 <- anova_test(
+  data = select_fluxes_combined, dv = f0_CH4, wid = chamber,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_CH4_Flux_2) # Identical to use of 'ID', but use 'chamber' for sanity
+```
+```{r ANOVAs for boxplot comparison: CO2}
+# CO2:
+  # Gina method
+TwoWayAOV_CO2_Gina <- anova_test(
+  data = ghg, dv = mg.CO2.N.m.2, wid = chamber,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_CO2_Gina)
+
+    # Tukey on treatment
+tukey_TwoWayAOV_CO2_Gina <- tukey_hsd(ghg, mg.CO2.N.m.2 ~ treatment)
+tukey_TwoWayAOV_CO2_Gina
+
+    # Tukey on plant:treatment
+tukey_TwoWayAOV_CO2_Gina_p_t <- tukey_hsd(ghg, mg.CO2.N.m.2 ~ plant:treatment)
+tukey_TwoWayAOV_CO2_Gina_p_t
+
+  # T30 ppm
+TwoWayAOV_CO2_T30ppm <- anova_test(
+  data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_CO2_T30ppm)
+
+    # Tukey on treatment
+tukey_TwoWayAOV_CO2_T30ppm <- tukey_hsd(ghg_ppm_filtered, co2_ppm ~ treatment)
+tukey_TwoWayAOV_CO2_T30ppm
+
+    # Tukey on plant:treatment
+tukey_TwoWayAOV_CO2_T30ppm_p_t <- tukey_hsd(ghg_ppm_filtered, co2_ppm ~ plant:treatment)
+tukey_TwoWayAOV_CO2_T30ppm_p_t
+
+  # T1-T4 Average
+TwoWayAOV_CO2_AVG <- anova_test(
+  data = ghg_ppm_filtered, dv = co2_ppm_avg, wid = chamber,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_CO2_AVG)
+
+    # Tukey on treatment
+tukey_TwoWayAOV_CO2_AVG <- tukey_hsd(ghg_ppm_filtered, co2_ppm_avg ~ treatment)
+tukey_TwoWayAOV_CO2_AVG
+
+    # Tukey on plant:treatment
+tukey_TwoWayAOV_CO2_AVG_p_t <- tukey_hsd(ghg_ppm_filtered, co2_ppm_avg ~ plant:treatment)
+tukey_TwoWayAOV_CO2_AVG_p_t
+
+  # Flux
+TwoWayAOV_CO2_Flux <- anova_test(
+  data = select_fluxes_combined, dv = f0_CO2, wid = chamber,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_CO2_Flux)
+```
+```{r ANOVAs for boxplot comparison: N2O}
 # N2O:
-    # PPM with date, PLANT:
-MixANOVA_N2O_ppm_plant <- anova_test(
+  # Gina method
+TwoWayAOV_N2O_Gina <- anova_test(
+  data = ghg, dv = mg.N2O.N.m.2, wid = chamber,
+  within = c(plant, treatment))
+
+get_anova_table(TwoWayAOV_N2O_Gina)
+
+  # T30 ppm
+TwoWayAOV_N2O_T30ppm <- anova_test(
   data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
-  between = plant,
-  within = date_short)
-get_anova_table(MixANOVA_N2O_ppm_plant)
+  within = c(plant, treatment))
 
-    # PPM with date, TREATMENT:
-MixANOVA_N2O_ppm_treatment <- anova_test(
-  data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
-  between = treatment,
-  within = date_short)
-get_anova_table(MixANOVA_N2O_ppm_treatment)
-```
+get_anova_table(TwoWayAOV_N2O_T30ppm)
 
-```{r Wilcoxon Rank Sum for Plant No Plant}
-# CH4
-wilcox_CH4_date <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short)
-wilcox_CH4_date
+  # T1-T4 Average
+TwoWayAOV_N2O_AVG <- anova_test(
+  data = ghg_ppm_filtered, dv = n2o_ppm_avg, wid = chamber,
+  within = c(plant, treatment))
 
-wilcox_CH4_6.28 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short == "6/28")
-wilcox_CH4_6.28
+get_anova_table(TwoWayAOV_N2O_AVG)
 
-wilcox_CH4_7.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short == "7/11")
-wilcox_CH4_7.11
+  # Flux
+TwoWayAOV_N2O_Flux <- anova_test(
+  data = select_fluxes_combined, dv = f0_N2O, wid = chamber,
+  within = c(plant, treatment))
 
-wilcox_CH4_7.25 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short == "7/25")
-wilcox_CH4_7.25
-
-wilcox_CH4_8.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short == "8/11")
-wilcox_CH4_8.11
-
-# CO2
-wilcox_CO2_date <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short)
-wilcox_CO2_date
-
-wilcox_CO2_6.28 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short == "6/28")
-wilcox_CO2_6.28
-
-wilcox_CO2_7.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short == "7/11")
-wilcox_CO2_7.11
-
-wilcox_CO2_7.25 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short == "7/25")
-wilcox_CO2_7.25
-
-wilcox_CO2_8.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short == "8/11")
-wilcox_CO2_8.11
-
-# N2O
-wilcox_N2O_date <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short)
-wilcox_N2O_date
-
-wilcox_N2O_6.28 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short == "6/28")
-wilcox_N2O_6.28
-
-wilcox_N2O_7.11 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short == "7/11")
-wilcox_N2O_7.11
-
-wilcox_N2O_7.25 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short == "7/25")
-wilcox_N2O_7.25
-
-wilcox_N2O_8.11 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short == "8/11")
-wilcox_N2O_8.11
-
-
-# Could try a paired T test as well
-```
-
-```{r Kruskal-Wallis Rank Sum Test on treatment}
-# Will use DWASS-Steel-Critchlow-Fligner test for multiple comparisons, in package NSM3
-#install.packages("NSM3")
-
-require("NSM3")
-
-
-# CH4
-kruskal_CH4_6.28 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "6/28")
-kruskal_CH4_6.28
-
-  # Pairwise comparisons:
-    # Must subset 6/28:
-ghg_ppm_filtered_6.28 <- ghg_ppm_filtered %>% filter(date_short == "6/28")
-
-SDCFlig_CH4_6.28 <- pSDCFlig(x = ghg_ppm_filtered_6.28$ch4_ppm, g = ghg_ppm_filtered_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CH4_6.28
-
-kruskal_CH4_7.11 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "7/11")
-kruskal_CH4_7.11
-
-  # Pairwise comparisons:
-    # Must subset 7/11:
-ghg_ppm_filtered_7.11 <- ghg_ppm_filtered %>% filter(date_short == "7/11")
-
-SDCFlig_CH4_7.11 <- pSDCFlig(x = ghg_ppm_filtered_7.11$ch4_ppm, g = ghg_ppm_filtered_7.11$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CH4_7.11
-
-kruskal_CH4_7.25 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "7/25")
-kruskal_CH4_7.25
-
-  # Pairwise comparisons:
-    # Must subset 7/25:
-ghg_ppm_filtered_7.25 <- ghg_ppm_filtered %>% filter(date_short == "7/25")
-
-SDCFlig_CH4_7.25 <- pSDCFlig(x = ghg_ppm_filtered_7.25$ch4_ppm, g = ghg_ppm_filtered_7.25$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CH4_7.25
-
-kruskal_CH4_8.11 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "8/11")
-kruskal_CH4_8.11
-
-  # Pairwise comparisons:
-    # Must subset 8/11:
-ghg_ppm_filtered_8.11 <- ghg_ppm_filtered %>% filter(date_short == "8/11")
-
-SDCFlig_CH4_8.11 <- pSDCFlig(x = ghg_ppm_filtered_8.11$ch4_ppm, g = ghg_ppm_filtered_8.11$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CH4_8.11
-
-# CO2
-kruskal_CO2_6.28 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "6/28")
-kruskal_CO2_6.28
-
-kruskal_CO2_7.11 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "7/11")
-kruskal_CO2_7.11
-
-  # Pairwise comparisons:
-SDCFlig_CO2_7.11 <- pSDCFlig(x = ghg_ppm_filtered_7.11$co2_ppm, g = ghg_ppm_filtered_7.11$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CO2_7.11
-
-kruskal_CO2_7.25 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "7/25")
-kruskal_CO2_7.25
-
-kruskal_CO2_8.11 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "8/11")
-kruskal_CO2_8.11
-
-  # Pairwise comparisons:
-SDCFlig_CO2_8.11 <- pSDCFlig(x = ghg_ppm_filtered_8.11$co2_ppm, g = ghg_ppm_filtered_8.11$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CO2_8.11
-
-# N2O
-kruskal_N2O_6.28 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "6/28")
-kruskal_N2O_6.28
-
-  # Pairwise comparisons:
-SDCFlig_N2O_6.28 <- pSDCFlig(x = ghg_ppm_filtered_6.28$n2o_ppm, g = ghg_ppm_filtered_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_N2O_6.28
-
-kruskal_N2O_7.11 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "7/11")
-kruskal_N2O_7.11
-
-kruskal_N2O_7.25 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "7/25")
-kruskal_N2O_7.25
-
-kruskal_N2O_8.11 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "8/11")
-kruskal_N2O_8.11
+get_anova_table(TwoWayAOV_N2O_Flux)
 ```
 
 
