@@ -635,46 +635,52 @@ ghg_ppm.plant <- ghg_ppm %>%
 ```
 
 ```{r add T1-T4 averages to ghg}
+# Should be only line needed now. Delete rest of this chunk after confirming rest of code works.
+ghg_ppm_filtered <- ghg_ppm %>%
+  dplyr::filter(timepoint == "T1")
+
 #install.packages("slider")
-library(slider)
+#library(slider)
 
 # Average CH4 ppm:
-ghg_ppm$ch4_ppm_avg <- slide(
-  ghg_ppm$ch4_ppm,
-  ~mean(.x, na.rm = T),
-  .after = 3,
-  .step = 4,
-  .complete = F
-)
+#ghg_ppm$ch4_ppm_avg <- slide(
+ # ghg_ppm$ch4_ppm,
+#  ~mean(.x, na.rm = T),
+#  .after = 3,
+#  .step = 4,
+#  .complete = F
+#)
 
 # Average CO2 ppm:
-ghg_ppm$co2_ppm_avg <- slide(
-  ghg_ppm$co2_ppm,
-  ~mean(.x, na.rm = T),
-  .after = 3,
-  .step = 4,
-  .complete = F
-)
+#ghg_ppm$co2_ppm_avg <- slide(
+#  ghg_ppm$co2_ppm,
+#  ~mean(.x, na.rm = T),
+#  .after = 3,
+#  .step = 4,
+#  .complete = F
+#)
 
 # Average N2O ppm:
-ghg_ppm$n2o_ppm_avg <- slide(
-  ghg_ppm$n2o_ppm,
-  ~mean(.x, na.rm = T),
-  .after = 3,
-  .step = 4,
-  .complete = F
-)
+#ghg_ppm$n2o_ppm_avg <- slide(
+ # ghg_ppm$n2o_ppm,
+  #~mean(.x, na.rm = T),
+  #.after = 3,
+  #.step = 4,
+  #.complete = F
+#)
 
 # Convert one of the averaged column to character, then use it to filter:
-ghg_ppm$ch4_ppm_avg <- as.character(ghg_ppm$ch4_ppm_avg)
+#ghg_ppm$ch4_ppm_avg <- as.character(ghg_ppm$ch4_ppm_avg)
 
-ghg_ppm_filtered <- ghg_ppm %>%
-  dplyr::filter(ch4_ppm_avg != "NULL")
+#ghg_ppm_filtered <- ghg_ppm %>%
+ # dplyr::filter(ch4_ppm_avg != "NULL")
+
+
 
 # After filtering, convert all averaged columns to numeric:
-ghg_ppm_filtered$ch4_ppm_avg <- as.numeric(ghg_ppm_filtered$ch4_ppm_avg)
-ghg_ppm_filtered$co2_ppm_avg <- as.numeric(ghg_ppm_filtered$co2_ppm_avg)
-ghg_ppm_filtered$n2o_ppm_avg <- as.numeric(ghg_ppm_filtered$n2o_ppm_avg)
+#ghg_ppm_filtered$ch4_ppm_avg <- as.numeric(ghg_ppm_filtered$ch4_ppm_avg)
+#ghg_ppm_filtered$co2_ppm_avg <- as.numeric(ghg_ppm_filtered$co2_ppm_avg)
+#ghg_ppm_filtered$n2o_ppm_avg <- as.numeric(ghg_ppm_filtered$n2o_ppm_avg)
 ```
 
 ```{r GHG flux wrangling}
@@ -735,11 +741,11 @@ n2o_flux_input <- na.omit(n2o_flux_input)
 #install.packages("gasfluxes")
 require("gasfluxes")
 
-ch4_flux.results <- gasfluxes(ch4_flux_input, method = c("linear","robust linear", "HMR"), plot = F)
+ch4_flux.results <- gasfluxes(ch4_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 
-co2_flux.results <- gasfluxes(co2_flux_input, method = c("linear","robust linear", "HMR"), plot = F)
+co2_flux.results <- gasfluxes(co2_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 
-n2o_flux.results <- gasfluxes(n2o_flux_input, method = c("linear","robust linear", "HMR"), plot = F)
+n2o_flux.results <- gasfluxes(n2o_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 ```
 
 ```{r GHG flux results wrangling}
@@ -852,11 +858,9 @@ ch4_ppm_no_outliers %>%
   group_by(date_short) %>%
   identify_outliers(ch4_ppm)
   # still extreme outliers, but different ones now
-
-
 ```
   
-```{r}  
+```{r log transform}  
   # log transform
 ghg_ppm_filtered$log10_CH4 <- log(ghg_ppm_filtered$ch4_ppm, 10)
 
@@ -935,9 +939,6 @@ ggqqplot(ghg_ppm_filtered, "n2o_ppm", facet.by = "date_short")
 res.aov.CH4 <- anova_test(data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber, within = date_short)
 get_anova_table(res.aov.CH4)
 
-res.aov.CH4_AVG <- anova_test(data = ghg_ppm_filtered, dv = ch4_ppm_avg, wid = chamber, within = date_short)
-get_anova_table(res.aov.CH4_AVG) # Averaging does not change inference here (non-significant for both)
-
 # CO2
 res.aov.CO2 <- anova_test(data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber, within = date_short)
 get_anova_table(res.aov.CO2) # Sig. different within time points
@@ -950,35 +951,13 @@ pwc_CO2 <- ghg_ppm_filtered %>%
     )
 pwc_CO2
 
-res.aov.CO2_AVG <- anova_test(data = ghg_ppm_filtered, dv = co2_ppm_avg, wid = chamber, within = date_short)
-get_anova_table(res.aov.CO2_AVG) # Not sig. different within time points. Averaging DOES change inference.
-
-# Pair-wise comparisons (PWC):
-pwc_CO2_AVG <- ghg_ppm_filtered %>%
-  pairwise_t_test(
-    co2_ppm_avg ~ date_short, paired = TRUE,
-    p.adjust.method = "fdr"
-    )
-pwc_CO2_AVG #Also identifies 7/11 to 7/25 differences (as with non-averaged), but additionally identifies 7/11 to 8/11 difference
-
 # N2O:
 res.aov.N2O <- anova_test(data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber, within = date_short)
 get_anova_table(res.aov.N2O)
-
-res.aov.N2O_AVG <- anova_test(data = ghg_ppm_filtered, dv = n2o_ppm_avg, wid = chamber, within = date_short)
-get_anova_table(res.aov.N2O_AVG) # Averaging does not change inference here (non-significant for both)
 ```
 
-```{r Independent Measures ANOVA and Mixed ANOVA}
-# Pseudo replication because date is not a within subjects factor
+```{r Mixed ANOVA}
 # CH4: 
-  # PPM:
-IMANOVA_CH4_ppm <- anova_test(
-  data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
-  between = c(plant, treatment))
-get_anova_table(IMANOVA_CH4_ppm)
-  # would want to later do Tukey on treatment
-
     # PPM with date:
 MixANOVA_CH4_ppm <- anova_test(
   data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
@@ -986,12 +965,6 @@ MixANOVA_CH4_ppm <- anova_test(
   within = date_short)
 get_anova_table(MixANOVA_CH4_ppm)
 
-  # Flux
-IMANOVA_CH4_Flux <- anova_test(
-  data = select_fluxes_combined, dv = f0_CH4, wid = chamber,
-  between = c(plant, treatment))
-get_anova_table(IMANOVA_CH4_Flux)
-    
   # Flux with date
 MixANOVA_CH4_Flux <- anova_test(
   data = select_fluxes_combined, dv = f0_CH4, wid = chamber,
@@ -999,42 +972,14 @@ MixANOVA_CH4_Flux <- anova_test(
   within = date_short)
 get_anova_table(MixANOVA_CH4_Flux)
 
- # PPM:
-IMANOVA_CO2_ppm <- anova_test(
-  data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
-  between = c(plant, treatment))
-get_anova_table(IMANOVA_CO2_ppm)
-  # would want to later do Tukey on treatment and plant:treatment
-
+# CO2:
     # PPM with date:
 MixANOVA_CO2_ppm <- anova_test(
   data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
   between = c(plant, treatment),
   within = date_short)
 get_anova_table(MixANOVA_CO2_ppm)
-  # Bizarre differences in results from Gina's method, will need to look at this further
 
-  # Average PPM
-IMANOVA_CO2_Avg <- anova_test(
-  data = ghg_ppm_filtered, dv = co2_ppm_avg, wid = chamber,
-  between = c(plant, treatment))
-get_anova_table(IMANOVA_CO2_Avg)
-  # would want to later do Tukey on treatment and plant:treatment
-    
-  # Average PPM with date
-MixANOVA_CO2_Avg <- anova_test(
-  data = ghg_ppm_filtered, dv = co2_ppm_avg, wid = chamber,
-  between = c(plant, treatment),
-  within = date_short)
-get_anova_table(MixANOVA_CO2_Avg)
-  # would later do Tukey on all except 'plant'
-
-  # Flux
-IMANOVA_CO2_Flux <- anova_test(
-  data = select_fluxes_combined, dv = f0_CO2, wid = chamber,
-  between = c(plant, treatment))
-get_anova_table(IMANOVA_CO2_Flux)
-    
   # Flux with date
 MixANOVA_CO2_Flux <- anova_test(
   data = select_fluxes_combined, dv = f0_CO2, wid = chamber,
@@ -1042,13 +987,7 @@ MixANOVA_CO2_Flux <- anova_test(
   within = date_short)
 get_anova_table(MixANOVA_CO2_Flux)
 
- # PPM:
-IMANOVA_N2O_ppm <- anova_test(
-  data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
-  between = c(plant, treatment))
-get_anova_table(IMANOVA_N2O_ppm)
-  # would want to later do Tukey on treatment
-
+# N2O:
     # PPM with date:
 MixANOVA_N2O_ppm <- anova_test(
   data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
@@ -1056,26 +995,6 @@ MixANOVA_N2O_ppm <- anova_test(
   within = date_short)
 get_anova_table(MixANOVA_N2O_ppm)
 
-  # Average PPM
-IMANOVA_N2O_Avg <- anova_test(
-  data = ghg_ppm_filtered, dv = n2o_ppm_avg, wid = chamber,
-  between = c(plant, treatment))
-get_anova_table(IMANOVA_N2O_Avg)
-  # would want to later do Tukey on treatment
-    
-  # Average PPM with date
-MixANOVA_N2O_Avg <- anova_test(
-  data = ghg_ppm_filtered, dv = n2o_ppm_avg, wid = chamber,
-  between = c(plant, treatment),
-  within = date_short)
-get_anova_table(MixANOVA_N2O_Avg)
-
-  # Flux
-IMANOVA_N2O_Flux <- anova_test(
-  data = select_fluxes_combined, dv = f0_N2O, wid = chamber,
-  between = c(plant, treatment))
-get_anova_table(IMANOVA_N2O_Flux)
-    
   # Flux with date
 MixANOVA_N2O_Flux <- anova_test(
   data = select_fluxes_combined, dv = f0_N2O, wid = chamber,
@@ -1086,13 +1005,6 @@ get_anova_table(MixANOVA_N2O_Flux)
 
 ```{r Mixed ANOVA, limit factors}
 # CH4: 
-    # PPM with date, PLANT:
-MixANOVA_CH4_ppm_plant <- anova_test(
-  data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
-  between = plant,
-  within = date_short)
-get_anova_table(MixANOVA_CH4_ppm_plant)
-
     # PPM with date, TREATMENT:
 MixANOVA_CH4_ppm_treatment <- anova_test(
   data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
@@ -1101,13 +1013,6 @@ MixANOVA_CH4_ppm_treatment <- anova_test(
 get_anova_table(MixANOVA_CH4_ppm_treatment)
 
 # CO2:
-    # PPM with date, PLANT:
-MixANOVA_CO2_ppm_plant <- anova_test(
-  data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
-  between = plant,
-  within = date_short)
-get_anova_table(MixANOVA_CO2_ppm_plant)
-
     # PPM with date, TREATMENT:
 MixANOVA_CO2_ppm_treatment <- anova_test(
   data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
@@ -1120,13 +1025,6 @@ tukey_AOV_CH4_treatment <- tukey_hsd(ghg_ppm_filtered, co2_ppm ~ treatment)
 tukey_AOV_CH4_treatment
 
 # N2O:
-    # PPM with date, PLANT:
-MixANOVA_N2O_ppm_plant <- anova_test(
-  data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
-  between = plant,
-  within = date_short)
-get_anova_table(MixANOVA_N2O_ppm_plant)
-
     # PPM with date, TREATMENT:
 MixANOVA_N2O_ppm_treatment <- anova_test(
   data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
@@ -1137,55 +1035,52 @@ get_anova_table(MixANOVA_N2O_ppm_treatment)
 
 ```{r Wilcoxon Rank Sum for Plant No Plant}
 # CH4
-wilcox_CH4_date <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short)
+wilcox_CH4_date <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short)
 wilcox_CH4_date
 
-wilcox_CH4_6.28 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short == "6/28")
+wilcox_CH4_6.28 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_CH4_6.28
 
-wilcox_CH4_7.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short == "7/11")
+wilcox_CH4_7.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "7/11")
 wilcox_CH4_7.11
 
-wilcox_CH4_7.25 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short == "7/25")
+wilcox_CH4_7.25 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "7/25")
 wilcox_CH4_7.25
 
-wilcox_CH4_8.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, subset = date_short == "8/11")
+wilcox_CH4_8.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "8/11")
 wilcox_CH4_8.11
 
 # CO2
-wilcox_CO2_date <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short)
+wilcox_CO2_date <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short)
 wilcox_CO2_date
 
-wilcox_CO2_6.28 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short == "6/28")
+wilcox_CO2_6.28 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_CO2_6.28
 
-wilcox_CO2_7.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short == "7/11")
+wilcox_CO2_7.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "7/11")
 wilcox_CO2_7.11
 
-wilcox_CO2_7.25 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short == "7/25")
+wilcox_CO2_7.25 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "7/25")
 wilcox_CO2_7.25
 
-wilcox_CO2_8.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, subset = date_short == "8/11")
+wilcox_CO2_8.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "8/11")
 wilcox_CO2_8.11
 
 # N2O
-wilcox_N2O_date <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short)
+wilcox_N2O_date <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short)
 wilcox_N2O_date
 
-wilcox_N2O_6.28 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short == "6/28")
+wilcox_N2O_6.28 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_N2O_6.28
 
-wilcox_N2O_7.11 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short == "7/11")
+wilcox_N2O_7.11 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "7/11")
 wilcox_N2O_7.11
 
-wilcox_N2O_7.25 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short == "7/25")
+wilcox_N2O_7.25 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "7/25")
 wilcox_N2O_7.25
 
-wilcox_N2O_8.11 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, subset = date_short == "8/11")
+wilcox_N2O_8.11 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "8/11")
 wilcox_N2O_8.11
-
-
-# Could try a paired T test as well
 ```
 
 ```{r Kruskal-Wallis Rank Sum Test on treatment}
@@ -1495,14 +1390,6 @@ plot.N2O.plant.autoScale
 #print(plot.N2O.plant.autoScale, vp=subvp2_NO_legend)
 ```
 
-```{r Extract and save GHG boxplot legend}
-leg <- get_legend(plot.N2O.noplant, position = "right") #Extract legend as a legend Grob
-legend_plot <- as_ggplot(leg) #Asign the grob as a ggplot
-legend_plot #View the plot
-
-#ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
-```
-
 ```{r Combined GHG Boxplot}
 comb_GHG_BoxPlot <- ggarrange(CH4.Combined, CO2.Combined, N2O.Combined, labels = c("A", "B", "C"), ncol = 3, nrow = 1, legend = "none")
 
@@ -1510,6 +1397,7 @@ comb_GHG_BoxPlot
 
 #ggsave("../figures/pub/Fig3/GinaMethod/BasePlots_ggpubr.tiff", plot=comb_GHG_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=600, limitsize=TRUE, bg="white")
 ```
+
 
 ## GHG plots: T30 ppm
 
@@ -1737,6 +1625,14 @@ plot.N2O.T30ppm.plant.autoScale
 #print(plot.N2O.plant.autoScale, vp=subvp2_NO_legend)
 ```
 
+```{r Extract and save GHG boxplot legend}
+leg <- get_legend(plot.N2O.T30ppm.noplant, position = "right") #Extract legend as a legend Grob
+legend_plot <- as_ggplot(leg) #Asign the grob as a ggplot
+legend_plot #View the plot
+
+#ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
+```
+
 ```{r Combined GHG Boxplot}
 comb_T30ppm_BoxPlot <- ggarrange(CH4.T30ppm.Combined, CO2.T30ppm.Combined, N2O.T30ppm.Combined, labels = c("A", "B", "C"), ncol = 3, nrow = 1, legend = "none")
 
@@ -1745,13 +1641,13 @@ comb_T30ppm_BoxPlot
 #ggsave("../figures/pub/Fig3/T30ppm/BasePlots_T30ppm.tiff", plot=comb_T30ppm_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=600, limitsize=TRUE, bg="white")
 ```
 
-## GHG plots T1-T4 ppm average
+## T30 ppm: No Plant, Plant, side-by-side
 
-```{r CH4 T30 ppm plot}
-plot.CH4.Avg_ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y=ch4_ppm_avg)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+```{r CH4 T30 ppm NP vs. P}
+plot.CH4.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=date_short, y=ch4_ppm)) +
+                     geom_boxplot(aes(color=plant), outlier.shape = NA) +
+                     geom_point(aes(color=plant), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#00571A","#BABABA"), labels = c("No Plant", "Plant"), name="")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1764,77 +1660,21 @@ plot.CH4.Avg_ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y
           labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 1800))
+  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.x.npc = "center", label.y.npc = "center", size = 7)
  
-plot.CH4.Avg_ppm.noplant
-
-
-plot.CH4.Avg_ppm.plant <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=ch4_ppm_avg)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 1800))
-
- 
-plot.CH4.Avg_ppm.plant
-
-#Panel together using ggarrange{ggpubr}:
-#No legend version, for combining figures later:
-CH4.Avg_ppm.Combined <- ggarrange(plot.CH4.Avg_ppm.noplant, plot.CH4.Avg_ppm.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
-
-CH4.Avg_ppm.Combined
-
-# Add an inset to show small values for the 'plant' treatment:
-# First, render plot with no axes labels and smaller axes text:
-plot.CH4.Avg_ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=ch4_ppm_avg)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
-                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=30),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = NULL, y = NULL, title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
-
- 
-plot.CH4.Avg_ppm.plant.autoScale
-
-#ggsave("../figures/pub/Fig3/Avg_ppm/CH4_Inset_Avg_ppm.tiff", plot=plot.CH4.Avg_ppm.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
-
-# Create a viewport (vp) with appropriate dimensions for inset. Two different versions for combined figure with or without legend:
-#subvp_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
-
-#subvp_NO_legend <- viewport(width = 0.35, height = 0.3, x = 0.81, y = 0.34)
-
-# This viewport approach works, but only if ran in console, one line followed by the next. To save the image, must manually click through "Export" on "Plots" tab.
-#CH4.Combined
-#print(plot.CH4.plant.autoScale, vp=subvp_NO_legend)
+plot.CH4.T30ppm.NPvP
 ```
 
-```{r CO2 T30 ppm plot}
-plot.CO2.Avg_ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y=co2_ppm_avg)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+```{r CO2 T30 ppm NP vs P}
+# Wilcox Test, nicer format, can use to verify stats on plot:
+CO2_wilcox<- compare_means(co2_ppm~plant, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", paired = T)
+
+# Plotting:
+plot.CO2.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=co2_ppm)) +
+  facet_wrap(~date_short, nrow = 1, ncol = 4)+
+                     geom_boxplot(aes(color=plant), outlier.shape = NA) +
+                     geom_point(aes(color=plant), size = 1.5, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1845,66 +1685,26 @@ plot.CO2.Avg_ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y
           panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
+  scale_x_discrete(labels=c("No Plant", "Plant"))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 4000))
+  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "top", label.x.npc = "center",size = 7)
  
-plot.CO2.Avg_ppm.noplant
-
-
-plot.CO2.Avg_ppm.plant <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=co2_ppm_avg)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 4000))
- 
-plot.CO2.Avg_ppm.plant
-
-#Panel together using ggarrange{ggpubr}:
-#No legend version, for combining figures later:
-CO2.Avg_ppm.Combined <- ggarrange(plot.CO2.Avg_ppm.noplant, plot.CO2.Avg_ppm.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
-
-CO2.Avg_ppm.Combined
-
-# Average ppm with plants is much lower than without plants. This is likely the result of photosynthesis over the longer timeperiod. Will create an inset, autoscaled version for this:
-
-plot.CO2.Avg_ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=co2_ppm_avg)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
-                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=30),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = NULL, y = NULL, title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
-
- 
-plot.CO2.Avg_ppm.plant.autoScale
-
-#ggsave("../figures/pub/Fig3/Avg_ppm/CO2_Inset_Avg_ppm.tiff", plot=plot.CO2.Avg_ppm.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+plot.CO2.T30ppm.NPvP
 ```
+
+```{r DELETE IF ABOVE WORKS}
+CO2_NPvP_boxplot <- ggboxplot(ghg_ppm_filtered, x = "plant", y = "co2_ppm",
+                              color = "plant",
+                              add = "jitter",
+                              facet.by = "date_short")
+
+CO2_NPvP_boxplot + stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.x.npc = "center", label.y.npc = "center", size = 7)
+```
+
 
 ```{r N2O T30 ppm Boxplot}
-plot.N2O.Avg_ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y=n2o_ppm_avg)) +
+plot.N2O.T30ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y=n2o_ppm)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1920,12 +1720,12 @@ plot.N2O.Avg_ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y
           labs(x = "", y = expression(paste("N"[2],"O (PPM)")), title="") +
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 2.5))
+  scale_y_continuous(limits = c(0, 8))
  
-plot.N2O.Avg_ppm.noplant
+plot.N2O.T30ppm.noplant
 
 
-plot.N2O.Avg_ppm.plant <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=n2o_ppm_avg)) +
+plot.N2O.T30ppm.plant <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=n2o_ppm)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1941,20 +1741,20 @@ plot.N2O.Avg_ppm.plant <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=n2o
           labs(x = "", y = expression(paste("N"[2],"O (PPM)")), title="") +
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 2.5))
+  scale_y_continuous(limits = c(0, 8))
  
-plot.N2O.Avg_ppm.plant
+plot.N2O.T30ppm.plant
 
 
 #Panel together using ggarrange{ggpubr}:
 # Version without legend for multi-panel figure:
-N2O.Avg_ppm.Combined <- ggarrange(plot.N2O.Avg_ppm.noplant, plot.N2O.Avg_ppm.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
+N2O.T30ppm.Combined <- ggarrange(plot.N2O.T30ppm.noplant, plot.N2O.T30ppm.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
 
-N2O.Avg_ppm.Combined
+N2O.T30ppm.Combined
 
 # Add an inset to show small values for the 'plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
-plot.N2O.Avg_ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=n2o_ppm_avg)) +
+plot.N2O.T30ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=n2o_ppm)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
                      geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1972,9 +1772,9 @@ plot.N2O.Avg_ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_sh
   theme(plot.background = element_rect(color=NA))
 
  
-plot.N2O.Avg_ppm.plant.autoScale
+plot.N2O.T30ppm.plant.autoScale
 
-#ggsave("../figures/pub/Fig3/Avg_ppm/N2O_Inset_Avg_ppm.tiff", plot=plot.N2O.Avg_ppm.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/T30ppm/N2O_Inset_T30ppm.tiff", plot=plot.N2O.T30ppm.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
 
 # Create a viewport (vp) with appropriate dimensions for inset:
 #subvp2_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
@@ -1986,13 +1786,22 @@ plot.N2O.Avg_ppm.plant.autoScale
 #print(plot.N2O.plant.autoScale, vp=subvp2_NO_legend)
 ```
 
-```{r Combined GHG Boxplot}
-comb_Avg_ppm_BoxPlot <- ggarrange(CH4.Avg_ppm.Combined, CO2.Avg_ppm.Combined, N2O.Avg_ppm.Combined, labels = c("A", "B", "C"), ncol = 3, nrow = 1, legend = "none")
+```{r Extract and save GHG boxplot legend}
+leg <- get_legend(plot.N2O.T30ppm.noplant, position = "right") #Extract legend as a legend Grob
+legend_plot <- as_ggplot(leg) #Asign the grob as a ggplot
+legend_plot #View the plot
 
-comb_Avg_ppm_BoxPlot
-
-#ggsave("../figures/pub/Fig3/Avg_ppm/BasePlots_Avg_ppm.tiff", plot=comb_Avg_ppm_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
 ```
+
+```{r Combined GHG Boxplot}
+comb_T30ppm_BoxPlot <- ggarrange(CH4.T30ppm.Combined, CO2.T30ppm.Combined, N2O.T30ppm.Combined, labels = c("A", "B", "C"), ncol = 3, nrow = 1, legend = "none")
+
+comb_T30ppm_BoxPlot
+
+#ggsave("../figures/pub/Fig3/T30ppm/BasePlots_T30ppm.tiff", plot=comb_T30ppm_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=600, limitsize=TRUE, bg="white")
+```
+
 
 ## GHG plots flux
 
