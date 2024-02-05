@@ -1375,6 +1375,12 @@ comb_T30ppm_BoxPlot
 # Wilcox Test, nicer format, can use to verify stats on plot:
 CH4_wilcox<- compare_means(ch4_ppm~plant, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", paired = T)
 
+# Turn into data frame:
+CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
+
+# Export the data frame to a .csv file
+write.csv(CH4_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/CH4_wilcox.csv", row.names = T)
+
 # Plotting:
 plot.CH4.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=ch4_ppm)) +
   facet_wrap(~date_short, nrow = 1, ncol = 4)+
@@ -1394,7 +1400,7 @@ plot.CH4.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=ch4_ppm)) +
   scale_x_discrete(labels=c("No Plant", "Plant"))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 7, hide.ns = T)
+  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
  
 plot.CH4.T30ppm.NPvP
 ```
@@ -1402,6 +1408,12 @@ plot.CH4.T30ppm.NPvP
 ```{r CO2 T30 ppm NP vs P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
 CO2_wilcox<- compare_means(co2_ppm~plant, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", paired = T)
+
+# Turn into data frame:
+CO2_wilcox.DF <- as.data.frame(CO2_wilcox)
+
+# Export the data frame to a .csv file
+write.csv(CO2_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/CO2_wilcox.csv", row.names = T)
 
 # Plotting:
 plot.CO2.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=co2_ppm)) +
@@ -1422,7 +1434,7 @@ plot.CO2.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=co2_ppm)) +
   scale_x_discrete(labels=c("No Plant", "Plant"))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 7, hide.ns = T)
+  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
  
 plot.CO2.T30ppm.NPvP
 ```
@@ -1430,6 +1442,12 @@ plot.CO2.T30ppm.NPvP
 ```{r N2O T30 ppm NP vs. P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
 N2O_wilcox<- compare_means(n2o_ppm~plant, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", paired = T)
+
+# Turn into data frame:
+N2O_wilcox.DF <- as.data.frame(N2O_wilcox)
+
+# Export the data frame to a .csv file
+write.csv(N2O_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/N2O_wilcox.csv", row.names = T)
 
 # Plotting:
 plot.N2O.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=n2o_ppm)) +
@@ -1450,7 +1468,7 @@ plot.N2O.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=n2o_ppm)) +
   scale_x_discrete(labels=c("No Plant", "Plant"))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 7, hide.ns = T)
+  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
  
 plot.N2O.T30ppm.NPvP
 ```
@@ -1460,7 +1478,7 @@ leg_NPvP <- get_legend(plot.N2O.T30ppm.NPvP, position = "right") #Extract legend
 legend_plot_NPvP <- as_ggplot(leg_NPvP) #Asign the grob as a ggplot
 legend_plot_NPvP #View the plot
 
-#ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/GHG_NPvP/legend_NPvP.tiff", plot=legend_plot_NPvP, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
 ```
 
 ```{r Combined GHG Boxplot}
@@ -1468,7 +1486,7 @@ CombPlot_T30ppm_NPvP <- ggarrange(plot.CH4.T30ppm.NPvP, plot.CO2.T30ppm.NPvP, pl
 
 CombPlot_T30ppm_NPvP
 
-#ggsave("../figures/pub/Fig3/T30ppm/BasePlots_T30ppm.tiff", plot=comb_T30ppm_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/GHG_NPvP/T30ppm_NPvP.tiff", plot=CombPlot_T30ppm_NPvP, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 
@@ -1477,7 +1495,23 @@ CombPlot_T30ppm_NPvP
 ```{r CH4 T30 ppm Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
 CH4_kruskal<- compare_means(ch4_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "kruskal.test")
-CH4_multipleComparisons<- compare_means(ch4_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test")
+CH4_multipleComparisons<- compare_means(ch4_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", p.adjust.method = "fdr")
+
+# Adjustments for plotting:
+CH4_multipleComparisons <- add_significance(CH4_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Turn into data frame:
+CH4_MultComp.DF <- as.data.frame(CH4_multipleComparisons)
+
+# Add on SDCFlig p-values:
+CH4_MultComp.DF$SDCF_p <- c(SDCFlig_CH4_6.28$p.val, SDCFlig_CH4_7.11$p.val, SDCFlig_CH4_7.25$p.val, SDCFlig_CH4_8.11$p.val)
+
+# Symbols for plotting:
+CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Export the data frame to a .csv file
+write.csv(CH4_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CH4_MultComp.csv", row.names = T)
+
 
 # Plotting:
 plot.CH4.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=ch4_ppm)) +
@@ -1494,12 +1528,12 @@ plot.CH4.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=ch4_ppm)) +
           axis.title.y=element_text(margin=margin(r=10)),
           axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "Treatment", y = expression(paste("CH"[4]," (PPM)")), title="") +
+          labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
   #scale_x_discrete(labels=c())+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  #stat_compare_means(method = "kruskal.test", label = "p.format", label.y.npc = "top", label.x.npc = "left",size = 6, hide.ns = F)+
-  stat_compare_means(method = "wilcox.test", comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.signif", size = 7, vjust = 1, hide.ns = T)
+  #stat_pvalue_manual(data = CH4_multipleComparisons, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.adj.signif", size = 7, vjust = 1, hide.ns = T, y.position = (max(ghg_ppm_filtered$ch4_ppm)+200), step.group.by = "date_short", step.increase = 0.1)
+  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = (max(ghg_ppm_filtered$ch4_ppm)+200), step.group.by = "date_short", step.increase = 0.1)
  
 plot.CH4.T30ppm.Trt
 ```
@@ -1507,10 +1541,22 @@ plot.CH4.T30ppm.Trt
 ```{r CO2 T30 ppm Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
 CO2_kruskal<- compare_means(co2_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "kruskal.test")
-CO2_multipleComparisons<- compare_means(co2_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test")
+CO2_multipleComparisons<- compare_means(co2_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", p.adjust.method = "fdr")
 
 # Adjustments for plotting:
 CO2_multipleComparisons <- add_significance(CO2_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Turn into data frame:
+CO2_MultComp.DF <- as.data.frame(CO2_multipleComparisons)
+
+# Add on SDCFlig p-values. If Kruskal was non-significant, input 3 1s, which will be converted to ns:
+CO2_MultComp.DF$SDCF_p <- c(1, 1, 1, SDCFlig_CO2_7.11$p.val, 1, 1, 1, SDCFlig_CO2_8.11$p.val)
+
+# Symbols for plotting:
+CO2_MultComp.DF <- add_significance(CO2_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Export the data frame to a .csv file
+write.csv(CO2_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CO2_MultComp.csv", row.names = T)
 
 # Plotting:
 plot.CO2.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=co2_ppm)) +
@@ -1527,24 +1573,37 @@ plot.CO2.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=co2_ppm)) +
           axis.title.y=element_text(margin=margin(r=10)),
           axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "Treatment", y = expression(paste("CO"[2]," (PPM)")), title="") +
+          labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
   #scale_x_discrete(labels=c())+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  #stat_compare_means(method = "kruskal.test", label = "p.format", label.y.npc = "top", label.x.npc = "left",size = 6, hide.ns = F)+
-  #stat_compare_means(method = "wilcox.test", comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.signif", size = 7, vjust = 1, hide.ns = T)+
-  stat_pvalue_manual(data = CO2_multipleComparisons, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.adj", size = 7, vjust = 1, hide.ns = T, y.position = 2200)
+  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(ghg_ppm_filtered$co2_ppm), step.group.by = "date_short", step.increase = 0.1)
  
 plot.CO2.T30ppm.Trt
 ```
 
 ```{r N2O T30 ppm Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
-N2O_kruskal<- compare_means(n2O_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "kruskal.test")
-N2O_multipleComparisons<- compare_means(n2O_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test")
+N2O_kruskal<- compare_means(n2o_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "kruskal.test")
+N2O_multipleComparisons<- compare_means(n2o_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", p.adjust.method = "fdr")
+
+# Adjustments for plotting:
+N2O_multipleComparisons <- add_significance(N2O_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Turn into data frame:
+N2O_MultComp.DF <- as.data.frame(N2O_multipleComparisons)
+
+# Add on SDCFlig p-values. If Kruskal was non-significant, input 3 1s, which will be converted to ns:
+N2O_MultComp.DF$SDCF_p <- c(SDCFlig_N2O_6.28$p.val, 1,1,1,1,1,1,1,1,1)
+
+# Symbols for plotting:
+N2O_MultComp.DF <- add_significance(N2O_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Export the data frame to a .csv file
+write.csv(N2O_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/N2O_MultComp.csv", row.names = T)
 
 # Plotting:
-plot.N2O.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=n2O_ppm)) +
+plot.N2O.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=n2o_ppm)) +
   facet_wrap(~date_short, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
@@ -1562,28 +1621,26 @@ plot.N2O.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=n2O_ppm)) +
   #scale_x_discrete(labels=c())+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  #stat_compare_means(method = "kruskal.test", label = "p.format", label.y.npc = "top", label.x.npc = "left",size = 6, hide.ns = F)+
-  stat_compare_means(method = "wilcox.test", comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.signif", size = 7, vjust = 1, hide.ns = T)
+  stat_pvalue_manual(data = N2O_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(ghg_ppm_filtered$n2o_ppm), step.group.by = "date_short", step.increase = 0.1)
  
 plot.N2O.T30ppm.Trt
 ```
 
 ```{r Extract and save GHG boxplot legend}
-leg_NPvP <- get_legend(plot.N2O.T30ppm.NPvP, position = "right") #Extract legend as a legend Grob
-legend_plot_NPvP <- as_ggplot(leg_NPvP) #Asign the grob as a ggplot
-legend_plot_NPvP #View the plot
-
-# Can I also save the significance level legend?
+leg_treat <- get_legend(plot.N2O.T30ppm.Trt, position = "right") #Extract legend as a legend Grob
+legend_plot_treat <- as_ggplot(leg_treat) #Asign the grob as a ggplot
+legend_plot_treat #View the plot
 
 #ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
 ```
 
+
 ```{r Combined GHG Boxplot}
-CombPlot_T30ppm_NPvP <- ggarrange(plot.CH4.T30ppm.NPvP, plot.CO2.T30ppm.NPvP, plot.N2O.T30ppm.NPvP, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none")
+CombPlot_T30ppm_treat <- ggarrange(plot.CH4.T30ppm.Trt, plot.CO2.T30ppm.Trt, plot.N2O.T30ppm.Trt, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none")
 
-CombPlot_T30ppm_NPvP
+CombPlot_T30ppm_treat
 
-#ggsave("../figures/pub/Fig3/T30ppm/BasePlots_T30ppm.tiff", plot=comb_T30ppm_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/GHG_Treatment/T30_treatment.tiff", plot=CombPlot_T30ppm_treat, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 
