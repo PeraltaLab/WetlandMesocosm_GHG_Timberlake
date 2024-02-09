@@ -1125,6 +1125,9 @@ kruskal_N2O_7.25
 kruskal_N2O_8.11 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "8/11")
 kruskal_N2O_8.11
 ```
+```{r format dates for figures}
+ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("28-Jun", "11-Jul", "25-Jul","11-Aug"))
+```
 
 
 ## GHG plots: T30 ppm
@@ -1379,25 +1382,26 @@ CH4_wilcox<- compare_means(ch4_ppm~plant, ghg_ppm_filtered, group.by="date_short
 CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
 
 # Export the data frame to a .csv file
-write.csv(CH4_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/CH4_wilcox.csv", row.names = T)
+#write.csv(CH4_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/CH4_wilcox.csv", row.names = T)
 
 # Plotting:
 plot.CH4.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=ch4_ppm)) +
-  facet_wrap(~date_short, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
-                     geom_point(aes(color=plant), size = 1.5, position = position_jitterdodge()) +
+                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
-  scale_x_discrete(labels=c("No Plant", "Plant"))+
+  scale_x_discrete(labels=c("", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
   stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
@@ -1413,25 +1417,26 @@ CO2_wilcox<- compare_means(co2_ppm~plant, ghg_ppm_filtered, group.by="date_short
 CO2_wilcox.DF <- as.data.frame(CO2_wilcox)
 
 # Export the data frame to a .csv file
-write.csv(CO2_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/CO2_wilcox.csv", row.names = T)
+#write.csv(CO2_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/CO2_wilcox.csv", row.names = T)
 
 # Plotting:
 plot.CO2.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=co2_ppm)) +
-  facet_wrap(~date_short, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
-                     geom_point(aes(color=plant), size = 1.5, position = position_jitterdodge()) +
+                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
-  scale_x_discrete(labels=c("No Plant", "Plant"))+
+  scale_x_discrete(labels=c("", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
   stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
@@ -1447,22 +1452,23 @@ N2O_wilcox<- compare_means(n2o_ppm~plant, ghg_ppm_filtered, group.by="date_short
 N2O_wilcox.DF <- as.data.frame(N2O_wilcox)
 
 # Export the data frame to a .csv file
-write.csv(N2O_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/N2O_wilcox.csv", row.names = T)
+#write.csv(N2O_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/N2O_wilcox.csv", row.names = T)
 
 # Plotting:
 plot.N2O.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=n2o_ppm)) +
-  facet_wrap(~date_short, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
-                     geom_point(aes(color=plant), size = 1.5, position = position_jitterdodge()) +
+                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="bottom", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("N"[2],"O (PPM)")), title="") +
   scale_x_discrete(labels=c("No Plant", "Plant"))+
@@ -1474,7 +1480,7 @@ plot.N2O.T30ppm.NPvP
 ```
 
 ```{r Extract and save GHG boxplot legend}
-leg_NPvP <- get_legend(plot.N2O.T30ppm.NPvP, position = "right") #Extract legend as a legend Grob
+leg_NPvP <- get_legend(plot.N2O.T30ppm.NPvP, position = "bottom") #Extract legend as a legend Grob
 legend_plot_NPvP <- as_ggplot(leg_NPvP) #Asign the grob as a ggplot
 legend_plot_NPvP #View the plot
 
@@ -1494,8 +1500,8 @@ CombPlot_T30ppm_NPvP
 
 ```{r CH4 T30 ppm Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
-CH4_kruskal<- compare_means(ch4_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "kruskal.test")
-CH4_multipleComparisons<- compare_means(ch4_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", p.adjust.method = "fdr")
+CH4_kruskal<- compare_means(ch4_ppm~treatment, ghg_ppm_filtered, group.by="date_format", method = "kruskal.test")
+CH4_multipleComparisons<- compare_means(ch4_ppm~treatment, ghg_ppm_filtered, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
 
 # Adjustments for plotting:
 CH4_multipleComparisons <- add_significance(CH4_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
@@ -1510,38 +1516,38 @@ CH4_MultComp.DF$SDCF_p <- c(SDCFlig_CH4_6.28$p.val, SDCFlig_CH4_7.11$p.val, SDCF
 CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
 
 # Export the data frame to a .csv file
-write.csv(CH4_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CH4_MultComp.csv", row.names = T)
+#write.csv(CH4_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CH4_MultComp.csv", row.names = T)
 
 
 # Plotting:
 plot.CH4.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=ch4_ppm)) +
-  facet_wrap(~date_short, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry (D)", "Interim (I)", "Wet (W)"), name="Treatment")+
+                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
-  #scale_x_discrete(labels=c())+
+  scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  #stat_pvalue_manual(data = CH4_multipleComparisons, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.adj.signif", size = 7, vjust = 1, hide.ns = T, y.position = (max(ghg_ppm_filtered$ch4_ppm)+200), step.group.by = "date_short", step.increase = 0.1)
-  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = (max(ghg_ppm_filtered$ch4_ppm)+200), step.group.by = "date_short", step.increase = 0.1)
+  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = (max(ghg_ppm_filtered$ch4_ppm)+200), step.group.by = "date_format", step.increase = 0.1)
  
 plot.CH4.T30ppm.Trt
 ```
 
 ```{r CO2 T30 ppm Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
-CO2_kruskal<- compare_means(co2_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "kruskal.test")
-CO2_multipleComparisons<- compare_means(co2_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", p.adjust.method = "fdr")
+CO2_kruskal<- compare_means(co2_ppm~treatment, ghg_ppm_filtered, group.by="date_format", method = "kruskal.test")
+CO2_multipleComparisons<- compare_means(co2_ppm~treatment, ghg_ppm_filtered, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
 
 # Adjustments for plotting:
 CO2_multipleComparisons <- add_significance(CO2_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
@@ -1556,36 +1562,37 @@ CO2_MultComp.DF$SDCF_p <- c(1, 1, 1, SDCFlig_CO2_7.11$p.val, 1, 1, 1, SDCFlig_CO
 CO2_MultComp.DF <- add_significance(CO2_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
 
 # Export the data frame to a .csv file
-write.csv(CO2_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CO2_MultComp.csv", row.names = T)
+#write.csv(CO2_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CO2_MultComp.csv", row.names = T)
 
 # Plotting:
 plot.CO2.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=co2_ppm)) +
-  facet_wrap(~date_short, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry (D)", "Interim (I)", "Wet (W)"), name="Treatment")+
+                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
-  #scale_x_discrete(labels=c())+
+  scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(ghg_ppm_filtered$co2_ppm), step.group.by = "date_short", step.increase = 0.1)
+  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(ghg_ppm_filtered$co2_ppm), step.group.by = "date_format", step.increase = 0.1)
  
 plot.CO2.T30ppm.Trt
 ```
 
 ```{r N2O T30 ppm Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
-N2O_kruskal<- compare_means(n2o_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "kruskal.test")
-N2O_multipleComparisons<- compare_means(n2o_ppm~treatment, ghg_ppm_filtered, group.by="date_short", method = "wilcox.test", p.adjust.method = "fdr")
+N2O_kruskal<- compare_means(n2o_ppm~treatment, ghg_ppm_filtered, group.by="date_format", method = "kruskal.test")
+N2O_multipleComparisons<- compare_means(n2o_ppm~treatment, ghg_ppm_filtered, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
 
 # Adjustments for plotting:
 N2O_multipleComparisons <- add_significance(N2O_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
@@ -1600,38 +1607,39 @@ N2O_MultComp.DF$SDCF_p <- c(SDCFlig_N2O_6.28$p.val, 1,1,1,1,1,1,1,1,1)
 N2O_MultComp.DF <- add_significance(N2O_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
 
 # Export the data frame to a .csv file
-write.csv(N2O_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/N2O_MultComp.csv", row.names = T)
+#write.csv(N2O_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/N2O_MultComp.csv", row.names = T)
 
 # Plotting:
 plot.N2O.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=n2o_ppm)) +
-  facet_wrap(~date_short, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry (D)", "Interim (I)", "Wet (W)"), name="Treatment")+
+                    geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="bottom", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "Treatment", y = expression(paste("N"[2],"O (PPM)")), title="") +
-  #scale_x_discrete(labels=c())+
+          labs(x = "", y = expression(paste("N"[2],"O (PPM)")), title="") +
+  scale_x_discrete(labels=c("Dry", "Interim", "Wet"))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_pvalue_manual(data = N2O_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(ghg_ppm_filtered$n2o_ppm), step.group.by = "date_short", step.increase = 0.1)
+  stat_pvalue_manual(data = N2O_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(ghg_ppm_filtered$n2o_ppm), step.group.by = "date_format", step.increase = 0.1)
  
 plot.N2O.T30ppm.Trt
 ```
 
 ```{r Extract and save GHG boxplot legend}
-leg_treat <- get_legend(plot.N2O.T30ppm.Trt, position = "right") #Extract legend as a legend Grob
+leg_treat <- get_legend(plot.N2O.T30ppm.Trt, position = "bottom") #Extract legend as a legend Grob
 legend_plot_treat <- as_ggplot(leg_treat) #Asign the grob as a ggplot
 legend_plot_treat #View the plot
 
-#ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/GHG_Treatment/legend_treatment.tiff", plot=legend_plot_treat, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
 ```
 
 
