@@ -1515,9 +1515,8 @@ CH4_MultComp.DF$SDCF_p <- c(SDCFlig_CH4_6.28$p.val, SDCFlig_CH4_7.11$p.val, SDCF
 # Symbols for plotting:
 CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
 
-# Export the data frame to a .csv file
+# Export the data frames to a .csv file
 #write.csv(CH4_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CH4_MultComp.csv", row.names = T)
-
 
 # Plotting:
 plot.CH4.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=ch4_ppm)) +
@@ -1651,6 +1650,13 @@ CombPlot_T30ppm_treat
 #ggsave("../figures/pub/GHG_Treatment/T30_treatment.tiff", plot=CombPlot_T30ppm_treat, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
+```{r Kruskal-Wallis table}
+# Rbind the 3 Kruskal-Wallis tables:
+Kruskal_comb <- rbind(CH4_kruskal, CO2_kruskal, N2O_kruskal)
+
+# Write .csv: 
+#write.csv(Kruskal_comb, file = "../figures/pub/tables/Kruskal_Treatment/Kruskal_combined.csv", row.names = T)
+```
 
 
 
