@@ -29,7 +29,6 @@ require("nlme")
 require("reshape2")
 require("ecodist")
 require("MASS")
-require("phyloseq")
 require("MuMIn")
 require("AICcmodavg")
 require("emmeans")
@@ -52,6 +51,7 @@ require("multcompView")
 
 #BiocManager::install("phyloseq")
 
+# Compatbility issue with lme4. Attempting to run without loading phyloseq.
 require("phyloseq")
 ```
 
@@ -914,53 +914,6 @@ get_anova_table(res.aov.N2O)
 
 ```{r Mixed ANOVA}
 # CH4: 
-    # PPM with date:
-MixANOVA_CH4_ppm <- anova_test(
-  data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
-  between = c(plant, treatment),
-  within = date_short)
-get_anova_table(MixANOVA_CH4_ppm)
-
-  # Flux with date
-MixANOVA_CH4_Flux <- anova_test(
-  data = select_fluxes_combined, dv = f0_CH4, wid = chamber,
-  between = c(plant, treatment),
-  within = date_short)
-get_anova_table(MixANOVA_CH4_Flux)
-
-# CO2:
-    # PPM with date:
-MixANOVA_CO2_ppm <- anova_test(
-  data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
-  between = c(plant, treatment),
-  within = date_short)
-get_anova_table(MixANOVA_CO2_ppm)
-
-  # Flux with date
-MixANOVA_CO2_Flux <- anova_test(
-  data = select_fluxes_combined, dv = f0_CO2, wid = chamber,
-  between = c(plant, treatment),
-  within = date_short)
-get_anova_table(MixANOVA_CO2_Flux)
-
-# N2O:
-    # PPM with date:
-MixANOVA_N2O_ppm <- anova_test(
-  data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
-  between = c(plant, treatment),
-  within = date_short)
-get_anova_table(MixANOVA_N2O_ppm)
-
-  # Flux with date
-MixANOVA_N2O_Flux <- anova_test(
-  data = select_fluxes_combined, dv = f0_N2O, wid = chamber,
-  between = c(plant, treatment),
-  within = date_short)
-get_anova_table(MixANOVA_N2O_Flux)
-```
-
-```{r Mixed ANOVA, limit factors}
-# CH4: 
     # PPM with date, TREATMENT:
 MixANOVA_CH4_ppm_treatment <- anova_test(
   data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
@@ -1127,249 +1080,6 @@ kruskal_N2O_8.11
 ```
 ```{r format dates for figures}
 ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("28-Jun", "11-Jul", "25-Jul","11-Aug"))
-```
-
-
-## GHG plots: T30 ppm
-
-```{r subset plant no plant for ppms}
-ghg_ppm_filtered.noplant <- ghg_ppm_filtered %>%
-  filter(plant=="N")
-
-ghg_ppm_filtered.plant <- ghg_ppm_filtered %>%
-  filter(plant=="P")
-```
-
-```{r CH4 T30 ppm plot}
-plot.CH4.T30ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y=ch4_ppm)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 2000))
- 
-plot.CH4.T30ppm.noplant
-
-
-plot.CH4.T30ppm.plant <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=ch4_ppm)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 2000))
-
- 
-plot.CH4.T30ppm.plant
-
-#Panel together using ggarrange{ggpubr}:
-#No legend version, for combining figures later:
-CH4.T30ppm.Combined <- ggarrange(plot.CH4.T30ppm.noplant, plot.CH4.T30ppm.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
-
-CH4.T30ppm.Combined
-
-# Add an inset to show small values for the 'plant' treatment:
-# First, render plot with no axes labels and smaller axes text:
-plot.CH4.T30ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=ch4_ppm)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
-                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=30),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = NULL, y = NULL, title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
-
- 
-plot.CH4.T30ppm.plant.autoScale
-
-#ggsave("../figures/pub/Fig3/T30ppm/CH4_Inset_T30ppm.tiff", plot=plot.CH4.T30ppm.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
-
-# Create a viewport (vp) with appropriate dimensions for inset. Two different versions for combined figure with or without legend:
-#subvp_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
-
-#subvp_NO_legend <- viewport(width = 0.35, height = 0.3, x = 0.81, y = 0.34)
-
-# This viewport approach works, but only if ran in console, one line followed by the next. To save the image, must manually click through "Export" on "Plots" tab.
-#CH4.Combined
-#print(plot.CH4.plant.autoScale, vp=subvp_NO_legend)
-```
-
-```{r CO2 T30 ppm plot}
-plot.CO2.T30ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y=co2_ppm)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 2200))
- 
-plot.CO2.T30ppm.noplant
-
-
-plot.CO2.T30ppm.plant <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=co2_ppm)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 2200))
- 
-plot.CO2.T30ppm.plant
-
-#Panel together using ggarrange{ggpubr}:
-#No legend version, for combining figures later:
-CO2.T30ppm.Combined <- ggarrange(plot.CO2.T30ppm.noplant, plot.CO2.T30ppm.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
-
-CO2.T30ppm.Combined
-
-```
-
-```{r N2O T30 ppm Boxplot}
-plot.N2O.T30ppm.noplant <- ggplot(ghg_ppm_filtered.noplant, aes(x=date_short, y=n2o_ppm)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("N"[2],"O (PPM)")), title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 8))
- 
-plot.N2O.T30ppm.noplant
-
-
-plot.N2O.T30ppm.plant <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=n2o_ppm)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("N"[2],"O (PPM)")), title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(0, 8))
- 
-plot.N2O.T30ppm.plant
-
-
-#Panel together using ggarrange{ggpubr}:
-# Version without legend for multi-panel figure:
-N2O.T30ppm.Combined <- ggarrange(plot.N2O.T30ppm.noplant, plot.N2O.T30ppm.plant, labels = c("No Plant", "Plant"), ncol = 1, nrow = 2, legend = "none")
-
-N2O.T30ppm.Combined
-
-# Add an inset to show small values for the 'plant' treatment:
-# First, render plot with no axes labels and smaller axes text:
-plot.N2O.T30ppm.plant.autoScale <- ggplot(ghg_ppm_filtered.plant, aes(x=date_short, y=n2o_ppm)) +
-                     geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
-                     geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20, face = "bold"),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=30),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=2),strip.text = element_text(size = 20), legend.position="none", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = NULL, y = NULL, title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
-
- 
-plot.N2O.T30ppm.plant.autoScale
-
-#ggsave("../figures/pub/Fig3/T30ppm/N2O_Inset_T30ppm.tiff", plot=plot.N2O.T30ppm.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
-
-# Create a viewport (vp) with appropriate dimensions for inset:
-#subvp2_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
-
-#subvp2_NO_legend <- viewport(width = 0.35, height = 0.3, x = 0.81, y = 0.34)
-
-# This viewport approach works, but only if ran in console, one line followed by the next. To save the image, must manually click through "Export" on "Plots" tab.
-#N2O.Combined
-#print(plot.N2O.plant.autoScale, vp=subvp2_NO_legend)
-```
-
-```{r Extract and save GHG boxplot legend}
-leg <- get_legend(plot.N2O.T30ppm.noplant, position = "right") #Extract legend as a legend Grob
-legend_plot <- as_ggplot(leg) #Asign the grob as a ggplot
-legend_plot #View the plot
-
-#ggsave("../figures/pub/Fig3/Legend.tiff", plot=legend_plot, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
-```
-
-```{r Combined GHG Boxplot}
-comb_T30ppm_BoxPlot <- ggarrange(CH4.T30ppm.Combined, CO2.T30ppm.Combined, N2O.T30ppm.Combined, labels = c("A", "B", "C"), ncol = 3, nrow = 1, legend = "none")
-
-comb_T30ppm_BoxPlot
-
-#ggsave("../figures/pub/Fig3/T30ppm/BasePlots_T30ppm.tiff", plot=comb_T30ppm_BoxPlot, device="tiff", path=NULL, scale=1, width=15, height=6, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 ## T30 ppm: No Plant, Plant, side-by-side
@@ -1984,9 +1694,20 @@ ghg.summary.htp
 
 # Mixed-effects modeling
 
+```{r lme4 example to test}
+data(Orthodont,package="nlme")
+Orthodont$nsex <- as.numeric(Orthodont$Sex=="Male")
+Orthodont$nsexage <- with(Orthodont, nsex*age)
+lmer(distance ~ age + (age|Subject) + (0+nsex|Subject) +
+     (0 + nsexage|Subject), data=Orthodont)
+```
+
+
 ```{r CH4 Do we have normaility?}
 #First check the distribution of residuals --- not so great
 ch4.lm <- lmer(mg.CH4.N.m.2~ (1|date) +(1|chamber), data=ghg, REML=TRUE)
+
+#ch4.lm <- lmer(mg.CH4.N.m.2~ date + (date | chamber), data=ghg, REML=TRUE)
 summary(ch4.lm)
 confint(ch4.lm)
 p=profile(ch4.lm)
@@ -2074,7 +1795,7 @@ shapiro.test(resid(ch4.lm8))
  pairs(emm)
  multcomp::cld(emm, Letters=letters)
  
- emm <- emmeans(ch4.lm8, ~ plant , adjust = "tukey")
+ emm <- emmeans(ch4.lm8, ~ plant , adjust = "sidak")
  pairs(emm)
  multcomp::cld(emm, Letters=letters)
   #p <-contrast(emm, "consec", simple="each", combine =TRUE, adjust="mvt")
@@ -2082,7 +1803,7 @@ shapiro.test(resid(ch4.lm8))
 ```
 
 ```{r co2 Do we have normaility?}
-#First check the distibution of residuals --- not so great
+#First check the distribution of residuals --- not so great
 co2.lm <- lmer(mg.CO2.N.m.2~(1|chamber), data=ghg, REML=TRUE)
 summary(co2.lm, ddf="Kenward-Roger")
 confint(co2.lm)
@@ -2165,7 +1886,7 @@ shapiro.test(resid(co2.lm4))
 #Estimated marginal means - similar to lsmeans, uses t distribution
 #https://cran.rstudio.com/web/packages/emmeans/vignettes/interactions.html
 
-emm <- emmeans(co2.lm4, ~ plant*treatment , adjust = "tukey")
+emm <- emmeans(co2.lm4, ~ plant*treatment , adjust = "sidak")
 pairs(emm)
 multcomp::cld(emm, Letters=letters)
  
@@ -2253,7 +1974,7 @@ densityplot(p)
 qqPlot(resid(n2o.lm10), main="QQ Plot")
 shapiro.test(resid(n2o.lm10))
 
-emm <- emmeans(co2.lm10, ~ plant + treatment , adjust = "tukey")
+emm <- emmeans(co2.lm10, ~ plant + treatment , adjust = "sidak")
  pairs(emm)
  multcomp::cld(emm, Letters=letters)
 ```
@@ -2432,6 +2153,6 @@ GHG_redox_3panel <- ggarrange(ch4.redox.regress.plot, co2.redox.regress.plot, n2
 
 GHG_redox_3panel
 
-ggsave("../figures/pub/redox_regres.tiff", plot=GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=7, height=10, dpi=900, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/redox_regres.tiff", plot=GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=7, height=10, dpi=900, limitsize=TRUE, bg="white")
 ```
 
