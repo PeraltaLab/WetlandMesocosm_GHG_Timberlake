@@ -1677,20 +1677,47 @@ ghg.summary.tp <- ghg %>%
 
 ghg.summary.tp
 
-# Inlcude all factors: history, treatment, and plant (htp):
+# Include all factors: history, treatment, and plant (htp):
 ghg.summary.htp <- ghg %>%
   group_by(history, treatment, plant)%>%
   dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
 
 ghg.summary.htp
-
-
-
-# Use to make summary stats table (per reviewer comments):
-#selfesteem %>%
-  #group_by(time) %>%
-  #get_summary_stats(score, type = "mean_sd")
 ```
+
+```{r GHG ppm summary}
+# Treatment and plant (tp):
+ghg.ppm.summary.tp <- ghg_ppm_filtered %>%
+  group_by(treatment, plant)%>%
+  dplyr::summarise(mean_ch4=mean(ch4_ppm), sd_ch4=sd(ch4_ppm), mean_co2=mean(co2_ppm), sd_co2=sd(co2_ppm) , mean_n2o=mean(n2o_ppm), sd_n2o=sd(n2o_ppm))
+
+ghg.ppm.summary.tp
+
+# format decimal places, 2 decimal places:
+ghg.ppm.summary.tp$mean_ch4 <- format(round(ghg.ppm.summary.tp$mean_ch4, 2), nsmall = 2)
+ghg.ppm.summary.tp$mean_ch4 <- as.numeric(ghg.ppm.summary.tp$mean_ch4)
+ghg.ppm.summary.tp$sd_ch4 <- format(round(ghg.ppm.summary.tp$sd_ch4, 2), nsmall = 2)
+ghg.ppm.summary.tp$sd_ch4 <- as.numeric(ghg.ppm.summary.tp$sd_ch4)
+
+ghg.ppm.summary.tp$mean_co2 <- format(round(ghg.ppm.summary.tp$mean_co2, 2), nsmall = 2)
+ghg.ppm.summary.tp$mean_co2 <- as.numeric(ghg.ppm.summary.tp$mean_co2)
+ghg.ppm.summary.tp$sd_co2 <- format(round(ghg.ppm.summary.tp$sd_co2, 2), nsmall = 2)
+ghg.ppm.summary.tp$sd_co2 <- as.numeric(ghg.ppm.summary.tp$sd_co2)
+
+ghg.ppm.summary.tp$mean_n2o <- format(round(ghg.ppm.summary.tp$mean_n2o, 2), nsmall = 2)
+ghg.ppm.summary.tp$mean_n2o <- as.numeric(ghg.ppm.summary.tp$mean_n2o)
+ghg.ppm.summary.tp$sd_n2o <- format(round(ghg.ppm.summary.tp$sd_n2o, 2), nsmall = 2)
+ghg.ppm.summary.tp$sd_n2o <- as.numeric(ghg.ppm.summary.tp$sd_n2o)
+
+# Add plus or minus symbol to divide mean and SD:
+ghg.ppm.summary.tp$mean_sd_ch4 <- paste(ghg.ppm.summary.tp$mean_ch4, "±", ghg.ppm.summary.tp$sd_ch4, sep = " ")
+ghg.ppm.summary.tp$mean_sd_co2 <- paste(ghg.ppm.summary.tp$mean_co2, "±", ghg.ppm.summary.tp$sd_co2, sep = " ")
+ghg.ppm.summary.tp$mean_sd_n2o <- paste(ghg.ppm.summary.tp$mean_n2o, "±", ghg.ppm.summary.tp$sd_n2o, sep = " ")
+
+# Write .csv:
+#write.csv(ghg.ppm.summary.tp, file = "../figures/pub/tables/ghg_ppm_summary.csv", row.names = T)
+```
+
 
 # Mixed-effects modeling
 
