@@ -1685,7 +1685,7 @@ ghg.summary.htp <- ghg %>%
 ghg.summary.htp
 ```
 
-```{r GHG ppm summary}
+```{r GHG ppm summary ppm}
 # Treatment and plant (tp):
 ghg.ppm.summary.tp <- ghg_ppm_filtered %>%
   group_by(treatment, plant)%>%
@@ -2031,6 +2031,28 @@ soilghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:3,17:18)]), "euclid")
 ghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:18)]), "euclid")
 ```
 
+```{r only ending samples ppm}
+#Using end samples for GHG because microbial community analyses was on end samples
+#make df of design, soil, and ghg
+  # Use ghg_ppm_filtered_8.11
+ghg_ppm_filtered_8.11_MERGE <- ghg_ppm_filtered_8.11[,c(5:7, 11:12)]
+
+soil.PPM.END.ghg <- soil %>% 
+dplyr::select('chamber', 'time', 'plant', 'treatment', 'moisture.percent', 'pH', 'nh4.mg.l', 'c.percent', 'n.percent', 'P.ppm', 'K.ppm', 'Mg.ppm', 'S.ppm', 'Fe.ppm', 'Mn.ppm', 'HM', 'redox.percent.paint.removed') %>%
+  filter(time=="finish") %>%
+  bind_cols(ghg_ppm_filtered_8.11_MERGE)
+  
+rownames(soil.PPM.END.ghg) <- rownames(otu.2.rel)
+
+# Drop the two 'Chamber' columns (because Chambers are now row names)
+soil.PPM.END.ghg <- soil.PPM.END.ghg[,-1]
+
+# Calculate euclidean distances for soil parameters only, soil parameters and GHGs, and GHGs only:
+PPM.soilonly.dist <- vegdist(x = scale(soil.PPM.END.ghg[, -c(1:3, 17:21)]), "euclid")
+PPM.soilghg.dist <- vegdist(x = scale(soil.PPM.END.ghg[, -c(1:3, 20:21)]), "euclid")
+PPM.ghg.dist <- vegdist(x = scale(soil.PPM.END.ghg[, c(17:19)]), "euclid")
+```
+
 ```{r dbplsr analysis}
 #distance based partial least squares regression
 #Compares distance matrices. can use mixture of continuous and qualitative variables. 
@@ -2057,6 +2079,32 @@ dbplsr.sp.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg ,
 summary(dbplsr.sp.n2o)
 ```
 
+```{r dbplsr analysis ppm}
+#distance based partial least squares regression
+#Compares distance matrices. can use mixture of continuous and qualitative variables. 
+#Method good when factors are may and highly colinear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
+
+# GHGs compared to Bray-Curtis Distance matrix of rarified OTUs: 
+dbplsr.PPM.ch4 <- dbplsr(ch4_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
+summary(dbplsr.PPM.ch4)
+
+dbplsr.PPM.co2 <- dbplsr(co2_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
+summary(dbplsr.PPM.co2)
+
+dbplsr.PPM.n2o <- dbplsr(n2o_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
+summary(dbplsr.PPM.n2o)
+
+# GHGs compared to euclidean distance matrix of soil parameters (sp): 
+dbplsr.sp.PPM.ch4 <- dbplsr(ch4_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.PPM.ch4)
+
+dbplsr.sp.PPM.co2 <- dbplsr(co2_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.PPM.co2)
+
+dbplsr.sp.PPM.n2o <- dbplsr(n2o_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
+summary(dbplsr.sp.PPM.n2o)
+```
+
 # Mantel test: soil and bacterial community
 
 ```{r mantel soil and bac comm }
@@ -2074,6 +2122,23 @@ bac.soil.mantel.2
 #ghg only 
 bac.soil.mantel.3 <- vegan::mantel(as.matrix(ghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
 bac.soil.mantel.3
+```
+
+```{r mantel soil and bac comm ppm}
+# For reproducibility, confirm that random seed is set:
+set.seed(42)
+
+#soil only
+PPM.bac.soil.mantel.1 <- vegan::mantel(as.matrix(PPM.soilonly.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
+PPM.bac.soil.mantel.1
+
+#soil and ghg
+PPM.bac.soil.mantel.2 <- vegan::mantel(as.matrix(PPM.soilghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
+PPM.bac.soil.mantel.2
+
+#ghg only 
+PPM.bac.soil.mantel.3 <- vegan::mantel(as.matrix(PPM.ghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
+PPM.bac.soil.mantel.3
 ```
 
 # Greenhouse gas and redox regressions
@@ -2115,6 +2180,33 @@ ch4.redox.regress.plot
 ggsave("../figures/Thesis/ch4_redox.png", plot=ch4.redox.regress.plot, device="png", path=NULL, scale=1, width=6.3, height=4.4, dpi=300, limitsize=TRUE)
 ```
 
+```{r CH4 redox regression ppm}
+require(ggpmisc)
+
+PPM.ch4.lm <- lm(log(ch4_ppm) ~ redox.percent.paint.removed, data=soil.PPM.END.ghg)
+anova(PPM.ch4.lm)
+summary(PPM.ch4.lm)
+
+PPM.ch4.redox.regress.plot <- ggplot(soil.PPM.END.ghg)  +
+  geom_point(aes(x=(redox.percent.paint.removed *100), y=log(ch4_ppm), color=plant, shape = plant), size=5)+ 
+  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_fill_manual(values=c("#E69F00","#009E73")) +
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=(redox.percent.paint.removed*100), y=log(ch4_ppm)), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=(redox.percent.paint.removed*100), y=log(ch4_ppm), label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.PPM.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=18),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("log(CH"[4],") (PPM)"))) + 
+    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
+          legend.position = "right")
+
+PPM.ch4.redox.regress.plot
+```
 ```{r CO2 redox regression}
 co2.lm <- lm(mg.CO2.N.m.2 ~ redox.percent.paint.removed, data=soil.ghg)
 anova(co2.lm)
@@ -2146,6 +2238,32 @@ co2.redox.regress.plot
 ggsave("../figures/Thesis/co2_redox.png", plot=co2.redox.regress.plot, device="png", path=NULL, scale=1, width=6.3, height=4.4, dpi=300, limitsize=TRUE)
 ```
 
+```{r CO2 redox regression ppm}
+PPM.co2.lm <- lm(log(co2_ppm) ~ redox.percent.paint.removed, data=soil.PPM.END.ghg)
+anova(PPM.co2.lm)
+summary(PPM.co2.lm)
+
+PPM.co2.redox.regress.plot <- ggplot(soil.PPM.END.ghg)  +
+  geom_point(aes(x=(redox.percent.paint.removed *100), y=log(co2_ppm), color=plant, shape = plant), size=5)+ 
+  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_fill_manual(values=c("#E69F00","#009E73")) +
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=(redox.percent.paint.removed*100), y=log(co2_ppm)), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=(redox.percent.paint.removed*100), y=log(co2_ppm), label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.PPM.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=18),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("log(CO"[2],") (PPM)"))) + 
+    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
+          legend.position = "right")
+
+PPM.co2.redox.regress.plot
+```
+
 ```{r N2O redox regression}
 n2o.lm <- lm(mg.N2O.N.m.2 ~ redox.percent.paint.removed, data=soil.ghg)
 anova(n2o.lm)
@@ -2175,11 +2293,46 @@ n2o.redox.regress.plot
 #ggsave("../figures/pub/n2o_redox.jpg", plot=n2o.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 ```
 
+```{r N2O redox regression ppm}
+PPM.n2o.lm <- lm(log(n2o_ppm) ~ redox.percent.paint.removed, data=soil.PPM.END.ghg)
+anova(PPM.n2o.lm)
+summary(PPM.n2o.lm)
+
+PPM.n2o.redox.regress.plot <- ggplot(soil.PPM.END.ghg)  +
+  geom_point(aes(x=(redox.percent.paint.removed *100), y=log(n2o_ppm), color=plant, shape = plant), size=5)+ 
+  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_fill_manual(values=c("#E69F00","#009E73")) +
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=(redox.percent.paint.removed*100), y=log(n2o_ppm)), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=(redox.percent.paint.removed*100), y=log(n2o_ppm), label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.PPM.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=18),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "IRIS Percent", y = expression(paste("log(N"[2],"O) (PPM)"))) + 
+    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
+          legend.position = "bottom")
+
+PPM.n2o.redox.regress.plot
+```
+
+```{r extract legend and save}
+leg_NPvP_reg <- get_legend(PPM.n2o.redox.regress.plot, position = "bottom") #Extract legend as a legend Grob
+legend_plot_NPvP_reg <- as_ggplot(leg_NPvP_reg) #Asign the grob as a ggplot
+legend_plot_NPvP_reg #View the plot
+
+#ggsave("../figures/pub/Redox_Reg_legend.tiff", plot=legend_plot_NPvP_reg, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
+```
+
+
 ```{r Panel together GHG ~ redox regressions}
-GHG_redox_3panel <- ggarrange(ch4.redox.regress.plot, co2.redox.regress.plot, n2o.redox.regress.plot, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "right", common.legend = T)
+PPM.GHG_redox_3panel <- ggarrange(PPM.ch4.redox.regress.plot, PPM.co2.redox.regress.plot, PPM.n2o.redox.regress.plot, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", common.legend = T)
 
-GHG_redox_3panel
+PPM.GHG_redox_3panel
 
-#ggsave("../figures/pub/redox_regres.tiff", plot=GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=7, height=10, dpi=900, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/PPM_redox_regres.tiff", plot=PPM.GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=10, height=10, dpi=900, limitsize=TRUE, bg="white")
 ```
 
