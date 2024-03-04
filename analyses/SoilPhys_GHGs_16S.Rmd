@@ -1829,6 +1829,107 @@ shapiro.test(resid(ch4.lm8))
   #p
 ```
 
+```{r CH4 PPM Do we have normaility?}
+#First check the distribution of residuals --- not so great
+ch4.lm_ppm <- lmer(ch4_ppm~ (1|date) +(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
+
+summary(ch4.lm_ppm)
+confint(ch4.lm_ppm)
+p=profile(ch4.lm_ppm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(ch4.lm_ppm), main="QQ Plot")
+shapiro.test(resid(ch4.lm_ppm))
+
+ghg_ppm_filtered$log.ch4 <- log(ghg_ppm_filtered$ch4_ppm) # Log transforming (all GHGs) for better normality
+
+ch4.lm_ppm <- lmer(log.ch4~ (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=TRUE)
+summary(ch4.lm_ppm)
+confint(ch4.lm_ppm)
+p=profile(ch4.lm_ppm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(ch4.lm_ppm), main="QQ Plot")
+shapiro.test(resid(ch4.lm_ppm))
+```
+
+```{r CH4 PPM hyposthesis testing}
+ch4.lm1 <- lmer(log.ch4 ~ (1|date) + (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm2 <- lmer(log.ch4~treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm3 <- lmer(log.ch4~plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm4 <- lmer(log.ch4~treatment * plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm5 <- lmer(log.ch4~ history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+#ch4.lm6 <- lmer(log.ch4 ~ (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+
+#ch4.lm7 <- lmer(log.ch4 ~ (1|date), data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm8 <- lmer(log.ch4~ plant + treatment + history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm9 <- lmer(log.ch4~ history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm10 <- lmer(log.ch4~ plant + treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm11 <- lmer(log.ch4~ plant * history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+ch4.lm12 <- lmer(log.ch4~ treatment + history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+#This is a likelihood ratio test to get Chi squared value and p-value
+##a <- anova(ch4.lm1, ch4.lm2, ch4.lm3,ch4.lm4,ch4.lm5, ch4.lm6, ch4.lm7, ch4.lm8, ch4.lm9, ch4.lm4a, ch4.lm7a, ch4.lm8a)
+##a
+##anova(ch4.lm6)
+
+#AIC weights
+c.mod <- list(ch4.lm1, ch4.lm2, ch4.lm3,ch4.lm4,ch4.lm5, ch4.lm8, ch4.lm9, ch4.lm10, ch4.lm11, ch4.lm12)
+Modnames <- c("null", "treatment", "plant", "T*P", "H+P", "P+T+H", "H", "P+T", "P*H", "T+H")
+ch4_LME_RES <- aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
+
+#Gas ID for merging
+ch4_LME_RES$GHG <- "CH4"
+
+#Variance explained by fixed effects and the entire model
+r.squaredGLMM(ch4.lm1) #null
+r.squaredGLMM(ch4.lm2) #treatment
+r.squaredGLMM(ch4.lm3) #plant
+r.squaredGLMM(ch4.lm4) #t*p
+r.squaredGLMM(ch4.lm5) #h + p
+r.squaredGLMM(ch4.lm8) #p+t+h
+r.squaredGLMM(ch4.lm9) #h
+r.squaredGLMM(ch4.lm10)#p+t
+r.squaredGLMM(ch4.lm11)#p*h
+r.squaredGLMM(ch4.lm12)#t+h
+
+summary(ch4.lm8, ddf="Kenward-Roger")
+confint.merMod(ch4.lm8, oldNames = FALSE)
+p=profile(ch4.lm8)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(ch4.lm8), main="QQ Plot")
+shapiro.test(resid(ch4.lm8))
+
+#Interaction not significant so did not run post hoc
+#Post hoc Tests
+#Estimated marginal means - similar to lsmeans, uses t distribution
+#https://cran.rstudio.com/web/packages/emmeans/vignettes/interactions.html
+
+ emm <- emmeans(ch4.lm8, ~ treatment , adjust = "sidak")
+ pairs(emm)
+ multcomp::cld(emm, Letters=letters)
+ 
+ emm <- emmeans(ch4.lm8, ~ history , adjust = "sidak")
+ pairs(emm)
+ multcomp::cld(emm, Letters=letters)
+ 
+ emm <- emmeans(ch4.lm8, ~ plant , adjust = "sidak")
+ pairs(emm)
+ multcomp::cld(emm, Letters=letters)
+  #p <-contrast(emm, "consec", simple="each", combine =TRUE, adjust="mvt")
+  #p
+```
+
 ```{r co2 Do we have normaility?}
 #First check the distribution of residuals --- not so great
 co2.lm <- lmer(mg.CO2.N.m.2~(1|chamber), data=ghg, REML=TRUE)
@@ -1921,6 +2022,98 @@ multcomp::cld(emm, Letters=letters)
   #p
 ```
 
+```{r co2 PPM Do we have normality?}
+#First check the distribution of residuals --- not so great
+co2.lm_ppm <- lmer(co2_ppm~(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
+summary(co2.lm_ppm, ddf="Kenward-Roger")
+confint(co2.lm_ppm)
+p=profile(co2.lm_ppm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(co2.lm_ppm), main="QQ Plot")
+shapiro.test(resid(co2.lm_ppm))
+
+ghg_ppm_filtered$log.co2 <- log(ghg_ppm_filtered$co2_ppm)
+
+co2.lm_ppm <- lmer(log.co2~(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
+summary(co2.lm_ppm, ddf="Kenward-Roger")
+confint(co2.lm_ppm)
+p=profile(co2.lm_ppm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(co2.lm_ppm), main="QQ Plot")
+shapiro.test(resid(co2.lm_ppm))
+```
+
+```{r co2 PPM hypothesis testing}
+co2.lm1 <- lmer(log.co2 ~ (1|date) + (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm2 <- lmer(log.co2~treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm3 <- lmer(log.co2~plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm4 <- lmer(log.co2~treatment * plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm5 <- lmer(log.co2~ history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+#co2.lm6 <- lmer(log.co2 ~ (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+
+#co2.lm7 <- lmer(log.co2 ~ (1|date), data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm8 <- lmer(log.co2~ treatment + history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm9 <- lmer(log.co2~ history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm10 <- lmer(log.co2~ plant+ treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm11 <- lmer(log.co2~ plant* history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+co2.lm12 <- lmer(log.co2~ treatment +history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+#This is a likelihood ratio test to get Chi squared value and p-value
+##a <- anova(co2.lm1, co2.lm2, co2.lm3,co2.lm4,co2.lm5, co2.lm6, co2.lm7, co2.lm8, co2.lm9, co2.lm4a, co2.lm7a, co2.lm8a)
+##a
+##anova(co2.lm6)
+
+#AIC weights
+c.mod <- list(co2.lm1, co2.lm2, co2.lm3,co2.lm4,co2.lm5, co2.lm8, co2.lm9, co2.lm10, co2.lm11, co2.lm12)
+Modnames <- c("null", "treatment", "plant", "T*P", "H+P", "P+T+H", "H", "P+T", "P*H", "T+H")
+co2_LME_RES <-aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
+
+# Gas ID for merging
+co2_LME_RES$GHG <- "CO2"
+
+#Variance explained by fixed effects and the entire model
+r.squaredGLMM(co2.lm1) #null
+r.squaredGLMM(co2.lm2) #treatment
+r.squaredGLMM(co2.lm3) #plant
+r.squaredGLMM(co2.lm4) #t * p
+r.squaredGLMM(co2.lm5) #h + p
+#r.squaredGLMM(co2.lm6) #chamber
+#r.squaredGLMM(co2.lm7) #date
+r.squaredGLMM(co2.lm8) #p+t+h
+r.squaredGLMM(co2.lm9) #h
+r.squaredGLMM(co2.lm10)#p+t
+r.squaredGLMM(co2.lm11) #p*h
+r.squaredGLMM(co2.lm12) #h+t
+
+summary(co2.lm4, ddf="Kenward-Roger")
+confint.merMod(co2.lm4, oldNames = FALSE)
+p=profile(co2.lm4)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(co2.lm4), main="QQ Plot")
+shapiro.test(resid(co2.lm4))
+
+#Post hoc Tests
+#Estimated marginal means - similar to lsmeans, uses t distribution
+#https://cran.rstudio.com/web/packages/emmeans/vignettes/interactions.html
+
+emm <- emmeans(co2.lm4, ~ plant*treatment , adjust = "sidak")
+pairs(emm)
+multcomp::cld(emm, Letters=letters)
+```
+
 ```{r n2o Do we have normaility?}
 #First check the distibution of residuals --- not so great
 n2o.lm <- lmer(mg.N2O.N.m.2~(1|chamber), data=ghg, REML=TRUE)
@@ -1976,7 +2169,7 @@ n2o.lm12 <- lmer(log.n2o~ history + treatment + (1|date) + (1|chamber), data=ghg
 
 #AIC weights
 c.mod <- list(n2o.lm1, n2o.lm2, n2o.lm3,n2o.lm4,n2o.lm5, n2o.lm8, n2o.lm9, n2o.lm10, n2o.lm11, n2o.lm12)
-Modnames <- c("null", "treatment", "plant", "t * p", "h + p","h+t+p", "H", "p+T", "p*h", "h+t")
+Modnames <- c("null", "treatment", "plant", "T*P", "H+P", "P+T+H", "H", "P+T", "P*H", "T+H")
 aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
 
 #Variance explained by fixed effects and the entire model
@@ -2005,6 +2198,167 @@ emm <- emmeans(co2.lm10, ~ plant + treatment , adjust = "sidak")
  pairs(emm)
  multcomp::cld(emm, Letters=letters)
 ```
+
+```{r n2o PPM Do we have normality?}
+#First check the distibution of residuals --- not so great
+n2o.lm_ppm <- lmer(n2o_ppm~(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
+summary(n2o.lm_ppm, ddf="Kenward-Roger")
+confint(n2o.lm_ppm)
+p=profile(n2o.lm_ppm)
+xyplot(p)
+#densityplot(p)
+qqPlot(resid(n2o.lm_ppm), main="QQ Plot")
+shapiro.test(resid(n2o.lm_ppm))
+
+ghg_ppm_filtered$log.n2o <- log(ghg_ppm_filtered$n2o_ppm)
+
+#ghg.n2o <- ghg[-c(45,73, 111, 139),]
+n2o.lm_ppm <- lmer(log.n2o~(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
+summary(n2o.lm_ppm, ddf="Kenward-Roger")
+confint(n2o.lm_ppm)
+p=profile(n2o.lm_ppm)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(n2o.lm_ppm), main="QQ Plot")
+shapiro.test(resid(n2o.lm_ppm))
+```
+
+```{r n2o hyposthesis testing}
+n2o.lm1 <- lmer(log.n2o ~ (1|date) + (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm2 <- lmer(log.n2o~treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm3 <- lmer(log.n2o~plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm4 <- lmer(log.n2o~treatment * plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm5 <- lmer(log.n2o~ history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+#n2o.lm6 <- lmer(log.n2o ~ (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+
+#n2o.lm7 <- lmer(log.n2o ~ (1|date), data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm8 <- lmer(log.n2o~ treatment + history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm9 <- lmer(log.n2o~ history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm10 <- lmer(log.n2o~ plant + treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm11 <- lmer(log.n2o~ plant * history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+n2o.lm12 <- lmer(log.n2o~ history + treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+
+#This is a liklihood ratio test to get Chi squared value and p-value
+##a <- anova(n2o.lm1, n2o.lm2, n2o.lm3,n2o.lm4,n2o.lm5, n2o.lm6, n2o.lm7, n2o.lm8, n2o.lm9, n2o.lm4a, n2o.lm7a, n2o.lm8a)
+##a
+##anova(n2o.lm6)
+
+#AIC weights
+c.mod <- list(n2o.lm1, n2o.lm2, n2o.lm3,n2o.lm4,n2o.lm5, n2o.lm8, n2o.lm9, n2o.lm10, n2o.lm11, n2o.lm12)
+Modnames <- c("null", "treatment", "plant", "T*P", "H+P", "P+T+H", "H", "P+T", "P*H", "T+H")
+n2o_LME_RES <- aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
+
+# For merging, at 'N2O' column:
+n2o_LME_RES$GHG <- "N2O"
+
+#Variance explained by fixed effects and the entire model
+r.squaredGLMM(n2o.lm1) #null
+r.squaredGLMM(n2o.lm2) #treatment
+r.squaredGLMM(n2o.lm3) #plant
+r.squaredGLMM(n2o.lm4) #t * p
+r.squaredGLMM(n2o.lm5) #h + p
+#r.squaredGLMM(n2o.lm6) #chamber
+#r.squaredGLMM(n2o.lm7) #date
+r.squaredGLMM(n2o.lm8) #p+t+h
+r.squaredGLMM(n2o.lm9) #h
+r.squaredGLMM(n2o.lm10) #p+t
+r.squaredGLMM(n2o.lm11) #p*h
+r.squaredGLMM(n2o.lm12)#h+t
+
+summary(n2o.lm10, ddf="Kenward-Roger")
+confint.merMod(n2o.lm10, oldNames = FALSE)
+p=profile(n2o.lm10)
+xyplot(p)
+densityplot(p)
+qqPlot(resid(n2o.lm10), main="QQ Plot")
+shapiro.test(resid(n2o.lm10))
+
+emm <- emmeans(co2.lm10, ~ plant + treatment , adjust = "sidak")
+ pairs(emm)
+ multcomp::cld(emm, Letters=letters)
+```
+
+```{r combined LME datatframe}
+LME_comb <- rbind(ch4_LME_RES, co2_LME_RES, n2o_LME_RES)
+
+
+ch4_R2s <- rbind(
+r.squaredGLMM(ch4.lm1), #null
+r.squaredGLMM(ch4.lm2), #treatment
+r.squaredGLMM(ch4.lm3), #plant
+r.squaredGLMM(ch4.lm4), #t * p
+r.squaredGLMM(ch4.lm5), #h + p
+#r.squaredGLMM(ch4.lm6) #chamber
+#r.squaredGLMM(ch4.lm7) #date
+r.squaredGLMM(ch4.lm8),#p+t+h
+r.squaredGLMM(ch4.lm9), #h
+r.squaredGLMM(ch4.lm10),#p+t
+r.squaredGLMM(ch4.lm11),#p*h
+r.squaredGLMM(ch4.lm12))#h+t
+
+co2_R2s <- rbind(
+r.squaredGLMM(co2.lm1), #null
+r.squaredGLMM(co2.lm2), #treatment
+r.squaredGLMM(co2.lm3), #plant
+r.squaredGLMM(co2.lm4), #t * p
+r.squaredGLMM(co2.lm5), #h + p
+#r.squaredGLMM(co2.lm6) #chamber
+#r.squaredGLMM(co2.lm7) #date
+r.squaredGLMM(co2.lm8),#p+t+h
+r.squaredGLMM(co2.lm9), #h
+r.squaredGLMM(co2.lm10),#p+t
+r.squaredGLMM(co2.lm11),#p*h
+r.squaredGLMM(co2.lm12))#h+t
+
+n2o_R2s <- rbind(
+r.squaredGLMM(n2o.lm1), #null
+r.squaredGLMM(n2o.lm2), #treatment
+r.squaredGLMM(n2o.lm3), #plant
+r.squaredGLMM(n2o.lm4), #t * p
+r.squaredGLMM(n2o.lm5), #h + p
+#r.squaredGLMM(n2o.lm6) #chamber
+#r.squaredGLMM(n2o.lm7) #date
+r.squaredGLMM(n2o.lm8),#p+t+h
+r.squaredGLMM(n2o.lm9), #h
+r.squaredGLMM(n2o.lm10),#p+t
+r.squaredGLMM(n2o.lm11),#p*h
+r.squaredGLMM(n2o.lm12))#h+t
+
+# Convert to data frame:
+ch4_R2s <- as.data.frame(ch4_R2s)
+co2_R2s <- as.data.frame(co2_R2s)
+n2o_R2s <- as.data.frame(n2o_R2s)
+
+# Transpose:
+#ch4_R2s <- t(ch4_R2s)
+#co2_R2s <- t(co2_R2s)
+#n2o_R2s <- t(n2o_R2s)
+
+ch4_R2s$GHG <- c("CH4", "CH4", "CH4", "CH4", "CH4", "CH4", "CH4", "CH4", "CH4", "CH4")
+co2_R2s$GHG <- c("CO2","CO2","CO2","CO2", "CO2", "CO2", "CO2", "CO2", "CO2", "CO2")
+n2o_R2s$GHG <- c("N2O","N2O","N2O","N2O","N2O","N2O","N2O","N2O","N2O","N2O")
+
+LME_R2s_comb <- rbind(ch4_R2s, co2_R2s, n2o_R2s)
+
+# all together:
+LME_RESULTS <- cbind(LME_comb, LME_R2s_comb)
+
+# write.csv:
+write.csv(LME_RESULTS, file = "../figures/pub/tables/LME_results.csv", row.names = T)
+
+```
+
+
 
 # Distance-based partial least squares regression (dbplsr)
 
@@ -2143,43 +2497,6 @@ PPM.bac.soil.mantel.3
 
 # Greenhouse gas and redox regressions
 
-```{r CH4 redox regressions}
-ch4.lm <- lm(log(mg.CH4.N.m.2) ~ redox.percent.paint.removed, data=soil.ghg)
-anova(ch4.lm)
-summary(ch4.lm)
-
-#Outlier excluded, improves R2 slightly:
-ch4.lm2 <- lm(log(mg.CH4.N.m.2) ~ redox.percent.paint.removed, data=soil.ghg[-c(17),])
-anova(ch4.lm2)
-summary(ch4.lm2)
-
-
-ch4.redox.regress.plot <- ggplot(soil.ghg)  +
-  geom_point(aes(x=(redox.percent.paint.removed *100), y=mg.CH4.N.m.2, color=plant), size=5)+ 
-  scale_color_manual(values=c("gray", "darkgreen"), labels=c("No Plant", "Plant"), name = "") +
-  scale_fill_manual(values=c("gray", "darkgreen")) +
-  geom_smooth(aes(x=(redox.percent.paint.removed*100), y=mg.CH4.N.m.2), method=lm, se=T, color="black")+
-  #annotate("text",x=4.0,y=7, size =7, label="C")+
-  theme_bw()  +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-          axis.title.y=element_text(margin=margin(r=10)), 
-          axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
-          element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CH"[4],"-C m"^{-2}))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "right")
-
-ch4.redox.regress.plot
-
-#ggsave("../figures/pub/ch4_redox.tiff", plot=ch4.redox.regress.plot, device="tiff", path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
-
-#ggsave("../figures/pub/ch4_redox.jpg", plot=ch4.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
-
-ggsave("../figures/Thesis/ch4_redox.png", plot=ch4.redox.regress.plot, device="png", path=NULL, scale=1, width=6.3, height=4.4, dpi=300, limitsize=TRUE)
-```
-
 ```{r CH4 redox regression ppm}
 require(ggpmisc)
 
@@ -2207,36 +2524,7 @@ PPM.ch4.redox.regress.plot <- ggplot(soil.PPM.END.ghg)  +
 
 PPM.ch4.redox.regress.plot
 ```
-```{r CO2 redox regression}
-co2.lm <- lm(mg.CO2.N.m.2 ~ redox.percent.paint.removed, data=soil.ghg)
-anova(co2.lm)
-summary(co2.lm)
 
-co2.redox.regress.plot <- ggplot(soil.ghg)  +
-  geom_point(aes(x=(redox.percent.paint.removed *100), y=mg.CO2.N.m.2, color=plant), size=5)+ 
-  scale_color_manual(values=c("gray", "darkgreen"), labels=c("No Plant", "Plant"), name = "") +
-  scale_fill_manual(values=c("gray", "darkgreen")) +
-  geom_smooth(aes(x=(redox.percent.paint.removed *100), y=mg.CO2.N.m.2), method=lm, se=T, color="black")+
-  #annotate("text",x=4.0,y=7, size =7, label="C")+
-  theme_bw()  +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-          axis.title.y=element_text(margin=margin(r=10)), 
-          axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
-          element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CO"[2],"-C m"^{-2}))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "right")
-
-co2.redox.regress.plot
-
-#ggsave("../figures/pub/co2_redox.tiff", plot=co2.redox.regress.plot, device="tiff", path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
-
-#ggsave("../figures/pub/co2_redox.jpg", plot=co2.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
-
-ggsave("../figures/Thesis/co2_redox.png", plot=co2.redox.regress.plot, device="png", path=NULL, scale=1, width=6.3, height=4.4, dpi=300, limitsize=TRUE)
-```
 
 ```{r CO2 redox regression ppm}
 PPM.co2.lm <- lm(log(co2_ppm) ~ redox.percent.paint.removed, data=soil.PPM.END.ghg)
@@ -2264,34 +2552,7 @@ PPM.co2.redox.regress.plot <- ggplot(soil.PPM.END.ghg)  +
 PPM.co2.redox.regress.plot
 ```
 
-```{r N2O redox regression}
-n2o.lm <- lm(mg.N2O.N.m.2 ~ redox.percent.paint.removed, data=soil.ghg)
-anova(n2o.lm)
-summary(n2o.lm)
 
-n2o.redox.regress.plot <- ggplot(soil.ghg)  +
-  geom_point(aes(x=(redox.percent.paint.removed *100), y=mg.N2O.N.m.2, color=plant), size=5)+ 
-  scale_color_manual(values=c("gray", "darkgreen"), labels=c("No Plant", "Plant"), name = "") +
-  scale_fill_manual(values=c("gray", "darkgreen")) +
-  geom_smooth(aes(x=(redox.percent.paint.removed *100), y=mg.N2O.N.m.2), method=lm, se=T, color="black")+
-  #annotate("text",x=4.0,y=7, size =7, label="C")+
-  theme_bw()  +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-          axis.title.y=element_text(margin=margin(r=10)), 
-          axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
-          element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "IRIS Percent", y = expression(paste("mg N"[2],"O-N m"^{-2}))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "right")
-
-n2o.redox.regress.plot
-
-#ggsave("../figures/pub/n2o_redox.tiff", plot=n2o.redox.regress.plot, device="tiff", path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
-
-#ggsave("../figures/pub/n2o_redox.jpg", plot=n2o.redox.regress.plot, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
-```
 
 ```{r N2O redox regression ppm}
 PPM.n2o.lm <- lm(log(n2o_ppm) ~ redox.percent.paint.removed, data=soil.PPM.END.ghg)
