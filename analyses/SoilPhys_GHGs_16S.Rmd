@@ -585,17 +585,17 @@ ghg <- read.csv("../data/TMG_GHG-Flux_T1_Pub_2-2020.csv", header=TRUE)
 # Version of ghg with labels for T1 through T4 analysis:
 ghg2 <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv", header=TRUE)
 
-# FIX c2o TYPO IN ghg2, then remove line 600
+# FIX c2o TYPO IN ghg2:
 colnames(ghg2)[18] <- "co2_ppm"
 
 ghg <- ghg %>%
   dplyr::select('date', 'chamber', 'timepoint', 'plant', 'mg.CH4.N.m.2', 'mg.CO2.N.m.2', 'mg.N2O.N.m.2')%>%
   dplyr::filter(timepoint=='T1' & date !='7/24/2016' & date != '6/13/2016')
 
-# ghg2, select T1 through T4, and all ppm measurements (typo: c2o should be co2)
+# ghg2, select T1 through T4, and all ppm measurements:
 ghg_ppm <- ghg2 %>%
   dplyr::select('date', 'chamber', 'timepoint', 'plant', 'ch4_ppm', 'co2_ppm', 'n2o_ppm')%>%
-  dplyr::filter(date !='7/24/2016' & date != '6/13/2016')
+  dplyr::filter(date !='7/24/2016')
 
 # Set factors:
 ghg$chamber <- as.factor(ghg$chamber)
@@ -816,29 +816,6 @@ ch4_ppm_no_outliers %>%
   # still extreme outliers, but different ones now
 ```
   
-```{r log transform}  
-  # log transform
-ghg_ppm_filtered$log10_CH4 <- log(ghg_ppm_filtered$ch4_ppm, 10)
-
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  identify_outliers(log10_CH4)
-  # Reduces number of extreme outliers by 2, but still not great
-
-
-
-# CO2 PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  identify_outliers(co2_ppm)
-  # There are extreme outliers. Could run with and without outliers.
-
-# N2O PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  identify_outliers(n2o_ppm)
-  # There are extreme outliers. Could run with and without outliers.
-```
 
 ```{r ANOVA assumption testing: normality}
 # CH4 PPM
@@ -850,15 +827,6 @@ ghg_ppm_filtered %>%
   # QQ plot:
 ggqqplot(ghg_ppm_filtered, "ch4_ppm", facet.by = "date_short")
 
-
-  # log transform:
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  shapiro_test(log10_CH4)
-  # Not normally distributed
-
-ggqqplot(ghg_ppm_filtered, "log10_CH4", facet.by = "date_short")
-  # seems to be an improvement, but not good enough
 
   # outliers dropped:
 ch4_ppm_no_outliers %>%
@@ -944,8 +912,8 @@ get_anova_table(MixANOVA_N2O_ppm_treatment)
 
 ```{r Wilcoxon Rank Sum for Plant No Plant}
 # CH4
-wilcox_CH4_date <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short)
-wilcox_CH4_date
+wilcox_CH4_6.13 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "6/13")
+wilcox_CH4_6.13
 
 wilcox_CH4_6.28 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_CH4_6.28
@@ -960,8 +928,8 @@ wilcox_CH4_8.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired 
 wilcox_CH4_8.11
 
 # CO2
-wilcox_CO2_date <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short)
-wilcox_CO2_date
+wilcox_CO2_6.13 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "6/13")
+wilcox_CO2_6.13
 
 wilcox_CO2_6.28 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_CO2_6.28
@@ -976,8 +944,8 @@ wilcox_CO2_8.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired 
 wilcox_CO2_8.11
 
 # N2O
-wilcox_N2O_date <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short)
-wilcox_N2O_date
+wilcox_N2O_6.13 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "6/13")
+wilcox_N2O_6.13
 
 wilcox_N2O_6.28 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_N2O_6.28
@@ -1000,6 +968,9 @@ require("NSM3")
 
 
 # CH4
+kruskal_CH4_6.13 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "6/13")
+kruskal_CH4_6.13
+
 kruskal_CH4_6.28 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "6/28")
 kruskal_CH4_6.28
 
@@ -1041,6 +1012,9 @@ SDCFlig_CH4_8.11 <- pSDCFlig(x = ghg_ppm_filtered_8.11$ch4_ppm, g = ghg_ppm_filt
 SDCFlig_CH4_8.11
 
 # CO2
+kruskal_CO2_6.13 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "6/13")
+kruskal_CO2_6.13
+
 kruskal_CO2_6.28 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "6/28")
 kruskal_CO2_6.28
 
@@ -1062,6 +1036,9 @@ SDCFlig_CO2_8.11 <- pSDCFlig(x = ghg_ppm_filtered_8.11$co2_ppm, g = ghg_ppm_filt
 SDCFlig_CO2_8.11
 
 # N2O
+kruskal_N2O_6.13 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "6/13")
+kruskal_N2O_6.13
+
 kruskal_N2O_6.28 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "6/28")
 kruskal_N2O_6.28
 
@@ -1079,7 +1056,7 @@ kruskal_N2O_8.11 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, s
 kruskal_N2O_8.11
 ```
 ```{r format dates for figures}
-ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("28-Jun", "11-Jul", "25-Jul","11-Aug"))
+ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
 ```
 
 ## T30 ppm: No Plant, Plant, side-by-side
@@ -1096,7 +1073,7 @@ CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
 
 # Plotting:
 plot.CH4.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=ch4_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
                      geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
@@ -1131,7 +1108,7 @@ CO2_wilcox.DF <- as.data.frame(CO2_wilcox)
 
 # Plotting:
 plot.CO2.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=co2_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
                      geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
@@ -1166,7 +1143,7 @@ N2O_wilcox.DF <- as.data.frame(N2O_wilcox)
 
 # Plotting:
 plot.N2O.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=n2o_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 4)+
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
                      geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
@@ -2494,6 +2471,7 @@ PPM.bac.soil.mantel.2
 PPM.bac.soil.mantel.3 <- vegan::mantel(as.matrix(PPM.ghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
 PPM.bac.soil.mantel.3
 ```
+
 
 # Greenhouse gas and redox regressions
 

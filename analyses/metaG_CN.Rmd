@@ -1,0 +1,792 @@
+---
+title: "metaG_CN"
+author: "Colin G. Finlay"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document: default
+  pdf_document: default
+---
+# Setup
+
+```{r setup, include=FALSE}
+#use to set global options for chunks e.g., echo and warning options will be applied to all chunks:
+knitr::opts_chunk$set(echo = TRUE)
+
+# Clear environment:
+rm(list=ls())
+
+# Set working directory:
+setwd("~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
+
+# Standard error (se) and confidence interval (ci):
+se <- function(x, ...){sd(x, na.rm = TRUE)/sqrt(length(na.omit(x)))}
+ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
+
+# Code dependencies:
+source("../bin/DiversityFunctions.R")
+source("../bin/MothurTools.R")
+require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2"); require("ggpubr"); require("glue")
+```
+
+# Load files
+
+Import KO function files from JGI IMG/MER
+```{r Import Files}
+#Create vector with desired row order:
+sample_order <- c("03NFC", "03PFC", "03Pre", "06NFC", "06PFC", "06Pre", "08NFC", "08PFC", "08Pre", "09NFC", "09PFC", "09Pre", "10NFC", "10PFC", "10Pre", "11NFC", "11PFC", "11Pre", "12NFC", "12PFC", "12Pre", "16NFC", "16PFC", "16Pre")
+length(sample_order) #Should be 24
+
+#Denitrification KEGG module:
+denit <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Denit_CF.csv")
+#Reorder rows:
+denit <- denit[match(sample_order, denit$Sample), ]
+
+#Methanogen Signature KEGG module:
+meth <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Meth_CF.csv")
+meth <- meth[match(sample_order, meth$Sample), ]
+
+#All Central Carbohydrate Metabolism KEGG modules:
+carb_metab <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/Central_carb_metab_CF.csv")
+carb_metab <- carb_metab[match(sample_order, carb_metab$Sample), ]
+
+#Cytochrome C Oxidase KEGG module:
+cytoCox <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Redownloaded/CSV/CytCOx_CF.csv")
+cytoCox <- cytoCox[match(sample_order, cytoCox$Sample), ]
+
+#Design file:
+design <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/design.csv")
+design2 <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/tmg_design.csv")
+#Reorder rows of design:
+design <- design[match(sample_order, design$Sample), ]
+
+#Remove mock, field, and box samples from design2. 
+rownames(design2) <- design2$sample
+design2 <- design2[!(rownames(design2) %in% "MOCK"),]
+design2 <- design2[!(rownames(design2) %in% "TL1"),]
+design2 <- design2[!(rownames(design2) %in% "TL2"),]
+design2 <- design2[!(rownames(design2) %in% "TL3"),]
+design2 <- design2[!(rownames(design2) %in% "TL4"),]
+design2 <- design2[!(rownames(design2) %in% "TL5"),]
+design2 <- design2[!(rownames(design2) %in% "TL6"),]
+design2 <- design2[!(design2$source %in% "b"),]
+design2 <- design2[!(design2$source %in% "s"),]
+
+#Greenhouse gas data:
+#GHG <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/TMG_GHG-Flux_T1_Pub_2-2020.csv")
+GHG <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv")
+```
+
+# Data Wrangling
+
+Convert gene counts to relative abundance:
+```{r gene counts to relative abundance}
+#Make sample IDs the rownames:
+denitNumerical <- denit
+rownames(denitNumerical) <- denitNumerical$Sample
+
+methNumerical <- meth
+rownames(methNumerical) <- methNumerical$Sample
+
+carb_metabNumerical <- carb_metab
+rownames(carb_metabNumerical) <- carb_metabNumerical$Sample
+
+cytoCoxNumerical <- cytoCox
+rownames(cytoCoxNumerical) <- cytoCoxNumerical$Sample
+
+# Drop all non-numeric variables:
+denitNumerical <- denitNumerical[,3:12]
+methNumerical <- methNumerical[,3:46]
+carb_metabNumerical <- carb_metabNumerical[,3:122]
+cytoCoxNumerical <- cytoCoxNumerical[,3:7]
+
+#Convert denitrification KO counts to relative abundance:
+denitRA <- denitNumerical
+for(i in 1:dim(denitNumerical)[1]){
+  denitRA[i,] <- denitNumerical[i,]/sum(denitNumerical[i,])
+}
+
+#Convert methanogen KO counts to relative abundance:
+methRA <- methNumerical
+for(i in 1:dim(methNumerical)[1]){
+  methRA[i,] <- methNumerical[i,]/sum(methNumerical[i,])
+}
+
+#Convert central carbohydrate metabolism KO counts to relative abundance:
+carb_metabRA <- carb_metabNumerical
+for(i in 1:dim(carb_metabNumerical)[1]){
+  carb_metabRA[i,] <- carb_metabNumerical[i,]/sum(carb_metabNumerical[i,])
+}
+
+#Convert cytochrome C oxidase KO counts to relative abundance:
+cytoCoxRA <- cytoCoxNumerical
+for(i in 1:dim(cytoCoxNumerical)[1]){
+  cytoCoxRA[i,] <- cytoCoxNumerical[i,]/sum(cytoCoxNumerical[i,])
+}
+
+#Subset start and finish samples from all gene sets (for respective start and finish GHG analysis):
+denitRA_start <- denitRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
+denitRA_finish <- denitRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
+
+methRA_start <- methRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
+methRA_finish <- methRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
+
+carb_metabRA_start <- carb_metabRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
+carb_metabRA_finish <- carb_metabRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
+
+cytoCoxRA_start <- cytoCoxRA[c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "12Pre", "16Pre"), ]
+cytoCoxRA_finish <- cytoCoxRA[c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC"), ]
+
+#Check dimensions of each relative abundance (RA) matrix:
+dim(denitRA) #24 10
+dim(methRA) #24 44
+dim(carb_metabRA) #24 120
+dim(cytoCoxRA) #24 5
+
+dim(denitRA_start) #8 10
+dim(methRA_start) #8 44
+dim(carb_metabRA_start) #8 120
+dim(cytoCoxRA_start) #8 5
+
+dim(denitRA_finish) #16 10
+dim(methRA_finish) #16 44
+dim(carb_metabRA_finish) #16 120
+dim(cytoCoxRA_finish) #16 5
+
+#Make metaG sample ID's the rownames on 'design'. Then drop design$Sample:
+rownames(design) <- design$Sample
+design <- design[,2:4]
+
+# Make data frames from gene set relative abundance (RA) files and design
+denitRA_design <- cbind(design, denitRA)
+methRA_design <- cbind(design, methRA)
+carb_metabRA_design <- cbind(design, carb_metabRA)
+cytoCoxRA_design <- cbind(design, cytoCoxRA)
+```
+
+## Bray Curtis dissimilarity
+
+Calculate Bray Curtis dissimilarity:
+```{r relative abundance to Bray Curtis dissimilarity}
+#Bray Curtis calculation for denitrification relative abundance data:
+denitBC <- vegdist(denitRA, method = "bray")
+denitBC_start <- vegdist(denitRA_start, method = "bray")
+denitBC_finish <- vegdist(denitRA_finish, method = "bray")
+#print(denitBC)
+
+#Bray Curtis calculation for methanogen relative abundance data:
+methBC <- vegdist(methRA, method = "bray")
+methBC_start <- vegdist(methRA_start, method = "bray")
+methBC_finish <- vegdist(methRA_finish, method = "bray")
+#print(methBC)
+
+#Bray Curtis calculation for central carbohydrate metabolism relative abundance data:
+carb_metabBC <- vegdist(carb_metabRA, method = "bray")
+carb_metabBC_start <- vegdist(carb_metabRA_start, method = "bray")
+carb_metabBC_finish <- vegdist(carb_metabRA_finish, method = "bray")
+#print(carb_metabBC)
+
+#Bray Curtis calculation for cytochrome C oxidase relative abundance data:
+cytoCoxBC <- vegdist(cytoCoxRA, method = "bray")
+cytoCoxBC_start <- vegdist(cytoCoxRA_start, method = "bray")
+cytoCoxBC_finish <- vegdist(cytoCoxRA_finish, method = "bray")
+#print(cytoCoxBC)
+```
+
+## GHG wrangling
+
+Wrangling greenhouse gas (GHG) data:
+```{r wrangling GHG data}
+# Fix 'c2o' typo:
+colnames(GHG)[18] <- "co2_ppm"
+
+#Create a new GHG data frame with less columns:
+#GHG_less_columns <- cbind(GHG[,1:4], GHG[24:32])
+GHG_less_columns <- cbind(GHG[,1:4], GHG[17:19])
+
+# Select only T1 rows, and July 24 (night sampling):
+#GHG_less_columns <- GHG_less_columns %>% drop_na()
+GHG_less_columns <- GHG_less_columns %>%
+  dplyr::filter(timepoint == "T1" & date !='7/24/2016')
+
+#Change column name "chamber" to "box" to match with design2:
+colnames(GHG_less_columns)[2] <- "box"
+
+#Convert GHG_less_columns$plant to lowercase to match with design2$plant:
+GHG_less_columns$plant <- tolower(GHG_less_columns$plant)
+
+#Subset GHG_less_columns for 'start' time point (6/13/2016) and 'finish' time point (8/11/2016):
+GHG_start <- dplyr::filter(GHG_less_columns, date == "6/13/2016")
+GHG_finish <- dplyr::filter(GHG_less_columns, date == "8/11/2016")
+
+#Add design2 into GHG 'start' and 'finish':
+GHG_start <- left_join(GHG_start, design2, by = c("box", "plant"))
+GHG_finish <- left_join(GHG_finish, design2, by = c("box", "plant"))
+
+#Subset GHG_finish and GHG_start to only have metaG sample numbers:
+GHG_start_metaG <- rbind(GHG_start[5:6,], GHG_start[11:12,], GHG_start[15:24,], GHG_start[31:32,], make.row.names = FALSE)
+GHG_finish_metaG <- rbind(GHG_finish[5:6,], GHG_finish[11:12,], GHG_finish[15:24,], GHG_finish[31:32,], make.row.names = FALSE)
+
+#To align "pre" metaG samples with a single, initial GHG value (from the start GHG measurements on 6/28/206), average together GHG samples in the same box number, then transpose and set row name to corresponding metaG Sample ID:
+GHG_start_03 <- data.frame(colMeans(GHG_start_metaG[1:2, 5:7]))
+GHG_start_03 <- as.data.frame(t(GHG_start_03))
+row.names(GHG_start_03) <- "03Pre"
+
+GHG_start_06 <- data.frame(colMeans(GHG_start_metaG[3:4, 5:7]))
+GHG_start_06 <- as.data.frame(t(GHG_start_06))
+row.names(GHG_start_06) <- "06Pre"
+
+GHG_start_08 <- data.frame(colMeans(GHG_start_metaG[5:6, 5:7]))
+GHG_start_08 <- as.data.frame(t(GHG_start_08))
+row.names(GHG_start_08) <- "08Pre"
+
+GHG_start_09 <- data.frame(colMeans(GHG_start_metaG[7:8, 5:7]))
+GHG_start_09 <- as.data.frame(t(GHG_start_09))
+row.names(GHG_start_09) <- "09Pre"
+
+GHG_start_10 <- data.frame(colMeans(GHG_start_metaG[9:10, 5:7]))
+GHG_start_10 <- as.data.frame(t(GHG_start_10))
+row.names(GHG_start_10) <- "10Pre"
+
+GHG_start_11 <- data.frame(colMeans(GHG_start_metaG[11:12, 5:7]))
+GHG_start_11 <- as.data.frame(t(GHG_start_11))
+row.names(GHG_start_11) <- "11Pre"
+
+GHG_start_12 <- data.frame(colMeans(GHG_start_metaG[13:14, 5:7]))
+GHG_start_12 <- as.data.frame(t(GHG_start_12))
+row.names(GHG_start_12) <- "12Pre"
+
+GHG_start_16 <- data.frame(colMeans(GHG_start_metaG[15:16, 5:7]))
+GHG_start_16 <- as.data.frame(t(GHG_start_16))
+row.names(GHG_start_16) <- "16Pre"
+
+#Then rbind() all the dfs together
+GHG_start_metaG_avg <- rbind(GHG_start_03, GHG_start_06, GHG_start_08, GHG_start_09, GHG_start_10, GHG_start_11, GHG_start_12, GHG_start_16)
+
+#Set the row names of GHG data to the metaG sample names, so that stats functions can compare the GHG and metaG data sets:
+row.names(GHG_finish_metaG) <- c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC","09PFC", "10NFC","10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC")
+
+#Combine GHG_start_metaG_avg and GHG_finish_metaG[,5:7] to have all 24 samples:
+GHG_metaG <- rbind(GHG_start_metaG_avg, GHG_finish_metaG[,5:7])
+GHG_metaG <- GHG_metaG[match(sample_order, rownames(GHG_metaG)), ]
+```
+
+# Statistics
+
+## dbplsr
+
+Distance-based partial least squares regression:
+```{r distance-based partial least squares regression}
+start.denit.dbplsr <- dbplsr(GHG_start_metaG_avg$n2o_ppm ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
+summary(start.denit.dbplsr)
+#plot(start.denit.dbplsr)
+
+finish.denit.dbplsr <- dbplsr(GHG_finish_metaG$n2o_ppm ~ as.matrix(denitBC_finish), ncomp = 15, method = "GCV")
+summary(finish.denit.dbplsr)
+#plot(finish.denit.dbplsr)
+
+start.meth.dbplsr <- dbplsr(GHG_start_metaG_avg$ch4_ppm ~ as.matrix(methBC_start), ncomp = 7, method = "GCV")
+summary(start.meth.dbplsr)
+#plot(start.meth.dbplsr)
+
+finish.meth.dbplsr <- dbplsr(GHG_finish_metaG$ch4_ppm ~ as.matrix(methBC_finish), ncomp = 15, method = "GCV")
+summary(finish.meth.dbplsr)
+#plot(finish.meth.dbplsr)
+
+start.carb_metab.dbplsr <- dbplsr(GHG_start_metaG_avg$co2_ppm ~ as.matrix(carb_metabBC_start), ncomp = 7, method = "GCV")
+summary(start.carb_metab.dbplsr)
+#plot(start.carb_metab.dbplsr)
+
+finish.carb_metab.dbplsr <- dbplsr(GHG_finish_metaG$co2_ppm ~ as.matrix(carb_metabBC_finish), ncomp = 15, method = "GCV")
+summary(finish.carb_metab.dbplsr)
+#plot(finish.carb_metab.dbplsr)
+
+start.cytoCox.dbplsr <- dbplsr(GHG_start_metaG_avg$co2_ppm ~ as.matrix(cytoCoxBC_start), ncomp = 7, method = "GCV")
+summary(start.cytoCox.dbplsr)
+#plot(start.cytoCox.dbplsr)
+
+finish.cytoCox.dbplsr <- dbplsr(GHG_finish_metaG$co2_ppm ~ as.matrix(cytoCoxBC_finish), ncomp = 15, method = "GCV")
+summary(finish.cytoCox.dbplsr)
+#plot(finish.cytoCox.dbplsr)
+
+# Because of envfit() results showing significant relationship between denitrification composition and [CO2], running dbplsrs for denit and CO2:
+start.denit.dbplsr.co2 <- dbplsr(GHG_start_metaG_avg$co2_ppm ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
+summary(start.denit.dbplsr.co2)
+#plot(start.denit.dbplsr.co2)
+
+finish.denit.dbplsr.co2 <- dbplsr(GHG_finish_metaG$co2_ppm ~ as.matrix(denitBC_finish), ncomp = 15, method = "GCV")
+summary(finish.denit.dbplsr.co2)
+#plot(finish.denit.dbplsr.co2)
+```
+
+## PERMANOVA
+
+```{r set factors}
+# Treatment (Treat):
+denitRA_design$Treat <- as.factor(denitRA_design$Treat)
+methRA_design$Treat <- as.factor(methRA_design$Treat)
+carb_metabRA_design$Treat <- as.factor(carb_metabRA_design$Treat)
+cytoCoxRA_design$Treat <- as.factor(cytoCoxRA_design$Treat)
+
+# History (Hist):
+denitRA_design$Hist <- as.factor(denitRA_design$Hist)
+methRA_design$Hist <- as.factor(methRA_design$Hist)
+carb_metabRA_design$Hist <- as.factor(carb_metabRA_design$Hist)
+cytoCoxRA_design$Hist <- as.factor(cytoCoxRA_design$Hist)
+
+# Plant presence/absence (Plant):
+denitRA_design$Plant <- as.factor(denitRA_design$Plant)
+methRA_design$Plant <- as.factor(methRA_design$Plant)
+carb_metabRA_design$Plant <- as.factor(carb_metabRA_design$Plant)
+cytoCoxRA_design$Plant <- as.factor(cytoCoxRA_design$Plant)
+```
+
+```{r PERMANOVA}
+#PERMANOVA without History:
+adonis_denit = adonis2(denitRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
+adonis_denit
+
+adonis_meth = adonis2(methRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42)
+adonis_meth
+
+adonis_carb_metab = adonis2(carb_metabRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42)
+adonis_carb_metab
+
+adonis_cytoCox = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
+adonis_cytoCox
+
+#PERMANOVA with History:
+adonis_denit_H = adonis2(denitRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
+adonis_denit_H
+
+adonis_meth_H = adonis2(methRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42)
+adonis_meth_H
+
+adonis_carb_metab_H = adonis2(carb_metabRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42)
+adonis_carb_metab_H
+
+adonis_cytoCox_H = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
+adonis_cytoCox_H
+```
+## PCoA
+
+Principal Coordinates Analysis (PCoA) denitrification:
+```{r PCoA: denitrification, start&finish}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_denit <- cmdscale(denitBC, k=2, eig=TRUE, add=TRUE) # changing k to 2 because we only want 2 dimensions anyway
+  # Now trying add = TRUE because of https://www.youtube.com/watch?v=G5Qckqq5Erw
+
+explainvar1b_denit <- round(pcoa_denit$eig[1] / sum(pcoa_denit$eig), 3) * 100
+explainvar2b_denit <- round(pcoa_denit$eig[2] / sum(pcoa_denit$eig), 3) * 100
+sum.eigb <- sum(explainvar1b_denit, explainvar2b_denit)
+
+explainvar1b_denit # 27.1
+explainvar2b_denit # 16.3
+
+pcoa_denit2.groups <- paste(denitRA_design$Treat, denitRA_design$Plant, denitRA_design$Hist, sep = "_")
+pcoa_denit2.points <- data.frame(pcoa_denit$points, group = pcoa_denit2.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_denit2.L.centroids <- reshape2::melt(pcoa_denit2.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_denit2.centroids <- acast(pcoa_denit2.L.centroids, variable ~ group, mean)
+pcoa_denit2.centroids.se <- acast(pcoa_denit2.L.centroids, variable ~ group, se)
+pcoa_denit2.centroids.sd <- acast(pcoa_denit2.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_denit2.cent.dataframe <- cbind(t(pcoa_denit2.centroids), t(pcoa_denit2.centroids.se))
+colnames(pcoa_denit2.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# Adding columns with the factors. H: hydrologic history
+trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+history_plant_combined <- c(paste(history, plant_H, sep = "_"))
+
+pcoa_denit2.cent.dataframe.trts <- as.data.frame(pcoa_denit2.cent.dataframe) 
+pcoa_denit2.cent.dataframe.trts$trt <- as.factor(trt_H)
+pcoa_denit2.cent.dataframe.trts$plant <- as.factor(plant_H)
+pcoa_denit2.cent.dataframe.trts$history <- as.factor(history)
+pcoa_denit2.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined)
+pcoa_denit2.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_denit2.points_ForPlot <- pcoa_denit2.points
+colnames(pcoa_denit2.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_denit2.points_ForPlot$trt <- denitRA_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_denit2.points_ForPlot$plant <- denitRA_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_denit2.points_ForPlot$history <- denitRA_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_denit2.points_ForPlot$history_plant <- c(paste(pcoa_denit2.points_ForPlot$history, pcoa_denit2.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_denit2.points_ForPlot <- pcoa_denit2.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_denit2.points_ForPlot$V1e <- numeric(24)
+pcoa_denit2.points_ForPlot$V2e <- numeric(24)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_denit2.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+denit_centroids_points_merged <- rbind(pcoa_denit2.cent.dataframe.trts, pcoa_denit2.points_ForPlot)
+```
+```{r envfit with GHGs ONLY}
+#Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
+fit_denit <- envfit(pcoa_denit$points, GHG_metaG, permutations = 10000)
+fit_denit
+
+A_denit <-as.list(fit_denit$vectors)
+vec_denit <- as.data.frame(fit_denit$vectors$arrows*sqrt(fit_denit$vectors$r)*0.15)
+p_denit <- as.data.frame(A_denit$pvals)
+vec_denit <- cbind(vec_denit, p_denit)
+vec_denit <- subset(vec_denit, A_denit$pvals<=0.1)
+```
+
+
+```{r plot PCoA}
+#Plot using ggplot2
+df2a <- as.data.frame(denit_centroids_points_merged)
+
+plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1b_denit}%)")) + ylab(glue("PCoA 2 ({explainvar2b_denit}%)")) + 
+  geom_segment(data=vec_denit, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
+ geom_text(data=vec_denit, aes(x=Dim1+0.04, y=Dim2), label= expression(paste("CO"[2]," ppm")), size=3, inherit.aes=F)+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Denitrification")
+
+plot2a
+```
+
+PCoA Methanogenesis, all factors, HISTORY AS SHAPE:
+```{r PCoA: Methanogenesis; all factors}
+pcoa_meth <- cmdscale(methBC, k=2, eig=TRUE, add=TRUE)
+
+explainvar1b_meth <- round(pcoa_meth$eig[1] / sum(pcoa_meth$eig), 3) * 100
+explainvar2b_meth <- round(pcoa_meth$eig[2] / sum(pcoa_meth$eig), 3) * 100
+sum.eigb <- sum(explainvar1b_meth, explainvar2b_meth)
+
+explainvar1b_meth # 29.7
+explainvar2b_meth # 20.8
+
+pcoa_meth2.groups <- paste(methRA_design$Treat, methRA_design$Plant, methRA_design$Hist, sep = "_")
+pcoa_meth2.points <- data.frame(pcoa_meth$points, group = pcoa_meth2.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_meth2.L.centroids <- reshape2::melt(pcoa_meth2.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_meth2.centroids <- acast(pcoa_meth2.L.centroids, variable ~ group, mean)
+pcoa_meth2.centroids.se <- acast(pcoa_meth2.L.centroids, variable ~ group, se)
+pcoa_meth2.centroids.sd <- acast(pcoa_meth2.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_meth2.cent.dataframe <- cbind(t(pcoa_meth2.centroids), t(pcoa_meth2.centroids.se))
+colnames(pcoa_meth2.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# No need to run again if these lists have already been declared:
+#trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+#plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+#history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+#trt_plant_combined <- c(paste(trt, plant, sep = "_"))
+
+pcoa_meth2.cent.dataframe.trts <- as.data.frame(pcoa_meth2.cent.dataframe) 
+pcoa_meth2.cent.dataframe.trts$trt <- as.factor(trt_H)
+pcoa_meth2.cent.dataframe.trts$plant <- as.factor(plant_H)
+pcoa_meth2.cent.dataframe.trts$history <- as.factor(history)
+pcoa_meth2.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined)
+pcoa_meth2.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_meth2.points_ForPlot <- pcoa_meth2.points
+colnames(pcoa_meth2.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_meth2.points_ForPlot$trt <- methRA_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_meth2.points_ForPlot$plant <- methRA_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_meth2.points_ForPlot$history <- methRA_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_meth2.points_ForPlot$history_plant <- c(paste(pcoa_meth2.points_ForPlot$history, pcoa_meth2.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_meth2.points_ForPlot <- pcoa_meth2.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_meth2.points_ForPlot$V1e <- numeric(24)
+pcoa_meth2.points_ForPlot$V2e <- numeric(24)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_meth2.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+meth_centroids_points_merged <- rbind(pcoa_meth2.cent.dataframe.trts, pcoa_meth2.points_ForPlot)
+```
+```{r envfit with GHGs ONLY}
+#Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
+fit_meth <- envfit(pcoa_meth$points, GHG_metaG, permutations = 10000)
+fit_meth
+
+A_meth <-as.list(fit_meth$vectors)
+vec_meth <- as.data.frame(fit_meth$vectors$arrows*sqrt(fit_meth$vectors$r)*0.15)
+p_meth <- as.data.frame(A_meth$pvals)
+vec_meth <- cbind(vec_meth, p_meth)
+vec_meth <- subset(vec_meth, A_meth$pvals<=0.1)
+```
+
+```{r plot meth PCoA}
+#Plot using ggplot2
+df2b <- as.data.frame(meth_centroids_points_merged)
+
+plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1b_meth}%)")) + ylab(glue("PCoA 2 ({explainvar2b_meth}%)")) + 
+  geom_segment(data=vec_meth, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha=0.4, inherit.aes=F)+ 
+ geom_text(data=vec_meth, aes(x=Dim1, y=Dim2), label= expression(paste("CH"[4]," ppm")), size=3, inherit.aes=F)+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Methanogenesis")
+
+plot2b
+```
+
+
+
+PCoA central carbohydrate metabolism, all factors, HISTORY AS SHAPE:
+```{r PCoA: central carbohydrate metabolism; all factors}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_carb_metab <- cmdscale(carb_metabBC, k=2, eig=TRUE, add=TRUE)
+
+explainvar1b_carb_metab <- format(round(pcoa_carb_metab$eig[1] / sum(pcoa_carb_metab$eig), 3) * 100, nsmall = 1) # Using format() to get .0
+explainvar2b_carb_metab <- round(pcoa_carb_metab$eig[2] / sum(pcoa_carb_metab$eig), 3) * 100
+#sum.eigc <- sum(explainvar1b_carb_metab, explainvar2b_carb_metab) #Doesn't work when using format()
+
+explainvar1b_carb_metab # 31.0
+explainvar2b_carb_metab # 14.9
+
+pcoa_carb_metab2.groups <- paste(carb_metabRA_design$Treat, carb_metabRA_design$Plant, carb_metabRA_design$Hist, sep = "_")
+pcoa_carb_metab2.points <- data.frame(pcoa_carb_metab$points, group = pcoa_carb_metab2.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_carb_metab2.L.centroids <- reshape2::melt(pcoa_carb_metab2.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_carb_metab2.centroids <- acast(pcoa_carb_metab2.L.centroids, variable ~ group, mean)
+pcoa_carb_metab2.centroids.se <- acast(pcoa_carb_metab2.L.centroids, variable ~ group, se)
+pcoa_carb_metab2.centroids.sd <- acast(pcoa_carb_metab2.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_carb_metab2.cent.dataframe <- cbind(t(pcoa_carb_metab2.centroids), t(pcoa_carb_metab2.centroids.se))
+colnames(pcoa_carb_metab2.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# No need to run again if these lists have already been declared:
+#trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+#plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+#history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+#trt_plant_combined <- c(paste(trt, plant, sep = "_"))
+
+pcoa_carb_metab2.cent.dataframe.trts <- as.data.frame(pcoa_carb_metab2.cent.dataframe) 
+pcoa_carb_metab2.cent.dataframe.trts$trt <- as.factor(trt_H)
+pcoa_carb_metab2.cent.dataframe.trts$plant <- as.factor(plant_H)
+pcoa_carb_metab2.cent.dataframe.trts$history <- as.factor(history)
+pcoa_carb_metab2.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined)
+pcoa_carb_metab2.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_carb_metab2.points_ForPlot <- pcoa_carb_metab2.points
+colnames(pcoa_carb_metab2.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_carb_metab2.points_ForPlot$trt <- carb_metabRA_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_carb_metab2.points_ForPlot$plant <- carb_metabRA_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_carb_metab2.points_ForPlot$history <- carb_metabRA_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_carb_metab2.points_ForPlot$history_plant <- c(paste(pcoa_carb_metab2.points_ForPlot$history, pcoa_carb_metab2.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_carb_metab2.points_ForPlot <- pcoa_carb_metab2.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_carb_metab2.points_ForPlot$V1e <- numeric(24)
+pcoa_carb_metab2.points_ForPlot$V2e <- numeric(24)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_carb_metab2.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+carb_metab_centroids_points_merged <- rbind(pcoa_carb_metab2.cent.dataframe.trts, pcoa_carb_metab2.points_ForPlot)
+```
+```{r envfit with GHGs ONLY}
+#Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
+fit_carb_metab <- envfit(pcoa_carb_metab$points, GHG_metaG, permutations = 10000)
+fit_carb_metab
+
+A_carb_metab <-as.list(fit_carb_metab$vectors)
+vec_carb_metab <- as.data.frame(fit_carb_metab$vectors$arrows*sqrt(fit_carb_metab$vectors$r)*0.15)
+p_carb_metab <- as.data.frame(A_carb_metab$pvals)
+vec_carb_metab <- cbind(vec_carb_metab, p_carb_metab)
+vec_carb_metab <- subset(vec_carb_metab, A_carb_metab$pvals<=0.1)
+```
+```{r carb_metab SSF envfit and PCoA}
+#Plot using ggplot2
+df2c <- as.data.frame(carb_metab_centroids_points_merged)
+
+plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1b_carb_metab}%)")) + ylab(glue("PCoA 2 ({explainvar2b_carb_metab}%)")) + 
+  geom_segment(data=vec_carb_metab, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
+ geom_text(data=vec_carb_metab, aes(x=Dim1-0.01, y=Dim2-0.005), label= expression(paste("CO"[2]," ppm")), size=3, inherit.aes=F)+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Central Carbohydrate Metabolism")
+
+plot2c
+```
+
+
+PCoA cytochrome C oxidase, all factors, HISTORY AS SHAPE:
+```{r PCoA: cytochrome C oxidase; all factors}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_cytoCox <- cmdscale(cytoCoxBC, k=2, eig=TRUE, add=TRUE)
+
+explainvar1b_cytoCox <- round(pcoa_cytoCox$eig[1] / sum(pcoa_cytoCox$eig), 3) * 100
+explainvar2b_cytoCox <- round(pcoa_cytoCox$eig[2] / sum(pcoa_cytoCox$eig), 3) * 100
+sum.eigc <- sum(explainvar1b_cytoCox, explainvar2b_cytoCox)
+
+explainvar1b_cytoCox # 29.2
+explainvar2b_cytoCox # 22.2
+
+pcoa_cytoCox2.groups <- paste(cytoCoxRA_design$Treat, cytoCoxRA_design$Plant, cytoCoxRA_design$Hist, sep = "_")
+pcoa_cytoCox2.points <- data.frame(pcoa_cytoCox$points, group = pcoa_cytoCox2.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_cytoCox2.L.centroids <- reshape2::melt(pcoa_cytoCox2.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_cytoCox2.centroids <- acast(pcoa_cytoCox2.L.centroids, variable ~ group, mean)
+pcoa_cytoCox2.centroids.se <- acast(pcoa_cytoCox2.L.centroids, variable ~ group, se)
+pcoa_cytoCox2.centroids.sd <- acast(pcoa_cytoCox2.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_cytoCox2.cent.dataframe <- cbind(t(pcoa_cytoCox2.centroids), t(pcoa_cytoCox2.centroids.se))
+colnames(pcoa_cytoCox2.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# No need to run again if these lists have already been declared:
+#trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+#plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+#history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+#trt_plant_combined <- c(paste(trt, plant, sep = "_"))
+
+pcoa_cytoCox2.cent.dataframe.trts <- as.data.frame(pcoa_cytoCox2.cent.dataframe) 
+pcoa_cytoCox2.cent.dataframe.trts$trt <- as.factor(trt_H)
+pcoa_cytoCox2.cent.dataframe.trts$plant <- as.factor(plant_H)
+pcoa_cytoCox2.cent.dataframe.trts$history <- as.factor(history)
+pcoa_cytoCox2.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined)
+pcoa_cytoCox2.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_cytoCox2.points_ForPlot <- pcoa_cytoCox2.points
+colnames(pcoa_cytoCox2.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_cytoCox2.points_ForPlot$trt <- cytoCoxRA_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_cytoCox2.points_ForPlot$plant <- cytoCoxRA_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_cytoCox2.points_ForPlot$history <- cytoCoxRA_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_cytoCox2.points_ForPlot$history_plant <- c(paste(pcoa_cytoCox2.points_ForPlot$history, pcoa_cytoCox2.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_cytoCox2.points_ForPlot <- pcoa_cytoCox2.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_cytoCox2.points_ForPlot$V1e <- numeric(24)
+pcoa_cytoCox2.points_ForPlot$V2e <- numeric(24)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_cytoCox2.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+cytoCox_centroids_points_merged <- rbind(pcoa_cytoCox2.cent.dataframe.trts, pcoa_cytoCox2.points_ForPlot)
+```
+```{r envfit with GHGs ONLY}
+#Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
+fit_cytoCox <- envfit(pcoa_cytoCox$points, GHG_metaG, permutations = 10000)
+fit_cytoCox
+
+A_cytoCox <-as.list(fit_cytoCox$vectors)
+vec_cytoCox <- as.data.frame(fit_cytoCox$vectors$arrows*sqrt(fit_cytoCox$vectors$r)*0.15)
+p_cytoCox <- as.data.frame(A_cytoCox$pvals)
+vec_cytoCox <- cbind(vec_cytoCox, p_cytoCox)
+vec_cytoCox <- subset(vec_cytoCox, A_cytoCox$pvals<=0.1)
+```
+```{r cytoCox SSF envfit and PCoA}
+#Plot using ggplot2
+df2d <- as.data.frame(cytoCox_centroids_points_merged)
+
+plot2d <- ggplot(df2d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1b_cytoCox}%)")) + ylab(glue("PCoA 2 ({explainvar2b_cytoCox}%)")) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Cytochrome C Oxidase")
+
+plot2d
+```
+
+
+Create 4-panel figure of the 4 PCoA plots above:
+```{r 4-panel PCoA plot}
+#require(ggpubr) #load in library for multi-panel figures (if not already loaded)
+
+# 4 panel metaG PCoA with History, start and finish sample (SSF)
+MetaG_pcoa_4panel_SSF <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
+
+MetaG_pcoa_4panel_SSF
+
+#ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 300)
+
+#ggsave("../figures/Thesis/metaG_pcoa4panel_SSF.jpg", plot = MetaG_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
+
+# 4 panel metaG PCoA with History, Finish samples only (SFO)
+
+MetaG_pcoa_4panel_SFO <- ggarrange(plot3a, plot3b, plot3c, plot3d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
+
+MetaG_pcoa_4panel_SFO
+
+#ggsave("../figures/Thesis/metaG_pcoa4panel_SFO.jpg", plot = MetaG_pcoa_4panel_SFO, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
+```
