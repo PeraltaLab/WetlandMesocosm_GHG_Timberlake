@@ -41,9 +41,7 @@ require("labdsv")
 require("grid")
 require("multcomp")
 require("multcompView")
-require("gasfluxes")
-require("rstatix")
-require("NSM3")
+
 ```
 
 ```{r Phyloseq install and load}
@@ -53,7 +51,7 @@ require("NSM3")
 
 #BiocManager::install("phyloseq")
 
-# Compatibility issue with lme4. Attempting to run without loading phyloseq.
+# Compatbility issue with lme4. Attempting to run without loading phyloseq.
 require("phyloseq")
 ```
 
@@ -587,17 +585,17 @@ ghg <- read.csv("../data/TMG_GHG-Flux_T1_Pub_2-2020.csv", header=TRUE)
 # Version of ghg with labels for T1 through T4 analysis:
 ghg2 <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv", header=TRUE)
 
-# FIX c2o TYPO IN ghg2:
+# FIX c2o TYPO IN ghg2, then remove line 600
 colnames(ghg2)[18] <- "co2_ppm"
 
 ghg <- ghg %>%
   dplyr::select('date', 'chamber', 'timepoint', 'plant', 'mg.CH4.N.m.2', 'mg.CO2.N.m.2', 'mg.N2O.N.m.2')%>%
   dplyr::filter(timepoint=='T1' & date !='7/24/2016' & date != '6/13/2016')
 
-# ghg2, select T1 through T4, and all ppm measurements:
+# ghg2, select T1 through T4, and all ppm measurements (typo: c2o should be co2)
 ghg_ppm <- ghg2 %>%
   dplyr::select('date', 'chamber', 'timepoint', 'plant', 'ch4_ppm', 'co2_ppm', 'n2o_ppm')%>%
-  dplyr::filter(date !='7/24/2016')
+  dplyr::filter(date !='7/24/2016' & date != '6/13/2016')
 
 # Set factors:
 ghg$chamber <- as.factor(ghg$chamber)
@@ -645,9 +643,9 @@ ghg_ppm_filtered <- ghg_ppm %>%
 # Format a dataframe for 'gasfluxes' package:
 ghg_flux <- ghg2[,c(1:2, 12, 15:19)]
 
-# Remove 7/24/2016 from data frame, as per Gina's advice
+# Remove 7/24/2016 and 6/13/2016 from data frame, as per Gina's advice
 ghg_flux <- ghg_flux %>%
-  dplyr::filter(date !='7/24/2016')
+  dplyr::filter(date !='7/24/2016' & date != '6/13/2016')
 
 # Combine 'date' and 'chamber' strings to create a unique ID:
 ghg_flux$ID <- paste(ghg_flux$date, ghg_flux$chamber)
@@ -696,6 +694,9 @@ n2o_flux_input <- na.omit(n2o_flux_input)
 ```
 
 ```{r GHG flux calculation}
+#install.packages("gasfluxes")
+require("gasfluxes")
+
 ch4_flux.results <- gasfluxes(ch4_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 
 co2_flux.results <- gasfluxes(co2_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
@@ -761,6 +762,8 @@ select_fluxes_combined$history <- ghg_ppm_filtered$history
 ```{r ANOVAS prep}
 # https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
 
+library(rstatix)
+
 # Make sure factors are factors: 
 
   # ghg_ppm_filtered:
@@ -777,7 +780,7 @@ ghg$treatment <- as.factor(ghg$treatment)
 
   # select_fluxes_combined
     # Add on chamber to be consistent with ghg_ppm_filtered and ghg:
-select_fluxes_combined$chamber <- ghg_ppm_filtered$chamber
+select_fluxes_combined$chamber <- ghg$chamber
 
     # setting other factors, as above
 select_fluxes_combined$date_short <- as.factor(select_fluxes_combined$date_short)
@@ -813,6 +816,30 @@ ch4_ppm_no_outliers %>%
   # still extreme outliers, but different ones now
 ```
   
+```{r log transform}  
+  # log transform
+ghg_ppm_filtered$log10_CH4 <- log(ghg_ppm_filtered$ch4_ppm, 10)
+
+ghg_ppm_filtered %>%
+  group_by(date_short) %>%
+  identify_outliers(log10_CH4)
+  # Reduces number of extreme outliers by 2, but still not great
+
+
+
+# CO2 PPM
+ghg_ppm_filtered %>%
+  group_by(date_short) %>%
+  identify_outliers(co2_ppm)
+  # There are extreme outliers. Could run with and without outliers.
+
+# N2O PPM
+ghg_ppm_filtered %>%
+  group_by(date_short) %>%
+  identify_outliers(n2o_ppm)
+  # There are extreme outliers. Could run with and without outliers.
+```
+
 ```{r ANOVA assumption testing: normality}
 # CH4 PPM
 ghg_ppm_filtered %>%
@@ -823,6 +850,15 @@ ghg_ppm_filtered %>%
   # QQ plot:
 ggqqplot(ghg_ppm_filtered, "ch4_ppm", facet.by = "date_short")
 
+
+  # log transform:
+ghg_ppm_filtered %>%
+  group_by(date_short) %>%
+  shapiro_test(log10_CH4)
+  # Not normally distributed
+
+ggqqplot(ghg_ppm_filtered, "log10_CH4", facet.by = "date_short")
+  # seems to be an improvement, but not good enough
 
   # outliers dropped:
 ch4_ppm_no_outliers %>%
@@ -851,6 +887,8 @@ ghg_ppm_filtered %>%
   # QQ plot:
 ggqqplot(ghg_ppm_filtered, "n2o_ppm", facet.by = "date_short")
 ```
+
+
 
 ```{r one-way repeated measures ANOVA}
 # CH4:
@@ -906,8 +944,8 @@ get_anova_table(MixANOVA_N2O_ppm_treatment)
 
 ```{r Wilcoxon Rank Sum for Plant No Plant}
 # CH4
-wilcox_CH4_6.13 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "6/13")
-wilcox_CH4_6.13
+wilcox_CH4_date <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short)
+wilcox_CH4_date
 
 wilcox_CH4_6.28 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_CH4_6.28
@@ -922,8 +960,8 @@ wilcox_CH4_8.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired 
 wilcox_CH4_8.11
 
 # CO2
-wilcox_CO2_6.13 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "6/13")
-wilcox_CO2_6.13
+wilcox_CO2_date <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short)
+wilcox_CO2_date
 
 wilcox_CO2_6.28 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_CO2_6.28
@@ -938,8 +976,8 @@ wilcox_CO2_8.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired 
 wilcox_CO2_8.11
 
 # N2O
-wilcox_N2O_6.13 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "6/13")
-wilcox_N2O_6.13
+wilcox_N2O_date <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short)
+wilcox_N2O_date
 
 wilcox_N2O_6.28 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "6/28")
 wilcox_N2O_6.28
@@ -956,11 +994,12 @@ wilcox_N2O_8.11
 
 ```{r Kruskal-Wallis Rank Sum Test on treatment}
 # Will use DWASS-Steel-Critchlow-Fligner test for multiple comparisons, in package NSM3
+#install.packages("NSM3")
+
+require("NSM3")
+
 
 # CH4
-kruskal_CH4_6.13 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "6/13")
-kruskal_CH4_6.13
-
 kruskal_CH4_6.28 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "6/28")
 kruskal_CH4_6.28
 
@@ -1002,9 +1041,6 @@ SDCFlig_CH4_8.11 <- pSDCFlig(x = ghg_ppm_filtered_8.11$ch4_ppm, g = ghg_ppm_filt
 SDCFlig_CH4_8.11
 
 # CO2
-kruskal_CO2_6.13 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "6/13")
-kruskal_CO2_6.13
-
 kruskal_CO2_6.28 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "6/28")
 kruskal_CO2_6.28
 
@@ -1026,9 +1062,6 @@ SDCFlig_CO2_8.11 <- pSDCFlig(x = ghg_ppm_filtered_8.11$co2_ppm, g = ghg_ppm_filt
 SDCFlig_CO2_8.11
 
 # N2O
-kruskal_N2O_6.13 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "6/13")
-kruskal_N2O_6.13
-
 kruskal_N2O_6.28 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "6/28")
 kruskal_N2O_6.28
 
@@ -1046,7 +1079,7 @@ kruskal_N2O_8.11 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, s
 kruskal_N2O_8.11
 ```
 ```{r format dates for figures}
-ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
+ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("28-Jun", "11-Jul", "25-Jul","11-Aug"))
 ```
 
 ## T30 ppm: No Plant, Plant, side-by-side
@@ -1063,7 +1096,7 @@ CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
 
 # Plotting:
 plot.CH4.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=ch4_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
                      geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
@@ -1098,7 +1131,7 @@ CO2_wilcox.DF <- as.data.frame(CO2_wilcox)
 
 # Plotting:
 plot.CO2.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=co2_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
                      geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
@@ -1133,7 +1166,7 @@ N2O_wilcox.DF <- as.data.frame(N2O_wilcox)
 
 # Plotting:
 plot.N2O.T30ppm.NPvP <- ggplot(ghg_ppm_filtered, aes(x=plant, y=n2o_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=plant), outlier.shape = NA) +
                      geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
@@ -1187,7 +1220,7 @@ CH4_multipleComparisons <- add_significance(CH4_multipleComparisons, p.col = "p.
 CH4_MultComp.DF <- as.data.frame(CH4_multipleComparisons)
 
 # Add on SDCFlig p-values:
-CH4_MultComp.DF$SDCF_p <- c(1, 1, 1, SDCFlig_CH4_6.28$p.val, SDCFlig_CH4_7.11$p.val, SDCFlig_CH4_7.25$p.val, SDCFlig_CH4_8.11$p.val)
+CH4_MultComp.DF$SDCF_p <- c(SDCFlig_CH4_6.28$p.val, SDCFlig_CH4_7.11$p.val, SDCFlig_CH4_7.25$p.val, SDCFlig_CH4_8.11$p.val)
 
 # Symbols for plotting:
 CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
@@ -1197,7 +1230,7 @@ CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.co
 
 # Plotting:
 plot.CH4.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=ch4_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1231,21 +1264,18 @@ CO2_multipleComparisons <- add_significance(CO2_multipleComparisons, p.col = "p.
 # Turn into data frame:
 CO2_MultComp.DF <- as.data.frame(CO2_multipleComparisons)
 
-# Add on SDCFlig p-values:
-CO2_MultComp.DF$SDCF_p <- c(1, 1, 1, 1,1,1, SDCFlig_CO2_7.11$p.val, 1,1,1, SDCFlig_CO2_8.11$p.val)
+# Add on SDCFlig p-values. If Kruskal was non-significant, input 3 1s, which will be converted to ns:
+CO2_MultComp.DF$SDCF_p <- c(1, 1, 1, SDCFlig_CO2_7.11$p.val, 1, 1, 1, SDCFlig_CO2_8.11$p.val)
 
 # Symbols for plotting:
 CO2_MultComp.DF <- add_significance(CO2_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
 
-# In order for plotting to work with SDCFlig, have to overwrite 'p' with SDCF_p:
-CO2_MultComp.DF$p <- CO2_MultComp.DF$SDCF_p
-
-# Export the data frames to a .csv file
+# Export the data frame to a .csv file
 #write.csv(CO2_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CO2_MultComp.csv", row.names = T)
 
 # Plotting:
 plot.CO2.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=co2_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1263,7 +1293,7 @@ plot.CO2.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=co2_ppm)) +
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p", y.position = max(ghg_ppm_filtered$co2_ppm), step.group.by = "date_format", step.increase = 0.1)
+  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(ghg_ppm_filtered$co2_ppm), step.group.by = "date_format", step.increase = 0.1)
  
 plot.CO2.T30ppm.Trt
 ```
@@ -1280,7 +1310,7 @@ N2O_multipleComparisons <- add_significance(N2O_multipleComparisons, p.col = "p.
 N2O_MultComp.DF <- as.data.frame(N2O_multipleComparisons)
 
 # Add on SDCFlig p-values. If Kruskal was non-significant, input 3 1s, which will be converted to ns:
-N2O_MultComp.DF$SDCF_p <- c(1,1,1, SDCFlig_N2O_6.28$p.val, 1,1,1,1,1,1,1,1,1)
+N2O_MultComp.DF$SDCF_p <- c(SDCFlig_N2O_6.28$p.val, 1,1,1,1,1,1,1,1,1)
 
 # Symbols for plotting:
 N2O_MultComp.DF <- add_significance(N2O_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
@@ -1290,7 +1320,7 @@ N2O_MultComp.DF <- add_significance(N2O_MultComp.DF, p.col = "SDCF_p", output.co
 
 # Plotting:
 plot.N2O.T30ppm.Trt <- ggplot(ghg_ppm_filtered, aes(x=treatment, y=n2o_ppm)) +
-  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+  facet_wrap(~date_format, nrow = 1, ncol = 4)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
