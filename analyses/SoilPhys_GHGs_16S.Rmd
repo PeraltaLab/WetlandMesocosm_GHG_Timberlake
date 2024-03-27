@@ -49,7 +49,8 @@ require("NSM3")
 ```{r Phyloseq install and load}
 # If phyloseq not installed, un-comment and run:
 #if (!require("BiocManager", quietly = TRUE))
-    #install.packages("BiocManager")
+   # install.packages("BiocManager")
+#BiocManager::install(version = "3.18")
 
 #BiocManager::install("phyloseq")
 
@@ -1047,6 +1048,8 @@ kruskal_N2O_8.11
 ```
 ```{r format dates for figures}
 ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
+
+select_fluxes_combined$date_format <- factor(select_fluxes_combined$date_short, levels = levels(select_fluxes_combined$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
 ```
 
 ## T30 ppm: No Plant, Plant, side-by-side
@@ -1354,7 +1357,7 @@ fluxes.plant <- select_fluxes_combined %>%
 ```
 
 ```{r CH4 flux plot}
-plot.CH4.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_CH4)) +
+plot.CH4.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_format, y=f0_CH4)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1375,7 +1378,7 @@ plot.CH4.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_CH4)) +
 plot.CH4.flux.noplant
 
 
-plot.CH4.flux.plant <- ggplot(fluxes.plant, aes(x=date_short, y=f0_CH4)) +
+plot.CH4.flux.plant <- ggplot(fluxes.plant, aes(x=date_format, y=f0_CH4)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1403,7 +1406,7 @@ CH4.flux.Combined
 
 # Add an inset to show small values for the 'plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
-plot.CH4.flux.plant.autoScale <- ggplot(fluxes.plant, aes(x=date_short, y=f0_CH4)) +
+plot.CH4.flux.plant.autoScale <- ggplot(fluxes.plant, aes(x=date_format, y=f0_CH4)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
                      geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1427,7 +1430,7 @@ plot.CH4.flux.plant.autoScale
 ```
 
 ```{r CO2 flux plot}
-plot.CO2.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_CO2)) +
+plot.CO2.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_format, y=f0_CO2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1448,7 +1451,7 @@ plot.CO2.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_CO2)) +
 plot.CO2.flux.noplant
 
 
-plot.CO2.flux.plant <- ggplot(fluxes.plant, aes(x=date_short, y=f0_CO2)) +
+plot.CO2.flux.plant <- ggplot(fluxes.plant, aes(x=date_format, y=f0_CO2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1476,7 +1479,7 @@ CO2.flux.Combined <- ggarrange(plot.CO2.flux.noplant, plot.CO2.flux.plant, label
 CO2.flux.Combined
 
 # No plant has large negative outlier, remove and autoscale axis to show outlier:
-plot.CO2.flux.noplant.autoScale <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_CO2)) +
+plot.CO2.flux.noplant.autoScale <- ggplot(fluxes.noplant, aes(x=date_format, y=f0_CO2)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
                      geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1499,8 +1502,8 @@ plot.CO2.flux.noplant.autoScale
 #ggsave("../figures/pub/Fig3/Flux/CO2_NoPlant_Inset.tiff", plot=plot.CO2.flux.noplant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
 ```
 
-```{r N2O T30 ppm Boxplot}
-plot.N2O.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_N2O)) +
+```{r N2O flux plot}
+plot.N2O.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_format, y=f0_N2O)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1521,7 +1524,7 @@ plot.N2O.flux.noplant <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_N2O)) +
 plot.N2O.flux.noplant
 
 
-plot.N2O.flux.plant <- ggplot(fluxes.plant, aes(x=date_short, y=f0_N2O)) +
+plot.N2O.flux.plant <- ggplot(fluxes.plant, aes(x=date_format, y=f0_N2O)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment), size = 1.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1550,7 +1553,7 @@ N2O.flux.Combined
 
 # Add an inset to show small values for the 'no plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
-plot.N2O.flux.noplant.zoom <- ggplot(fluxes.noplant, aes(x=date_short, y=f0_N2O)) +
+plot.N2O.flux.noplant.zoom <- ggplot(fluxes.noplant, aes(x=date_format, y=f0_N2O)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
                      geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1574,7 +1577,7 @@ plot.N2O.flux.noplant.zoom
 
 # Add an inset to show small values for the 'plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
-plot.N2O.flux.plant.zoom <- ggplot(fluxes.plant, aes(x=date_short, y=f0_N2O)) +
+plot.N2O.flux.plant.zoom <- ggplot(fluxes.plant, aes(x=date_format, y=f0_N2O)) +
                      geom_boxplot(aes(color=treatment), outlier.shape = NA, lwd = 2) +
                      geom_point(aes(color=treatment), size = 3.5, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1685,7 +1688,7 @@ ghg.ppm.summary.tp$mean_sd_co2 <- paste(ghg.ppm.summary.tp$mean_co2, "±", ghg.p
 ghg.ppm.summary.tp$mean_sd_n2o <- paste(ghg.ppm.summary.tp$mean_n2o, "±", ghg.ppm.summary.tp$sd_n2o, sep = " ")
 
 # Write .csv:
-#write.csv(ghg.ppm.summary.tp, file = "../figures/pub/tables/ghg_ppm_summary.csv", row.names = T)
+write.csv(ghg.ppm.summary.tp, file = "../figures/pub/tables/ghg_ppm_summary.csv", row.names = T)
 ```
 
 
@@ -1700,104 +1703,6 @@ lmer(distance ~ age + (age|Subject) + (0+nsex|Subject) +
 ```
 
 
-```{r CH4 Do we have normaility?}
-#First check the distribution of residuals --- not so great
-ch4.lm <- lmer(mg.CH4.N.m.2~ (1|date) +(1|chamber), data=ghg, REML=TRUE)
-
-#ch4.lm <- lmer(mg.CH4.N.m.2~ date + (date | chamber), data=ghg, REML=TRUE)
-summary(ch4.lm)
-confint(ch4.lm)
-p=profile(ch4.lm)
-xyplot(p)
-densityplot(p)
-qqPlot(resid(ch4.lm), main="QQ Plot")
-shapiro.test(resid(ch4.lm))
-
-ghg$log.ch4 <- log(ghg$mg.CH4.N.m.2) # Log transforming (all GHGs) for better normality
-
-ch4.lm <- lmer(log.ch4~ (1|date) + (1|chamber), data=ghg, REML=TRUE)
-summary(ch4.lm)
-confint(ch4.lm)
-p=profile(ch4.lm)
-xyplot(p)
-densityplot(p)
-qqPlot(resid(ch4.lm), main="QQ Plot")
-shapiro.test(resid(ch4.lm))
-```
-
-```{r CH4 hyposthesis testing}
-ch4.lm1 <- lmer(log.ch4 ~ (1|date) + (1|chamber) , data=ghg, REML=FALSE)
-
-ch4.lm2 <- lmer(log.ch4~treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-
-ch4.lm3 <- lmer(log.ch4~plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-
-ch4.lm4 <- lmer(log.ch4~treatment * plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-
-ch4.lm5 <- lmer(log.ch4~ history + plant + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-
-#ch4.lm6 <- lmer(log.ch4 ~ (1|chamber) , data=ghg, REML=FALSE)
-
-#ch4.lm7 <- lmer(log.ch4 ~ (1|date), data=ghg, REML=FALSE)
-
-ch4.lm8 <- lmer(log.ch4~ plant + treatment + history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-
-ch4.lm9 <- lmer(log.ch4~ history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-
-ch4.lm10 <- lmer(log.ch4~ plant + treatment + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-
-ch4.lm11 <- lmer(log.ch4~ plant * history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-
-ch4.lm12 <- lmer(log.ch4~ treatment + history + (1|date) + (1|chamber), data=ghg, REML=FALSE)
-#This is a likelihood ratio test to get Chi squared value and p-value
-##a <- anova(ch4.lm1, ch4.lm2, ch4.lm3,ch4.lm4,ch4.lm5, ch4.lm6, ch4.lm7, ch4.lm8, ch4.lm9, ch4.lm4a, ch4.lm7a, ch4.lm8a)
-##a
-##anova(ch4.lm6)
-
-#AIC weights
-c.mod <- list(ch4.lm1, ch4.lm2, ch4.lm3,ch4.lm4,ch4.lm5, ch4.lm8, ch4.lm9, ch4.lm10, ch4.lm11, ch4.lm12)
-Modnames <- c("null", "treatment", "plant", "t*p", "h + p", "P+T+H", "H", "p+T", "p*h", "h+t")
-aictab(cand.set = c.mod, modnames = Modnames, second.ord = TRUE)
-
-#Variance explained by fixed effects and the entire model
-r.squaredGLMM(ch4.lm1) #null
-r.squaredGLMM(ch4.lm2) #treatment
-r.squaredGLMM(ch4.lm3) #plant
-r.squaredGLMM(ch4.lm4) #t * p
-r.squaredGLMM(ch4.lm5) #h + p
-r.squaredGLMM(ch4.lm8) #p+t+h
-r.squaredGLMM(ch4.lm9) #h
-r.squaredGLMM(ch4.lm10)#p+t
-r.squaredGLMM(ch4.lm11)#p*h
-r.squaredGLMM(ch4.lm12)#h+t
-
-summary(ch4.lm8, ddf="Kenward-Roger")
-confint.merMod(ch4.lm8, oldNames = FALSE)
-p=profile(ch4.lm8)
-xyplot(p)
-densityplot(p)
-qqPlot(resid(ch4.lm8), main="QQ Plot")
-shapiro.test(resid(ch4.lm8))
-
-#Interaction not significant so did not run post hoc
-#Post hoc Tests
-#Estimated marginal means - similar to lsmeans, uses t distribution
-#https://cran.rstudio.com/web/packages/emmeans/vignettes/interactions.html
-
- emm <- emmeans(ch4.lm8, ~ treatment , adjust = "tukey")
- pairs(emm)
- multcomp::cld(emm, Letters=letters)
- 
- emm <- emmeans(ch4.lm8, ~ history , adjust = "tukey")
- pairs(emm)
- multcomp::cld(emm, Letters=letters)
- 
- emm <- emmeans(ch4.lm8, ~ plant , adjust = "sidak")
- pairs(emm)
- multcomp::cld(emm, Letters=letters)
-  #p <-contrast(emm, "consec", simple="each", combine =TRUE, adjust="mvt")
-  #p
-```
 
 ```{r CH4 PPM Do we have normaility?}
 #First check the distribution of residuals --- not so great
