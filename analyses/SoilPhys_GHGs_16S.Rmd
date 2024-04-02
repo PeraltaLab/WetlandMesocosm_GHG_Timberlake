@@ -32,7 +32,7 @@ require("MASS")
 require("MuMIn")
 require("AICcmodavg")
 require("emmeans")
-require("lme4")
+#require("lme4")
 require("car")
 require("dbstats")
 require("plyr")
@@ -1426,7 +1426,7 @@ plot.CH4.flux.plant.autoScale <- ggplot(fluxes.plant, aes(x=date_format, y=f0_CH
  
 plot.CH4.flux.plant.autoScale
 
-#ggsave("../figures/pub/Fig3/Flux/CH4_Inset_flux.tiff", plot=plot.CH4.flux.plant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/Flux/CH4_Inset_flux.tiff", plot=plot.CH4.flux.plant.autoScale, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=300, limitsize=TRUE, bg="white")
 ```
 
 ```{r CO2 flux plot}
@@ -1499,7 +1499,7 @@ plot.CO2.flux.noplant.autoScale <- ggplot(fluxes.noplant, aes(x=date_format, y=f
  
 plot.CO2.flux.noplant.autoScale
 
-#ggsave("../figures/pub/Fig3/Flux/CO2_NoPlant_Inset.tiff", plot=plot.CO2.flux.noplant.autoScale, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/Flux/CO2_NoPlant_Inset.tiff", plot=plot.CO2.flux.noplant.autoScale, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=300, limitsize=TRUE, bg="white")
 ```
 
 ```{r N2O flux plot}
@@ -1573,7 +1573,7 @@ plot.N2O.flux.noplant.zoom <- ggplot(fluxes.noplant, aes(x=date_format, y=f0_N2O
  
 plot.N2O.flux.noplant.zoom
 
-#ggsave("../figures/pub/Fig3/Flux/N2O_NoPlant_inset.tiff", plot=plot.N2O.flux.noplant.zoom, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/Flux/N2O_NoPlant_inset.tiff", plot=plot.N2O.flux.noplant.zoom, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=300, limitsize=TRUE, bg="white")
 
 # Add an inset to show small values for the 'plant' treatment:
 # First, render plot with no axes labels and smaller axes text:
@@ -1597,7 +1597,7 @@ plot.N2O.flux.plant.zoom <- ggplot(fluxes.plant, aes(x=date_format, y=f0_N2O)) +
  
 plot.N2O.flux.plant.zoom
 
-#ggsave("../figures/pub/Fig3/Flux/N2O_plant_inset.tiff", plot=plot.N2O.flux.plant.zoom, device="tiff", path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/Fig3/Flux/N2O_plant_inset.tiff", plot=plot.N2O.flux.plant.zoom, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=300, limitsize=TRUE, bg="white")
 
 # Create a viewport (vp) with appropriate dimensions for inset:
 #subvp2_legend <- viewport(width = 0.35, height = 0.3, x = 0.67, y = 0.34)
@@ -1688,7 +1688,7 @@ ghg.ppm.summary.tp$mean_sd_co2 <- paste(ghg.ppm.summary.tp$mean_co2, "±", ghg.p
 ghg.ppm.summary.tp$mean_sd_n2o <- paste(ghg.ppm.summary.tp$mean_n2o, "±", ghg.ppm.summary.tp$sd_n2o, sep = " ")
 
 # Write .csv:
-write.csv(ghg.ppm.summary.tp, file = "../figures/pub/tables/ghg_ppm_summary.csv", row.names = T)
+#write.csv(ghg.ppm.summary.tp, file = "../figures/pub/tables/ghg_ppm_summary.csv", row.names = T)
 ```
 
 
