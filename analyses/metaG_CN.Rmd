@@ -25,7 +25,7 @@ ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
 # Code dependencies:
 source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
-require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2"); require("ggpubr"); require("glue")
+require("vegan"); require("reshape"); require("ggplot2"): require("tidyr"); require("dplyr"); require("dbstats"); require("reshape2"); require("ggpubr"); require("glue"); require("stringr")
 ```
 
 # Load files
@@ -441,7 +441,7 @@ vec_denit <- subset(vec_denit, A_denit$pvals<=0.1)
 ```
 
 
-```{r plot PCoA}
+```{r plot denit PCoA}
 #Plot using ggplot2
 df2a <- as.data.frame(denit_centroids_points_merged)
 
@@ -455,7 +455,7 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_denit}%)")) + ylab(glue("PCoA 2 ({explainvar2b_denit}%)")) + 
   geom_segment(data=vec_denit, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_denit, aes(x=Dim1+0.04, y=Dim2), label= expression(paste("CO"[2]," ppm")), size=3, inherit.aes=F)+
+ geom_text(data=vec_denit, aes(x=Dim1+0.025, y=Dim2), label= expression(paste("CO"[2]," ppm")), size=3, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -553,7 +553,7 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_meth}%)")) + ylab(glue("PCoA 2 ({explainvar2b_meth}%)")) + 
   geom_segment(data=vec_meth, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha=0.4, inherit.aes=F)+ 
- geom_text(data=vec_meth, aes(x=Dim1, y=Dim2), label= expression(paste("CH"[4]," ppm")), size=3, inherit.aes=F)+
+ geom_text(data=vec_meth, aes(x=Dim1, y=Dim2+0.004), label= expression(paste("CH"[4]," ppm")), size=3, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -654,7 +654,7 @@ plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_carb_metab}%)")) + ylab(glue("PCoA 2 ({explainvar2b_carb_metab}%)")) + 
   geom_segment(data=vec_carb_metab, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_carb_metab, aes(x=Dim1-0.01, y=Dim2-0.005), label= expression(paste("CO"[2]," ppm")), size=3, inherit.aes=F)+
+ geom_text(data=vec_carb_metab, aes(x=Dim1+0.015, y=Dim2-0.005), label= expression(paste("CO"[2]," ppm")), size=3, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -778,7 +778,7 @@ MetaG_pcoa_4panel_SSF <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("A
 
 MetaG_pcoa_4panel_SSF
 
-#ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 300)
+#ggsave("../figures/pub/metaG_pcoa4panel.tiff", plot = MetaG_pcoa_4panel_SSF, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 300)
 
 #ggsave("../figures/Thesis/metaG_pcoa4panel_SSF.jpg", plot = MetaG_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
 
