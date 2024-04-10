@@ -19,9 +19,12 @@ Metagenome sequence files can be found at NCBI SRA [BioProject ID PRJNA641216](h
 ### Repo Contents
 
 * **analyses:** R Markdown files that include R script written by Regina Bledsoe, Colin Finlay, Ariane Peralta, and Mario Muscarella containing functions used in analysis of GHG, soil, and microbial sequence data:
- 	1. metaG_all_factors.Rmd: code for analysis of metagenomic data, **for manuscript in review**
+ 	1. metaG_CN.Rmd: code for analysis of metagenomic data, **for manuscript in review**
  	2. metaG_in_depth.Rmd: in-progress metagenomic analysis, **not a part of manuscript in review**
- 	3. timberlake_publicationV2.Rmd: 16S, edaphic, and greenhouse gas analysis, **for manuscript in review**
+ 	3. SoilPhys_GHGs_16S.Rmd: 16S, edaphic, and greenhouse gas analysis, **for manuscript in review**
+  	4. GHG_LME.Rmd: linear-mixed effects models of greenhouse gases, **for manuscript in review**
+  	5. WRC_GHG_Regression_T1_Flux.Rmd: regression of timepoint 1 (T1) vs. flux from a different experiment, to justify use of T1 in current experiment, **for manuscript in review**
+  	6. /Previous_Versions: collection of previous .Rmd versions, **not a part of manuscript in review**
 
 * **bin:** 
 	* *MothurTools.R*: An R script written by Mario Muscarella (Indiana University, now at University of Illinois) containing functions used in the analysis of community sequence data.
@@ -30,7 +33,7 @@ Metagenome sequence files can be found at NCBI SRA [BioProject ID PRJNA641216](h
 
 * **figures:** Figures (of GHG, soil, microbes-16S rRNA amplicon, microbes-shotgun metagenomes) generated according to R script located in R Markdown file.
 
-* **mothur:** Files containing script for bioinformatic analysis of 16S rRNA gene sequences (Illumina MiSeq platform) using mothur pipeline.
+* **supplemental:** Additional sequencing methods information and tables of metagenomic sequence data
 
 ## Funding Sources
 This work was supported by East Carolina University and an NSF GRFP to R. Bledsoe, NSF DEB 1845845 to A.L.P. The metagenomes were produced by the DOE JGI under the Community Science Program (CSP) (JGI CSP grant 503952). The work conducted by the DOE JGI, a DOE Office of Science User Facility, is supported under contract DE-AC02-05CH11231.
@@ -39,7 +42,7 @@ This work was supported by East Carolina University and an NSF GRFP to R. Bled
 
 [Dr. Regina Bledsoe](mailto:ginabbledsoe@gmail.com) [(website)](https://ginabbledsoe.wixsite.com/microbes): Principal Investigator, Former PhD Student in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
 
-[Colin Finlay](mailto:finlayc21@students.ecu.edu): MS Biology Student in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
+[Colin Finlay](mailto:finlayc21@students.ecu.edu): PhD Student in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
 
 [Dr. Mario Muscarella](mario.e.muscarella@gmail.com) [(website)](http://mmuscarella.github.io/): Assistant Professor, University of Alaska Fairbanks
 
