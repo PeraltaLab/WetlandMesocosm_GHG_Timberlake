@@ -27,7 +27,7 @@ Metagenome sequence files can be found at NCBI SRA [BioProject ID PRJNA641216](h
   	6. /Previous_Versions: collection of previous .Rmd versions, **not a part of manuscript in review**
 
 * **bin:** 
-	* *MothurTools.R*: An R script written by Mario Muscarella (Indiana University, now at University of Illinois) containing functions used in the analysis of community sequence data.
+	* *MothurTools.R*: An R script written by Mario Muscarella (Indiana University, now at University of Alaska Fairbanks) containing functions used in the analysis of community sequence data.
 
 * **data:** Files associated with GHG, soil, and microbial data sets. 
 
