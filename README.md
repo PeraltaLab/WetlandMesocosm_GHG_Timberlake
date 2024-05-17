@@ -4,7 +4,7 @@ This repository contains open-source code, data, & text files.
 
 For information regarding the project, please visit: 
 
-Bledsoe, R.B., Finlay, C.G., and Peralta, A.L., 2023. Plant-microbe-mediated decrease of greenhouse gases under dynamic wetland hydrology. bioRxiv. *[PDF](https://www.biorxiv.org/content/10.1101/2020.06.29.178533v2)*  
+Bledsoe, R.B., Finlay, C.G., and Peralta, A.L., 2024. Plant-microbe-mediated decrease of greenhouse gases under dynamic wetland hydrology. bioRxiv. *[PDF](https://www.biorxiv.org/content/10.1101/2020.06.29.178533v3)*  
 
 Raw amplicon sequence files can be found at NCBI SRA [BioProject ID PRJNA636184](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA636184).
 
