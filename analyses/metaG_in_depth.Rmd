@@ -154,13 +154,18 @@ taxon_oid_sample <- metaGmetaD %>% dplyr::select(c(taxon_oid, Sample))
 # create sample column, matched with taxon oid
 FeSummary_sample <- merge(FeSummary, taxon_oid_sample, by = "taxon_oid") 
 
-# Filter only Fe Reduction category: 
+# Filter only Fe Reduction category and Fe Oxidation category: 
 FeSummaryRED <- FeSummary %>% dplyr::filter(category == "iron_reduction")
+FeSummaryOX <- FeSummary %>% dplyr::filter(category == "iron_oxidation")
 
 # create a df:
 FeReduction <- data.frame(matrix(nrow = length(sample_order), ncol = length(unique(FeSummaryRED$HMM))))
 rownames(FeReduction) <- sample_order
 colnames(FeReduction) <- unique(FeSummaryRED$HMM)
+
+FeOxidation <- data.frame(matrix(nrow = length(sample_order), ncol = length(unique(FeSummaryOX$HMM))))
+rownames(FeOxidation) <- sample_order
+colnames(FeOxidation) <- unique(FeSummaryOX$HMM)
 ```
 
 ```{r Populate FeReduction}
@@ -247,6 +252,34 @@ for(i in rownames(FeReduction)){
    
    FeReduction$`642769371 YP_002140171 {pc} hypothetical protein [Geobacter bemidjiensis Bem: NC_011146]`[x] <- sum(FeSummary_sample$HMM == "642769371 YP_002140171 {pc} hypothetical protein [Geobacter bemidjiensis Bem: NC_011146]" & FeSummary_sample$Sample == i)
 
+   x <- x + 1
+  
+}
+
+```
+
+```{r Populate FeOxidation}
+# Fill data frame with sums that match HMM and sample:
+
+x <- 1 # x is a counter that will be used to index rows, and add one after each loop. Must be set to 1 before loop starts
+for(i in rownames(FeOxidation)){
+
+   FeOxidation$Cyc1[x] <- sum(FeSummary_sample$HMM == "Cyc1" & FeSummary_sample$Sample == i)
+   
+   FeOxidation$Cyc2_repCluster2[x] <- sum(FeSummary_sample$HMM == "Cyc2_repCluster2" & FeSummary_sample$Sample == i)
+   
+   FeOxidation$sulfocyanin[x] <- sum(FeSummary_sample$HMM == "sulfocyanin" & FeSummary_sample$Sample == i)
+                                        
+   FeOxidation$Cyc2_repCluster1[x] <- sum(FeSummary_sample$HMM == "Cyc2_repCluster1" & FeSummary_sample$Sample == i)
+                              
+   FeOxidation$Cyc2_repCluster3[x] <- sum(FeSummary_sample$HMM == "Cyc2_repCluster3" & FeSummary_sample$Sample == i)
+                              
+   FeOxidation$FoxE[x] <- sum(FeSummary_sample$HMM == "FoxE" & FeSummary_sample$Sample == i)
+                                  
+   FeOxidation$FoxY[x] <- sum(FeSummary_sample$HMM == "FoxY" & FeSummary_sample$Sample == i)
+                                  
+   FeOxidation$CymA[x] <- sum(FeSummary_sample$HMM == "CymA" & FeSummary_sample$Sample == i)
+                                  
    x <- x + 1
   
 }
