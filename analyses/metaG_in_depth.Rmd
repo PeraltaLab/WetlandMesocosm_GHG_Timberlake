@@ -569,6 +569,11 @@ FeReductionRA <- FeReduction
 for(i in 1:dim(FeReduction)[1]){
   FeReductionRA[i,] <- FeReduction[i,]/sum(FeReduction[i,])
 }
+
+FeOxidationRA <- FeOxidation
+for(i in 1:dim(FeOxidation)[1]){
+  FeOxidationRA[i,] <- FeOxidation[i,]/sum(FeOxidation[i,])
+}
 ```
 
 ```{r lists of start and finish samples}
@@ -638,6 +643,9 @@ SO4_red_combinedRA_finish <- SO4_red_combinedRA[finish_metaG_samples,]
 
 FeReductionRA_start <- FeReductionRA[start_metaG_samples,]
 FeReductionRA_finish <- FeReductionRA[finish_metaG_samples,]
+
+FeOxidationRA_start <- FeOxidationRA[start_metaG_samples,]
+FeOxidationRA_finish <- FeOxidationRA[finish_metaG_samples,]
 ```
 
 ```{r for loop to generate dimension checks}
@@ -748,6 +756,8 @@ SO4_red_combinedRA_design <- cbind(design, SO4_red_combinedRA)
 
 FeReductionRA_design <- cbind(design, FeReductionRA)
 
+FeOxidationRA_design <- cbind(design, FeOxidationRA)
+
 ```
 
 ## Bray Curtis dissimilarity
@@ -835,6 +845,10 @@ SO4_red_combinedBC_finish <- vegdist(SO4_red_combinedRA_finish, method = 'bray')
 FeReductionBC <- vegdist(FeReductionRA, method = 'bray')
 FeReductionBC_start <- vegdist(FeReductionRA_start, method = 'bray')
 FeReductionBC_finish <- vegdist(FeReductionRA_finish, method = 'bray')
+
+FeOxidationBC <- vegdist(FeOxidationRA, method = 'bray')
+FeOxidationBC_start <- vegdist(FeOxidationRA_start, method = 'bray')
+FeOxidationBC_finish <- vegdist(FeOxidationRA_finish, method = 'bray')
 ```
 
 ## GHG wrangling
@@ -1141,20 +1155,6 @@ ggsave("../figures/Thesis/CO2_dbplsr_plot.png", plot=CO2.dbplsr.plot, device="pn
 ## PERMANOVA
 
 Permutational multivariate analysis of variance (PERMANOVA):
-```{r PERMANOVA without History}
-#PERMANOVA without History, used early on in analysis, but now performing PERMANOVAS with history as default:
-adonis_denit = adonis2(denitRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
-adonis_denit
-
-adonis_meth = adonis2(methRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42)
-adonis_meth
-
-adonis_carb_metab = adonis2(carb_metabRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42)
-adonis_carb_metab
-
-adonis_cytoCox = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
-adonis_cytoCox
-```
 
 ```{r PERMANOVA with History}
 #PERMANOVA with History:
@@ -1211,6 +1211,9 @@ adonis_SO4_red_combined_H
 
 adonis_FeReduction_H = adonis2(FeReductionRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeReductionRA_design, perm=10000, set.seed=42)
 adonis_FeReduction_H
+
+adonis_FeOxidation_H = adonis2(FeOxidationRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeOxidationRA_design, perm=10000, set.seed=42)
+adonis_FeOxidation_H
 ```
 
 
