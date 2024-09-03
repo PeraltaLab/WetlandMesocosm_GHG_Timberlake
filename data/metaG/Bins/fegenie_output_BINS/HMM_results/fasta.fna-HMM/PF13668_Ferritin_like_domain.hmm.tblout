@@ -1,0 +1,25 @@
+#                                                                       --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                   accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------         -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394823_0000061_23 -          PF13668_Ferritin_like_domain PF13668.6    6.8e-08   34.0   0.0   6.4e-05   24.4   0.0   2.3   2   0   0   2   2   2   2 # 21391 # 22581 # 1 # ID=2728_23;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.548
+Ga0394831_0000371_5  -          PF13668_Ferritin_like_domain PF13668.6    6.8e-08   34.0   0.0   6.4e-05   24.4   0.0   2.3   2   0   0   2   2   2   2 # 3776 # 4966 # 1 # ID=4350_5;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.548
+Ga0394817_0000348_3  -          PF13668_Ferritin_like_domain PF13668.6    4.8e-07   31.3   1.5    0.0012   20.3   0.0   2.1   2   0   0   2   2   2   2 # 2260 # 2766 # 1 # ID=379_3;partial=00;start_type=GTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.673
+Ga0394820_0000670_8  -          PF13668_Ferritin_like_domain PF13668.6    4.8e-07   31.3   1.5    0.0012   20.3   0.0   2.1   2   0   0   2   2   2   2 # 7349 # 7855 # 1 # ID=5795_8;partial=00;start_type=GTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.673
+Ga0394823_0000519_11 -          PF13668_Ferritin_like_domain PF13668.6    7.1e-07   30.7   0.0   2.2e-05   25.9   0.0   2.4   1   1   0   1   1   1   1 # 9605 # 10819 # -1 # ID=2323_11;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.542
+Ga0394831_0000873_4  -          PF13668_Ferritin_like_domain PF13668.6    7.1e-07   30.7   0.0   2.2e-05   25.9   0.0   2.4   1   1   0   1   1   1   1 # 1561 # 2775 # 1 # ID=4827_4;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.542
+Ga0394828_0009242_2  -          PF13668_Ferritin_like_domain PF13668.6    9.8e-07   30.3   2.5    0.0088   17.5   0.5   2.1   1   1   1   2   2   2   2 # 1913 # 2398 # 1 # ID=3943_2;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.516
+Ga0394817_0000060_33 -          PF13668_Ferritin_like_domain PF13668.6    2.4e-06   29.0   0.2   3.7e-06   28.4   0.0   1.4   2   0   0   2   2   2   1 # 33721 # 34278 # -1 # ID=1428_33;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.638
+Ga0394824_0005155_3  -          PF13668_Ferritin_like_domain PF13668.6    3.7e-06   28.4   0.2     0.096   14.1   0.0   2.0   2   0   0   2   2   2   2 # 1606 # 2139 # -1 # ID=3488_3;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.586
+Ga0394821_0000486_7  -          PF13668_Ferritin_like_domain PF13668.6    3.9e-06   28.3   0.2     0.096   14.1   0.0   2.0   2   0   0   2   2   2   2 # 4590 # 5123 # -1 # ID=4789_7;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.586
+Ga0394820_0004562_4  -          PF13668_Ferritin_like_domain PF13668.6    7.5e-06   27.4   1.0    0.0023   19.4   0.3   2.1   2   0   0   2   2   2   2 # 2289 # 2774 # -1 # ID=428_4;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.695
+Ga0394828_0006382_2  -          PF13668_Ferritin_like_domain PF13668.6    9.5e-05   23.9   0.3     0.088   14.2   0.1   2.4   2   1   0   2   2   2   2 # 1005 # 1514 # 1 # ID=2654_2;partial=00;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=3-4bp;gc_cont=0.535
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_storage//PF13668_Ferritin_like_domain.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PF13668_Ferritin_like_domain.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PF13668_Ferritin_like_domain.hmm.tblout -T 23 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_storage//PF13668_Ferritin_like_domain.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:22:41 2023
+# [ok]

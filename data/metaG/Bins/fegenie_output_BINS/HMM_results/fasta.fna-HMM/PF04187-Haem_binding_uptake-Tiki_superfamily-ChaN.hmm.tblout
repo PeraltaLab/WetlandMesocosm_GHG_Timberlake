@@ -1,0 +1,18 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394828_0009780_3  -          Cofac_haem_bdg       PF04187.12   1.3e-64  219.3   0.0   1.8e-64  218.9   0.0   1.2   1   0   0   1   1   1   1 # 2887 # 4134 # -1 # ID=2015_3;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.540
+Ga0394828_0013275_1  -          Cofac_haem_bdg       PF04187.12   2.7e-59  202.0   0.0   3.2e-59  201.7   0.0   1.1   1   0   0   1   1   1   1 # 1 # 1086 # 1 # ID=650_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.490
+Ga0394828_0004475_2  -          Cofac_haem_bdg       PF04187.12   3.8e-53  181.9   0.0   4.5e-53  181.6   0.0   1.1   1   0   0   1   1   1   1 # 2297 # 3145 # -1 # ID=2715_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.571
+Ga0394817_0006300_7  -          Cofac_haem_bdg       PF04187.12   4.7e-36  126.0   3.7   5.8e-36  125.7   3.7   1.1   1   0   0   1   1   1   1 # 4737 # 5654 # 1 # ID=3948_7;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.718
+Ga0394820_0001097_8  -          Cofac_haem_bdg       PF04187.12   4.7e-36  126.0   3.7   5.8e-36  125.7   3.7   1.1   1   0   0   1   1   1   1 # 4825 # 5742 # -1 # ID=1596_8;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.717
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-heme_transport//PF04187-Haem_binding_uptake-Tiki_superfamily-ChaN.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PF04187-Haem_binding_uptake-Tiki_superfamily-ChaN.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PF04187-Haem_binding_uptake-Tiki_superfamily-ChaN.hmm.tblout -T 47 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-heme_transport//PF04187-Haem_binding_uptake-Tiki_superfamily-ChaN.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:22:24 2023
+# [ok]

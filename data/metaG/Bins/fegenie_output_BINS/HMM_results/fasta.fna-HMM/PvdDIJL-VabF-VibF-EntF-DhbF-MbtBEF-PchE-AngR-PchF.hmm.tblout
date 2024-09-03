@@ -1,0 +1,25 @@
+#                                                                                            --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                        accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                              -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394817_0001204_5  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -                  0 2210.8  22.5         0 1178.2  13.5   2.7   1   1   1   2   2   2   2 # 3798 # 12641 # -1 # ID=541_5;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.697
+Ga0394838_0000461_13 -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -                  0 1299.9   0.3         0 1039.5   0.1   2.0   2   0   0   2   2   2   2 # 18470 # 22387 # -1 # ID=606_13;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.535
+Ga0394817_0005621_2  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -                  0 1208.1   4.8         0 1207.7   4.8   1.1   1   0   0   1   1   1   1 # 848 # 4978 # 1 # ID=2187_2;partial=00;start_type=ATG;rbs_motif=AGxAG;rbs_spacer=5-10bp;gc_cont=0.680
+Ga0394838_0009485_2  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -           8.1e-265  883.0  21.7  3.8e-172  575.4  18.4   2.0   1   1   1   2   2   2   2 # 722 # 3568 # -1 # ID=485_2;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.453
+Ga0394820_0003105_1  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -           3.1e-258  861.1   4.5  1.3e-257  859.1   4.5   1.8   1   1   0   1   1   1   1 # 1 # 4437 # -1 # ID=3518_1;partial=10;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.696
+Ga0394838_0019276_2  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -             2e-243  812.0   1.7  4.3e-243  810.9   1.7   1.5   1   1   0   1   1   1   1 # 563 # 3004 # 1 # ID=1669_2;partial=01;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.456
+Ga0394838_0000461_12 -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -           9.1e-219  730.1   1.8  8.9e-197  657.1   0.2   2.1   1   1   1   2   2   2   2 # 14290 # 18405 # -1 # ID=606_12;partial=00;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=5-10bp;gc_cont=0.473
+Ga0394824_0000380_8  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -           1.4e-192  643.2   0.0  9.6e-192  640.4   0.0   1.8   1   1   0   1   1   1   1 # 6641 # 9985 # -1 # ID=2746_8;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.689
+Ga0394838_0003641_2  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -           4.3e-191  638.3   3.5  1.8e-174  583.1   1.9   2.4   2   1   0   2   2   2   2 # 1650 # 6743 # -1 # ID=1728_2;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.471
+Ga0394820_0001618_10 -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -           2.4e-186  622.6  14.5  2.8e-186  622.3  14.5   1.0   1   0   0   1   1   1   1 # 7820 # 9538 # 1 # ID=1704_10;partial=01;start_type=ATG;rbs_motif=AGxAG;rbs_spacer=5-10bp;gc_cont=0.682
+Ga0394820_0011271_2  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -           3.9e-182  608.6   0.0  5.2e-182  608.1   0.0   1.2   1   0   0   1   1   1   1 # 1093 # 3630 # -1 # ID=3886_2;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.683
+Ga0394823_0002308_5  -          PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF -           9.7e-101  338.4   0.0  3.4e-100  336.6   0.0   1.7   1   1   0   1   1   1   1 # 2683 # 4143 # 1 # ID=4016_5;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.559
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF.hmm.tblout -T 272 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//PvdDIJL-VabF-VibF-EntF-DhbF-MbtBEF-PchE-AngR-PchF.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:23:17 2023
+# [ok]

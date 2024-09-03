@@ -1,0 +1,24 @@
+#                                                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                                 -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394831_0000350_13 -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            1.7e-34  120.7  14.8   1.5e-26   94.6   8.5   3.1   1   1   1   3   3   3   3 # 6950 # 8140 # 1 # ID=4135_13;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.573
+Ga0394829_0000009_3  -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            1.1e-29  104.9   8.4   2.1e-26   94.1   1.7   3.3   2   1   1   3   3   3   2 # 3196 # 4503 # 1 # ID=675_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.469
+Ga0394828_0000426_6  -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            8.2e-29  102.0   9.8   1.2e-21   78.4  10.4   2.2   1   1   1   2   2   2   2 # 5210 # 6469 # 1 # ID=2774_6;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.571
+Ga0394838_0002141_2  -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            8.3e-24   85.5  12.1   8.4e-21   75.6  12.1   2.6   1   1   0   1   1   1   1 # 555 # 1832 # -1 # ID=1933_2;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.614
+Ga0394823_0004561_3  -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            9.8e-22   78.7   6.4   2.7e-20   73.9   5.0   2.1   2   0   0   2   2   2   1 # 1526 # 2887 # -1 # ID=4723_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.535
+Ga0394831_0000264_4  -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            9.8e-22   78.7   6.4   2.7e-20   73.9   5.0   2.1   2   0   0   2   2   2   1 # 2763 # 4124 # -1 # ID=4480_4;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.537
+Ga0394829_0000259_10 -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            4.3e-20   73.3   5.3     1e-17   65.5   3.3   2.0   1   1   1   2   2   2   2 # 12165 # 13406 # -1 # ID=4752_10;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.531
+Ga0394838_0006453_6  -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -              6e-19   69.5   7.6   1.7e-12   48.3   2.4   4.0   1   1   2   3   3   3   3 # 3458 # 4723 # 1 # ID=5167_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.646
+Ga0394838_0006342_2  -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            1.5e-17   64.9  14.6   4.4e-16   60.1  12.9   2.1   1   1   1   2   2   2   2 # 1165 # 2433 # 1 # ID=3018_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.671
+Ga0394829_0000284_8  -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            3.4e-17   63.7   6.1   7.3e-14   52.8   6.0   2.4   2   1   0   2   2   2   2 # 6210 # 7565 # -1 # ID=5027_8;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.507
+Ga0394817_0000308_12 -          Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623 -            6.5e-17   62.8  15.1   9.9e-17   62.2  15.1   1.3   1   0   0   1   1   1   1 # 11822 # 13069 # 1 # ID=5914_12;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=11-12bp;gc_cont=0.713
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623.hmm.txt --tblout fegenie_output/fasta.fna-HMM/Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623.hmm.tblout -T 61 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//Sid_PvdR_Pyoverdine_export_Paeruginosa_PA2389_180623.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:25:32 2023
+# [ok]

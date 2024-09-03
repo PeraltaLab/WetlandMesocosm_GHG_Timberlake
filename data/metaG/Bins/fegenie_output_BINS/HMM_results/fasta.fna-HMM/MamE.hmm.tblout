@@ -1,0 +1,44 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394828_0013566_1  -          MamE                 -            3.7e-87  294.0   8.5   3.1e-59  202.1   1.6   3.0   2   1   1   3   3   3   3 # 184 # 1647 # 1 # ID=3470_1;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.581
+Ga0394821_0000663_1  -          MamE                 -            1.6e-75  255.7  14.2   8.1e-52  177.7   5.5   3.0   2   1   1   3   3   3   3 # 1 # 1197 # 1 # ID=2408_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.662
+Ga0394817_0000685_3  -          MamE                 -            8.7e-69  233.5  14.7   9.7e-51  174.1   4.5   3.1   2   1   1   3   3   3   3 # 1275 # 2750 # -1 # ID=2479_3;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.692
+Ga0394820_0002428_4  -          MamE                 -            8.7e-69  233.5  14.7   9.7e-51  174.1   4.5   3.1   2   1   1   3   3   3   3 # 3975 # 5450 # -1 # ID=5396_4;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.692
+Ga0394821_0000885_3  -          MamE                 -            1.1e-68  233.2  13.7   8.5e-51  174.3   4.5   3.1   2   1   1   3   3   3   3 # 1350 # 2879 # 1 # ID=4678_3;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.613
+Ga0394820_0000904_14 -          MamE                 -            8.2e-67  227.0  14.2     2e-49  169.8   1.9   3.3   2   1   1   3   3   3   3 # 9640 # 11106 # 1 # ID=786_14;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.662
+Ga0394831_0000043_5  -          MamE                 -            1.8e-66  225.9   1.7   1.9e-49  169.9   0.4   3.0   3   0   0   3   3   3   3 # 3421 # 4893 # 1 # ID=1991_5;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.538
+Ga0394829_0000275_7  -          MamE                 -            2.1e-64  219.1  20.3   2.9e-50  172.6  13.6   3.9   2   1   1   3   3   3   2 # 6901 # 8565 # 1 # ID=1919_7;partial=00;start_type=ATG;rbs_motif=AGGA/GGAG/GAGG;rbs_spacer=11-12bp;gc_cont=0.508
+Ga0394824_0004279_2  -          MamE                 -            2.7e-64  218.7  13.2   4.3e-57  195.0   8.6   3.1   1   1   1   2   2   2   2 # 374 # 1543 # -1 # ID=722_2;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.644
+Ga0394824_0000280_7  -          MamE                 -            3.2e-64  218.5  18.2   6.5e-52  178.0   5.8   3.1   2   1   1   3   3   3   3 # 6149 # 7522 # -1 # ID=3753_7;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.683
+Ga0394838_0003204_5  -          MamE                 -            4.5e-63  214.7  14.2   3.4e-49  169.0   6.0   3.1   3   0   0   3   3   3   3 # 3312 # 4751 # -1 # ID=2027_5;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.615
+Ga0394823_0000054_2  -          MamE                 -            2.5e-62  212.2   6.4   8.6e-46  157.8   2.5   3.1   2   1   1   3   3   3   3 # 2682 # 4214 # 1 # ID=1431_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.536
+Ga0394838_0005534_2  -          MamE                 -            1.6e-61  209.6   3.0   8.8e-52  177.5   2.4   3.0   2   1   1   3   3   3   3 # 559 # 2115 # -1 # ID=2026_2;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.615
+Ga0394838_0003548_2  -          MamE                 -            4.9e-59  201.4  22.0   1.3e-44  154.0  15.2   2.1   1   1   1   2   2   2   2 # 1163 # 2527 # -1 # ID=2128_2;partial=00;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=5-10bp;gc_cont=0.476
+Ga0394817_0001211_6  -          MamE                 -            5.5e-59  201.3   8.2   1.6e-50  173.4   5.3   2.1   2   0   0   2   2   2   2 # 5493 # 6650 # 1 # ID=4605_6;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.680
+Ga0394821_0000129_9  -          MamE                 -            1.2e-57  196.8  18.2   6.3e-48  164.8   7.6   3.1   1   1   1   2   2   2   2 # 6825 # 8036 # 1 # ID=1494_9;partial=00;start_type=ATG;rbs_motif=AGGAG/GGAGG;rbs_spacer=11-12bp;gc_cont=0.665
+Ga0394821_0000399_2  -          MamE                 -              5e-57  194.8  10.1     7e-48  164.7   3.7   2.9   1   1   1   2   2   2   2 # 266 # 1426 # 1 # ID=534_2;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.593
+Ga0394838_0002991_5  -          MamE                 -            3.1e-55  188.9  17.7   2.1e-40  140.0  12.6   2.3   1   1   1   2   2   2   2 # 4753 # 6039 # 1 # ID=2406_5;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.462
+Ga0394826_0009003_1  -          MamE                 -            6.1e-54  184.7   5.9   4.9e-48  165.2   4.2   2.7   1   1   1   2   2   2   2 # 990 # 2057 # -1 # ID=2198_1;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.388
+Ga0394823_0000473_2  -          MamE                 -            7.3e-54  184.4   5.6     5e-53  181.6   5.6   1.9   1   1   0   1   1   1   1 # 1171 # 2358 # 1 # ID=614_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.552
+Ga0394831_0001028_2  -          MamE                 -            7.3e-54  184.4   5.6     5e-53  181.6   5.6   1.9   1   1   0   1   1   1   1 # 590 # 1777 # -1 # ID=5472_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.552
+Ga0394829_0000003_21 -          MamE                 -            1.3e-53  183.6   8.8   9.2e-41  141.3   5.7   2.1   1   1   1   2   2   2   2 # 27814 # 29013 # -1 # ID=4121_21;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.505
+Ga0394828_0012682_2  -          MamE                 -            1.6e-53  183.2  14.7   1.3e-44  153.9  10.4   2.0   1   1   1   2   2   2   2 # 2639 # 3658 # -1 # ID=3922_2;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.624
+Ga0394817_0004041_7  -          MamE                 -            1.6e-53  183.2   8.7   8.2e-49  167.8   3.2   2.9   1   1   1   2   2   2   2 # 5981 # 7069 # 1 # ID=3723_7;partial=01;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.704
+Ga0394824_0000009_18 -          MamE                 -            2.8e-53  182.5   7.9     4e-45  155.6   5.8   2.0   2   0   0   2   2   2   2 # 14865 # 16049 # 1 # ID=4905_18;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.679
+Ga0394817_0002508_3  -          MamE                 -            3.7e-53  182.1   5.3   1.7e-44  153.6   1.3   2.0   1   1   1   2   2   2   2 # 1541 # 2506 # -1 # ID=1737_3;partial=00;start_type=GTG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.719
+Ga0394820_0005537_4  -          MamE                 -            3.7e-53  182.1   5.3   1.7e-44  153.6   1.3   2.0   1   1   1   2   2   2   2 # 2001 # 2966 # -1 # ID=3250_4;partial=00;start_type=GTG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.719
+Ga0394831_0000066_2  -          MamE                 -            1.1e-51  177.2   9.8   6.2e-43  148.4   6.2   2.1   2   0   0   2   2   2   2 # 171 # 1202 # 1 # ID=1828_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.580
+Ga0394824_0005113_3  -          MamE                 -            1.6e-51  176.7   8.3   1.2e-44  154.1   3.4   2.0   1   1   0   2   2   2   2 # 2257 # 3153 # 1 # ID=4666_3;partial=01;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.656
+Ga0394817_0001682_1  -          MamE                 -            2.5e-50  172.8   1.7   4.3e-50  172.0   1.7   1.4   1   1   0   1   1   1   1 # 1 # 876 # -1 # ID=2438_1;partial=10;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.666
+Ga0394838_0001366_8  -          MamE                 -            4.5e-50  171.9  16.3   1.2e-39  137.6   9.0   2.4   1   1   1   2   2   2   2 # 8784 # 9878 # 1 # ID=3486_8;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.520
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//magnetosome_formation//MamE.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/MamE.hmm.txt --tblout fegenie_output/fasta.fna-HMM/MamE.hmm.tblout -T 170 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//magnetosome_formation//MamE.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:08 2023
+# [ok]

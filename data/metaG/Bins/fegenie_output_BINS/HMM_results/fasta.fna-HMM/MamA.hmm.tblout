@@ -1,0 +1,24 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394828_0001087_3  -          MamA                 -              2e-88  295.5  21.1   5.3e-25   89.3   0.4   5.0   1   1   5   6   6   6   6 # 3246 # 4958 # 1 # ID=2584_3;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.544
+Ga0394823_0000006_29 -          MamA                 -            9.4e-55  186.0  33.0   1.3e-15   58.8   2.6   5.5   2   2   2   5   5   5   5 # 31937 # 34678 # -1 # ID=1110_29;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.543
+Ga0394838_0010685_1  -          MamA                 -            7.3e-51  173.4  16.2   1.3e-16   62.0   0.9   5.0   4   1   1   5   5   5   4 # 1 # 2085 # 1 # ID=126_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.670
+Ga0394829_0000016_17 -          MamA                 -            1.6e-45  156.0   1.7   8.1e-20   72.4   0.1   4.1   1   1   3   4   4   4   4 # 18957 # 20489 # -1 # ID=1010_17;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.495
+Ga0394824_0000151_11 -          MamA                 -            1.3e-44  153.1   7.2   1.7e-13   51.9   0.3   5.5   1   1   4   5   5   5   5 # 7226 # 9412 # 1 # ID=4796_11;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.692
+Ga0394821_0000476_2  -          MamA                 -            8.6e-43  147.1  25.3   3.2e-15   57.5   2.7   4.7   3   1   2   5   5   5   5 # 547 # 2715 # 1 # ID=2923_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.652
+Ga0394838_0003037_3  -          MamA                 -            1.3e-42  146.6  25.7   1.9e-16   61.4   2.5   4.2   1   1   2   4   4   4   4 # 1787 # 3238 # -1 # ID=4561_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.481
+Ga0394831_0001576_2  -          MamA                 -            2.7e-42  145.5   2.0   3.2e-22   80.2   0.1   3.1   1   1   1   3   3   3   3 # 3726 # 4766 # -1 # ID=1284_2;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.552
+Ga0394823_0003553_1  -          MamA                 -              2e-40  139.4  10.3   6.3e-20   72.8   0.7   3.6   1   1   3   4   4   4   4 # 2 # 1462 # 1 # ID=2738_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.559
+Ga0394823_0000399_3  -          MamA                 -            2.9e-40  138.9  16.9   6.9e-13   49.9   0.4   5.1   1   1   2   5   5   5   5 # 2585 # 4510 # -1 # ID=5980_3;partial=00;start_type=GTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.524
+Ga0394831_0000032_4  -          MamA                 -            2.9e-40  138.9  16.9   6.9e-13   49.9   0.4   5.1   1   1   2   5   5   5   5 # 3962 # 5887 # -1 # ID=2196_4;partial=00;start_type=GTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.524
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//magnetosome_formation//MamA.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/MamA.hmm.txt --tblout fegenie_output/fasta.fna-HMM/MamA.hmm.tblout -T 119 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//magnetosome_formation//MamA.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:07 2023
+# [ok]

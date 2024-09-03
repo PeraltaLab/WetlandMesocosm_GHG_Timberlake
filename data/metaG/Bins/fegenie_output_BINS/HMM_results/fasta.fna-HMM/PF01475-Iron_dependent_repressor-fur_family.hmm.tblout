@@ -1,0 +1,30 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394817_0000428_8  -          FUR                  PF01475.14   7.1e-44  150.0   0.1   8.2e-44  149.8   0.1   1.0   1   0   0   1   1   1   1 # 6308 # 6739 # 1 # ID=265_8;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.627
+Ga0394824_0000185_8  -          FUR                  PF01475.14   2.4e-42  145.1   2.1   2.7e-42  144.9   2.1   1.0   1   0   0   1   1   1   1 # 5003 # 5419 # 1 # ID=5380_8;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.631
+Ga0394829_0000102_6  -          FUR                  PF01475.14     8e-31  107.9   0.1   1.1e-30  107.5   0.1   1.2   1   0   0   1   1   1   1 # 5823 # 6395 # 1 # ID=3223_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.464
+Ga0394828_0005978_1  -          FUR                  PF01475.14   8.1e-31  107.9   0.0   9.4e-31  107.7   0.0   1.1   1   0   0   1   1   1   1 # 210 # 614 # 1 # ID=4404_1;partial=00;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=5-10bp;gc_cont=0.528
+Ga0394828_0002817_4  -          FUR                  PF01475.14   2.6e-27   96.6   0.2   2.9e-27   96.4   0.2   1.0   1   0   0   1   1   1   1 # 2904 # 3332 # -1 # ID=2452_4;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.566
+Ga0394834_0017980_2  -          FUR                  PF01475.14   3.7e-26   92.9   0.0   4.4e-26   92.6   0.0   1.0   1   0   0   1   1   1   1 # 615 # 1037 # -1 # ID=1326_2;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.742
+Ga0394821_0000512_7  -          FUR                  PF01475.14   1.4e-24   87.8   0.0   1.6e-24   87.6   0.0   1.1   1   0   0   1   1   1   1 # 5601 # 6095 # -1 # ID=1348_7;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.723
+Ga0394834_0013550_2  -          FUR                  PF01475.14   1.6e-23   84.3   0.0   1.9e-23   84.1   0.0   1.0   1   0   0   1   1   1   1 # 631 # 1071 # 1 # ID=3605_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.732
+Ga0394834_0001732_6  -          FUR                  PF01475.14   3.3e-23   83.3   0.0   3.9e-23   83.1   0.0   1.1   1   0   0   1   1   1   1 # 2777 # 3385 # 1 # ID=5819_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.727
+Ga0394838_0003399_1  -          FUR                  PF01475.14   2.4e-21   77.4   0.1   3.2e-21   76.9   0.1   1.2   1   0   0   1   1   1   1 # 349 # 930 # 1 # ID=5933_1;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.497
+Ga0394838_0000733_12 -          FUR                  PF01475.14     3e-21   77.0   0.2   3.8e-21   76.7   0.2   1.1   1   0   0   1   1   1   1 # 10703 # 11116 # 1 # ID=1305_12;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.512
+Ga0394834_0015165_4  -          FUR                  PF01475.14   3.2e-20   73.7   0.0   3.6e-20   73.5   0.0   1.0   1   0   0   1   1   1   1 # 2025 # 2477 # 1 # ID=4351_4;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.768
+Ga0394821_0000099_2  -          FUR                  PF01475.14   3.3e-20   73.7   0.0   4.3e-20   73.3   0.0   1.1   1   0   0   1   1   1   1 # 909 # 1325 # 1 # ID=1210_2;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.715
+Ga0394821_0003935_2  -          FUR                  PF01475.14   5.7e-20   72.9   0.0   6.4e-20   72.7   0.0   1.1   1   0   0   1   1   1   1 # 467 # 964 # -1 # ID=5985_2;partial=00;start_type=ATG;rbs_motif=AGGA/GGAG/GAGG;rbs_spacer=11-12bp;gc_cont=0.651
+Ga0394824_0002833_5  -          FUR                  PF01475.14   1.8e-19   71.2   0.0   2.2e-19   71.0   0.0   1.1   1   0   0   1   1   1   1 # 3400 # 3927 # 1 # ID=1987_5;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.638
+Ga0394824_0000133_12 -          FUR                  PF01475.14   1.5e-12   48.9   1.5   2.1e-12   48.5   0.0   1.9   2   0   0   2   2   2   1 # 11095 # 11598 # 1 # ID=1296_12;partial=00;start_type=ATG;rbs_motif=AGxAGG/AGGxGG;rbs_spacer=5-10bp;gc_cont=0.655
+Ga0394824_0000027_55 -          FUR                  PF01475.14   6.7e-06   27.5   0.0   8.8e-06   27.1   0.0   1.1   1   0   0   1   1   1   1 # 51928 # 52287 # -1 # ID=2150_55;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.708
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_gene_regulation//PF01475-Iron_dependent_repressor-fur_family.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PF01475-Iron_dependent_repressor-fur_family.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PF01475-Iron_dependent_repressor-fur_family.hmm.tblout -T 23 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_gene_regulation//PF01475-Iron_dependent_repressor-fur_family.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:53 2023
+# [ok]

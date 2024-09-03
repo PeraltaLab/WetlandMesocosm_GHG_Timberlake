@@ -1,0 +1,35 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394838_0000517_7  -          nramp                -           1.9e-217  723.3  21.5  2.1e-217  723.1  21.5   1.0   1   0   0   1   1   1   1 # 4538 # 5908 # -1 # ID=732_7;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.634
+Ga0394829_0001704_4  -          nramp                -           2.1e-196  653.9  23.3  2.1e-196  653.9  23.3   1.6   2   0   0   2   2   2   1 # 2360 # 4264 # -1 # ID=34_4;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.515
+Ga0394831_0000998_1  -          nramp                -           1.4e-191  638.0  14.1  1.6e-191  637.9  14.1   1.0   1   0   0   1   1   1   1 # 3 # 1127 # -1 # ID=1316_1;partial=10;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.553
+Ga0394838_0000991_5  -          nramp                -           1.2e-127  427.4  25.5  1.5e-127  427.1  25.5   1.0   1   0   0   1   1   1   1 # 3743 # 5086 # -1 # ID=4555_5;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.501
+Ga0394821_0001289_6  -          nramp                -             1e-119  401.3  17.5  1.2e-119  401.0  17.5   1.0   1   0   0   1   1   1   1 # 2679 # 3992 # 1 # ID=2601_6;partial=00;start_type=GTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.717
+Ga0394824_0001018_1  -          nramp                -           5.3e-117  392.3  26.9  6.4e-117  392.0  26.9   1.0   1   0   0   1   1   1   1 # 1 # 1248 # 1 # ID=4620_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.622
+Ga0394821_0000117_10 -          nramp                -            7.7e-30  105.1  18.5     1e-29  104.7  18.5   1.1   1   0   0   1   1   1   1 # 7710 # 9020 # 1 # ID=5780_10;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.705
+Ga0394838_0004905_5  -          nramp                -            2.2e-27   97.1  27.6   3.7e-27   96.3  27.6   1.3   1   1   0   1   1   1   1 # 4378 # 5706 # 1 # ID=3776_5;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.463
+Ga0394821_0000433_4  -          nramp                -            8.8e-27   95.1  21.9   1.6e-26   94.3  21.9   1.3   1   1   0   1   1   1   1 # 2171 # 3469 # -1 # ID=3570_4;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.727
+Ga0394831_0003913_1  -          nramp                -            9.3e-24   85.1   0.4     1e-23   85.0   0.4   1.0   1   0   0   1   1   1   1 # 3 # 269 # 1 # ID=3205_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.513
+Ga0394823_0000620_1  -          nramp                -            1.5e-22   81.2   0.7   1.6e-22   81.0   0.7   1.0   1   0   0   1   1   1   1 # 1 # 258 # 1 # ID=1507_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.516
+Ga0394829_0000015_53 -          nramp                -            5.9e-21   75.9  17.4   1.8e-20   74.3  17.4   1.7   1   1   0   1   1   1   1 # 51918 # 53162 # -1 # ID=1615_53;partial=00;start_type=TTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.517
+Ga0394817_0000298_2  -          nramp                -            1.5e-20   74.5  15.5     2e-20   74.1  15.5   1.1   1   0   0   1   1   1   1 # 142 # 1488 # -1 # ID=3860_2;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.657
+Ga0394838_0005172_6  -          nramp                -            3.3e-19   70.1  23.9   5.3e-19   69.4  23.9   1.4   1   1   0   1   1   1   1 # 3873 # 5090 # 1 # ID=1341_6;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.593
+Ga0394824_0000096_5  -          nramp                -            3.4e-19   70.1  14.5   4.6e-19   69.7  14.5   1.1   1   0   0   1   1   1   1 # 6360 # 7646 # 1 # ID=1403_5;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.688
+Ga0394838_0000681_16 -          nramp                -            2.7e-16   60.5   6.5   3.4e-16   60.2   6.5   1.0   1   0   0   1   1   1   1 # 17154 # 18002 # 1 # ID=2705_16;partial=01;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=5-10bp;gc_cont=0.515
+Ga0394824_0000015_55 -          nramp                -            1.3e-15   58.3  17.2   4.9e-15   56.4  17.2   1.7   1   1   0   1   1   1   1 # 49807 # 51132 # 1 # ID=1452_55;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.693
+Ga0394817_0004790_1  -          nramp                -            3.5e-13   50.3   8.8     4e-13   50.1   8.8   1.0   1   0   0   1   1   1   1 # 1 # 786 # -1 # ID=319_1;partial=10;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.678
+Ga0394817_0000095_24 -          nramp                -              8e-13   49.1  20.2   1.2e-12   48.5  20.2   1.4   1   0   0   1   1   1   1 # 21528 # 22820 # 1 # ID=26_24;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.660
+Ga0394820_0001145_10 -          nramp                -            4.9e-11   43.2  10.4   5.7e-11   43.0  10.4   1.0   1   0   0   1   1   1   1 # 10708 # 11310 # 1 # ID=870_10;partial=01;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.690
+Ga0394824_0000679_3  -          nramp                -              4e-09   36.9  18.8   1.9e-08   34.7  18.8   1.8   1   1   0   1   1   1   1 # 940 # 2214 # -1 # ID=1629_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.569
+Ga0394817_0015700_4  -          nramp                -            1.2e-07   32.0   5.6   1.4e-07   31.8   5.6   1.0   1   0   0   1   1   1   1 # 3035 # 3688 # -1 # ID=4749_4;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.697
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//nramp.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/nramp.hmm.txt --tblout fegenie_output/fasta.fna-HMM/nramp.hmm.tblout -T 25 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//nramp.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:26 2023
+# [ok]

@@ -1,0 +1,37 @@
+#                                                                        --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                    accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------          -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394824_0000133_2  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            1.6e-51  176.6   5.6   5.7e-22   78.9   0.0   4.2   4   0   0   4   4   4   4 # 228 # 3341 # 1 # ID=1296_2;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.617
+Ga0394821_0001878_4  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            3.4e-46  159.0   5.6   2.9e-24   86.5   5.7   4.0   3   1   0   3   3   3   3 # 2037 # 4082 # -1 # ID=4096_4;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.640
+Ga0394824_0000172_11 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            4.6e-39  135.4   0.0     9e-39  134.4   0.0   1.4   1   1   0   1   1   1   1 # 8356 # 10566 # 1 # ID=3219_11;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.635
+Ga0394824_0000340_1  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            4.4e-34  118.9   1.4   3.2e-17   63.2   0.0   3.0   3   0   0   3   3   3   3 # 43 # 2289 # -1 # ID=5722_1;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.655
+Ga0394824_0000052_4  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -              1e-32  114.4   3.5   8.8e-19   68.4   0.1   4.8   4   1   0   4   4   4   4 # 3089 # 5521 # -1 # ID=2788_4;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.658
+Ga0394821_0003879_1  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -              2e-31  110.1   0.3   1.3e-14   54.5   0.2   2.1   2   0   0   2   2   2   2 # 2 # 1873 # 1 # ID=4257_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.618
+Ga0394824_0000046_1  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            9.2e-30  104.6   4.0   6.5e-17   62.2   0.1   3.5   4   0   0   4   4   4   3 # 1 # 1887 # -1 # ID=2362_1;partial=10;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.642
+Ga0394824_0000002_46 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            1.1e-18   68.1   8.6   3.2e-10   40.1   1.7   2.5   2   1   0   2   2   2   2 # 44713 # 47034 # 1 # ID=5272_46;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.654
+Ga0394824_0000008_52 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            6.3e-17   62.2   0.0   3.7e-10   39.8   0.0   2.2   2   0   0   2   2   2   2 # 72342 # 74195 # 1 # ID=3800_52;partial=00;start_type=GTG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.677
+Ga0394821_0001013_2  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            4.8e-16   59.3   3.2   9.4e-08   31.9   0.0   3.1   3   0   0   3   3   3   2 # 1186 # 3411 # 1 # ID=422_2;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.579
+Ga0394824_0002157_2  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            4.9e-16   59.3   3.7   9.4e-08   31.9   0.0   3.2   3   0   0   3   3   3   2 # 329 # 2554 # 1 # ID=5481_2;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.578
+Ga0394824_0000009_66 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            8.6e-16   58.5   0.0   2.2e-14   53.8   0.0   2.1   2   0   0   2   2   2   1 # 69681 # 71957 # 1 # ID=4905_66;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.685
+Ga0394824_0000013_16 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            9.5e-15   55.0   7.3   4.7e-14   52.7   0.8   2.4   2   1   1   3   3   3   2 # 19731 # 22022 # 1 # ID=4217_16;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.648
+Ga0394828_0015254_2  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            1.9e-13   50.7   0.1   4.4e-06   26.4   0.0   2.8   2   1   1   3   3   3   2 # 1171 # 3039 # -1 # ID=3459_2;partial=00;start_type=GTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.549
+Ga0394824_0000106_2  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            3.7e-13   49.8   0.0   1.5e-06   27.9   0.0   2.3   2   0   0   2   2   2   2 # 3004 # 4884 # 1 # ID=5922_2;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.677
+Ga0394820_0013002_1  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            2.4e-11   43.8   2.2   2.6e-11   43.7   2.2   1.0   1   0   0   1   1   1   1 # 1 # 633 # -1 # ID=2973_1;partial=10;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.635
+Ga0394829_0000007_14 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            3.7e-10   39.9   1.1     9e-06   25.4   0.8   3.0   3   0   0   3   3   3   2 # 18977 # 21115 # -1 # ID=5847_14;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.502
+Ga0394823_0000634_3  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            4.1e-09   36.4   1.3   0.00031   20.3   0.2   2.8   2   2   0   2   2   2   2 # 1382 # 3436 # -1 # ID=560_3;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.549
+Ga0394829_0000079_25 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            6.4e-09   35.8   0.6   0.00029   20.4   0.1   2.2   2   0   0   2   2   2   2 # 24308 # 26107 # 1 # ID=4419_25;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.448
+Ga0394824_0000142_13 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            2.3e-08   33.9   0.2   1.7e-06   27.8   0.0   2.2   2   0   0   2   2   2   1 # 9776 # 11947 # 1 # ID=2526_13;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=11-12bp;gc_cont=0.649
+Ga0394824_0000072_40 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            7.6e-07   28.9   0.0   7.8e-07   28.9   0.0   1.0   1   0   0   1   1   1   1 # 36240 # 36806 # -1 # ID=340_40;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.677
+Ga0394824_0000004_28 -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            2.7e-06   27.1   6.3    0.0019   17.7   2.0   3.2   3   0   0   3   3   3   2 # 28165 # 30669 # -1 # ID=94_28;partial=00;start_type=TTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.650
+Ga0394824_0000129_4  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -              4e-06   26.5   1.3     4e-06   26.5   1.3   2.1   2   0   0   2   2   2   1 # 3425 # 6331 # 1 # ID=4941_4;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.654
+Ga0394838_0000575_5  -          LbtU-LvtA-PiuA-PirA-RhtA-ViuA -            1.1e-05   25.1   2.9     0.002   17.6   0.0   3.7   4   1   0   4   4   4   1 # 5166 # 7673 # 1 # ID=375_5;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.623
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//LbtU-LvtA-PiuA-PirA-RhtA-ViuA.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/LbtU-LvtA-PiuA-PirA-RhtA-ViuA.hmm.txt --tblout fegenie_output/fasta.fna-HMM/LbtU-LvtA-PiuA-PirA-RhtA-ViuA.hmm.tblout -T 25 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//LbtU-LvtA-PiuA-PirA-RhtA-ViuA.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:25:07 2023
+# [ok]

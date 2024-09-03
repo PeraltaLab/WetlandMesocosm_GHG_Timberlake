@@ -1,0 +1,14 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394828_0013566_1  -          MamO                 -            1.3e-40  140.6   0.4   1.7e-40  140.2   0.4   1.1   1   0   0   1   1   1   1 # 184 # 1647 # 1 # ID=3470_1;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.581
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//magnetosome_formation//MamO.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/MamO.hmm.txt --tblout fegenie_output/fasta.fna-HMM/MamO.hmm.tblout -T 140 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//magnetosome_formation//MamO.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:05 2023
+# [ok]

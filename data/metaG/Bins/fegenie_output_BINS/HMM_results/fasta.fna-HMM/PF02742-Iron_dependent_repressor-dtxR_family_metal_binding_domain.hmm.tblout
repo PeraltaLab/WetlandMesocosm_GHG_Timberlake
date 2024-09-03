@@ -1,0 +1,21 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394821_0000091_5  -          Fe_dep_repr_C        PF02742.10   2.5e-29  102.2   2.2   4.4e-29  101.4   0.6   2.2   2   0   0   2   2   2   1 # 3792 # 4502 # -1 # ID=4203_5;partial=00;start_type=GTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.716
+Ga0394838_0001096_2  -          Fe_dep_repr_C        PF02742.10   3.4e-29  101.8   0.3   8.4e-29  100.5   0.1   1.8   2   0   0   2   2   2   1 # 2387 # 3097 # -1 # ID=3103_2;partial=00;start_type=ATG;rbs_motif=AGGA/GGAG/GAGG;rbs_spacer=11-12bp;gc_cont=0.468
+Ga0394838_0000517_5  -          Fe_dep_repr_C        PF02742.10   3.5e-29  101.7   0.2   6.7e-29  100.8   0.2   1.5   1   0   0   1   1   1   1 # 3264 # 4013 # -1 # ID=732_5;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.657
+Ga0394838_0018040_1  -          Fe_dep_repr_C        PF02742.10     1e-27   97.0   0.7   1.8e-27   96.3   0.3   1.6   2   0   0   2   2   2   1 # 529 # 1230 # 1 # ID=2069_1;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.486
+Ga0394821_0001960_1  -          Fe_dep_repr_C        PF02742.10   1.9e-27   96.2   0.0   5.8e-27   94.6   0.0   1.9   2   0   0   2   2   2   1 # 39 # 1229 # -1 # ID=3624_1;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.625
+Ga0394821_0001289_5  -          Fe_dep_repr_C        PF02742.10   2.1e-25   89.6   0.5   3.1e-25   89.1   0.5   1.3   1   0   0   1   1   1   1 # 2206 # 2682 # 1 # ID=2601_5;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.723
+Ga0394831_0000998_2  -          Fe_dep_repr_C        PF02742.10   9.2e-13   49.1   0.3   2.1e-12   48.0   0.2   1.6   2   0   0   2   2   2   1 # 1306 # 1743 # 1 # ID=1316_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.573
+Ga0394821_0000922_6  -          Fe_dep_repr_C        PF02742.10   1.3e-11   45.5   0.4   2.3e-11   44.6   0.4   1.5   1   0   0   1   1   1   1 # 4513 # 4935 # -1 # ID=3390_6;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.662
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_gene_regulation//PF02742-Iron_dependent_repressor-dtxR_family_metal_binding_domain.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PF02742-Iron_dependent_repressor-dtxR_family_metal_binding_domain.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PF02742-Iron_dependent_repressor-dtxR_family_metal_binding_domain.hmm.tblout -T 20 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_gene_regulation//PF02742-Iron_dependent_repressor-dtxR_family_metal_binding_domain.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:52 2023
+# [ok]

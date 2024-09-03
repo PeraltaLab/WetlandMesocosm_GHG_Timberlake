@@ -1,0 +1,20 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394829_0000017_18 -          Cyc2_repCluster3     -            4.1e-25   90.1  10.0   4.1e-19   70.6   0.2   6.5   4   2   2   6   6   6   2 # 23914 # 25281 # 1 # ID=105_18;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.477
+Ga0394817_0000259_8  -          Cyc2_repCluster3     -            1.1e-15   59.3   0.1     2e-13   52.0   0.0   3.0   3   0   0   3   3   3   1 # 8351 # 9778 # 1 # ID=3263_8;partial=00;start_type=ATG;rbs_motif=GGxGG;rbs_spacer=5-10bp;gc_cont=0.629
+Ga0394838_0002631_5  -          Cyc2_repCluster3     -              1e-13   52.9   0.4   7.4e-12   46.9   0.1   2.6   2   0   0   2   2   2   1 # 2942 # 4444 # 1 # ID=3404_5;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.634
+Ga0394824_0000068_26 -          Cyc2_repCluster3     -            2.2e-11   45.3   0.5   1.2e-10   43.0   0.1   2.3   2   0   0   2   2   2   1 # 18840 # 20234 # -1 # ID=1780_26;partial=00;start_type=ATG;rbs_motif=AGxAGG/AGGxGG;rbs_spacer=3-4bp;gc_cont=0.661
+Ga0394817_0000285_6  -          Cyc2_repCluster3     -            3.4e-09   38.2   0.1   1.2e-08   36.4   0.1   2.0   1   0   0   1   1   1   1 # 5276 # 6739 # 1 # ID=3303_6;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.631
+Ga0394820_0002550_7  -          Cyc2_repCluster3     -            3.4e-09   38.2   0.1   1.2e-08   36.4   0.1   2.0   1   0   0   1   1   1   1 # 4556 # 6019 # -1 # ID=5363_7;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.633
+Ga0394824_0000015_2  -          Cyc2_repCluster3     -            2.9e-07   31.9   0.3   1.7e-06   29.4   0.1   2.2   3   0   0   3   3   3   1 # 797 # 2128 # 1 # ID=1452_2;partial=00;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=3-4bp;gc_cont=0.678
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_oxidation//Cyc2_repCluster3.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/Cyc2_repCluster3.hmm.txt --tblout fegenie_output/fasta.fna-HMM/Cyc2_repCluster3.hmm.tblout -T 27 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_oxidation//Cyc2_repCluster3.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:22:34 2023
+# [ok]

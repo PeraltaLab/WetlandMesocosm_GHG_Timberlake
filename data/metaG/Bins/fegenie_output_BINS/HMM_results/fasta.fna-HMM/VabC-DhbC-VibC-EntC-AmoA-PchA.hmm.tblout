@@ -1,0 +1,14 @@
+#                                                                        --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                    accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------          -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394838_0003484_5  -          VabC-DhbC-VibC-EntC-AmoA-PchA -            5.8e-66  224.3   0.0     8e-66  223.9   0.0   1.2   1   0   0   1   1   1   1 # 3636 # 5096 # -1 # ID=447_5;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.483
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//VabC-DhbC-VibC-EntC-AmoA-PchA.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/VabC-DhbC-VibC-EntC-AmoA-PchA.hmm.txt --tblout fegenie_output/fasta.fna-HMM/VabC-DhbC-VibC-EntC-AmoA-PchA.hmm.tblout -T 161 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//VabC-DhbC-VibC-EntC-AmoA-PchA.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:23:27 2023
+# [ok]
