@@ -36,8 +36,7 @@ Metagenome sequence files can be found at NCBI SRA [BioProject ID PRJNA641216](h
 * **supplemental:** Additional sequencing methods information and tables of metagenomic sequence data
 
 ## Funding Sources
-This work was supported by East Carolina University and an NSF GRFP to R. Bledsoe, grant no. DGE-2125684 to C.G.F., and grants DEB #1845845 and CNH2 #2009185 awarded to A.L.P ![image](https://github.com/user-attachments/assets/92dfc6ec-1588-4282-903a-9861218e515f)
-. The metagenomes were produced by the DOE JGI under the Community Science Program (CSP) (JGI CSP grant 503952). The work conducted by the DOE JGI, a DOE Office of Science User Facility, is supported under contract DE-AC02-05CH11231.
+This work was supported by East Carolina University and an NSF GRFP to R. Bledsoe, grant no. DGE-2125684 to C.G.F., and grants DEB #1845845 and CNH2 #2009185 awarded to A.L.P. The metagenomes were produced by the DOE JGI under the Community Science Program (CSP) (JGI CSP grant 503952). The work conducted by the DOE JGI, a DOE Office of Science User Facility, is supported under contract DE-AC02-05CH11231.
 
 ## Contributors
 
