@@ -1,0 +1,24 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394820_0000540_11 -          FmnB                 -            1.2e-39  137.9   0.0   1.6e-39  137.5   0.0   1.0   1   0   0   1   1   1   1 # 9977 # 10996 # -1 # ID=573_11;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.682
+Ga0394817_0000374_23 -          FmnB                 -            4.1e-32  113.1   0.0   4.9e-32  112.9   0.0   1.0   1   0   0   1   1   1   1 # 20661 # 21458 # 1 # ID=1078_23;partial=01;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.679
+Ga0394824_0000002_75 -          FmnB                 -            1.4e-31  111.4   0.0   1.7e-31  111.1   0.0   1.0   1   0   0   1   1   1   1 # 82825 # 83784 # -1 # ID=5272_75;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.694
+Ga0394821_0001831_2  -          FmnB                 -            5.9e-19   69.9   0.0     7e-19   69.6   0.0   1.1   1   0   0   1   1   1   1 # 2393 # 3367 # 1 # ID=5551_2;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.637
+Ga0394838_0016301_1  -          FmnB                 -            5.7e-18   66.6   0.0   6.7e-18   66.4   0.0   1.1   1   0   0   1   1   1   1 # 123 # 1097 # -1 # ID=4999_1;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.637
+Ga0394817_0000756_1  -          FmnB                 -            8.8e-17   62.7   0.0   9.8e-17   62.6   0.0   1.0   1   0   0   1   1   1   1 # 2 # 373 # 1 # ID=793_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.675
+Ga0394834_0016413_2  -          FmnB                 -            8.8e-13   49.5   0.0   1.1e-12   49.3   0.0   1.1   1   0   0   1   1   1   1 # 709 # 1755 # -1 # ID=5451_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.716
+Ga0394834_0010426_3  -          FmnB                 -            6.4e-10   40.1   0.0   7.5e-10   39.9   0.0   1.2   1   0   0   1   1   1   1 # 1454 # 2551 # -1 # ID=1759_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.737
+Ga0394834_0006183_1  -          FmnB                 -            1.6e-09   38.8   0.0   1.9e-09   38.6   0.0   1.1   1   0   0   1   1   1   1 # 1 # 807 # -1 # ID=4357_1;partial=10;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.755
+Ga0394823_0001253_5  -          FmnB                 -            2.5e-09   38.2   0.0   7.8e-09   36.6   0.0   1.6   1   1   0   1   1   1   1 # 3556 # 4488 # 1 # ID=2354_5;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.563
+Ga0394831_0000110_3  -          FmnB                 -            2.5e-09   38.2   0.0   7.8e-09   36.6   0.0   1.6   1   1   0   1   1   1   1 # 809 # 1741 # -1 # ID=5639_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.566
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_reduction//FmnB.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/FmnB.hmm.txt --tblout fegenie_output/fasta.fna-HMM/FmnB.hmm.tblout -T 33 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_reduction//FmnB.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:43 2023
+# [ok]

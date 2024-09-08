@@ -20,7 +20,7 @@ Metagenome sequence files can be found at NCBI SRA [BioProject ID PRJNA641216](h
 
 * **analyses:** R Markdown files that include R script written by Regina Bledsoe, Colin Finlay, Ariane Peralta, and Mario Muscarella containing functions used in analysis of GHG, soil, and microbial sequence data:
  	1. metaG_CN.Rmd: code for analysis of metagenomic data, **for manuscript in review**
- 	2. metaG_in_depth.Rmd: in-progress metagenomic analysis, **not a part of manuscript in review**
+ 	2. metaG_in_depth.Rmd: metagenomic analysis of Fe, S, C, and N cycling gene modules, **for manuscript in review**
  	3. SoilPhys_GHGs_16S.Rmd: 16S, edaphic, and greenhouse gas analysis, **for manuscript in review**
   	4. GHG_LME.Rmd: linear-mixed effects models of greenhouse gases, **for manuscript in review**
   	5. WRC_GHG_Regression_T1_Flux.Rmd: regression of timepoint 1 (T1) vs. flux from a different experiment, to justify use of T1 in current experiment, **for manuscript in review**
@@ -36,7 +36,7 @@ Metagenome sequence files can be found at NCBI SRA [BioProject ID PRJNA641216](h
 * **supplemental:** Additional sequencing methods information and tables of metagenomic sequence data
 
 ## Funding Sources
-This work was supported by East Carolina University and an NSF GRFP to R. Bledsoe, NSF DEB 1845845 to A.L.P. The metagenomes were produced by the DOE JGI under the Community Science Program (CSP) (JGI CSP grant 503952). The work conducted by the DOE JGI, a DOE Office of Science User Facility, is supported under contract DE-AC02-05CH11231.
+This work was supported by East Carolina University and an NSF GRFP to R. Bledsoe, grant no. DGE-2125684 to C.G.F., and grants DEB #1845845 and CNH2 #2009185 awarded to A.L.P. The metagenomes were produced by the DOE JGI under the Community Science Program (CSP) (JGI CSP grant 503952). The work conducted by the DOE JGI, a DOE Office of Science User Facility, is supported under contract DE-AC02-05CH11231.
 
 ## Contributors
 

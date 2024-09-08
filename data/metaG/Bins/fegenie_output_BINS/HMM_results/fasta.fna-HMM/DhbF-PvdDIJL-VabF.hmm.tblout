@@ -1,0 +1,15 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394817_0001204_5  -          DhbF-PvdDIJL-VabF    -                  0 1724.6   2.4  1.8e-245  819.1   0.0   5.1   1   1   4   5   5   5   5 # 3798 # 12641 # -1 # ID=541_5;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.697
+Ga0394824_0000380_8  -          DhbF-PvdDIJL-VabF    -                  0 1188.2   0.0  1.8e-248  829.1   0.0   2.0   1   1   1   2   2   2   2 # 6641 # 9985 # -1 # ID=2746_8;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.689
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//DhbF-PvdDIJL-VabF.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/DhbF-PvdDIJL-VabF.hmm.txt --tblout fegenie_output/fasta.fna-HMM/DhbF-PvdDIJL-VabF.hmm.tblout -T 1091 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//DhbF-PvdDIJL-VabF.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:23:52 2023
+# [ok]

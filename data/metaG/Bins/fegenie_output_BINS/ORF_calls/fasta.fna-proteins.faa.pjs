@@ -1,0 +1,22 @@
+{
+  "version": "1.2",
+  "dbname": "fasta.fna-proteins.faa",
+  "dbtype": "Protein",
+  "db-version": 5,
+  "description": "fegenie_output/ORF_calls/fasta.fna-proteins.faa",
+  "number-of-letters": 12800758,
+  "number-of-sequences": 43453,
+  "last-updated": "2023-04-19T12:25:00",
+  "number-of-volumes": 1,
+  "bytes-total": 22131459,
+  "bytes-to-cache": 13191980,
+  "files": [
+    "fasta.fna-proteins.faa.pdb",
+    "fasta.fna-proteins.faa.phr",
+    "fasta.fna-proteins.faa.pin",
+    "fasta.fna-proteins.faa.pot",
+    "fasta.fna-proteins.faa.psq",
+    "fasta.fna-proteins.faa.ptf",
+    "fasta.fna-proteins.faa.pto"
+  ]
+}

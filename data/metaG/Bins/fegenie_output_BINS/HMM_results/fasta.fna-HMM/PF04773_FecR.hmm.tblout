@@ -1,0 +1,32 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394824_0000034_2  -          PF04773_FecR         PF04773.13   1.2e-18   68.7   0.1     2e-18   68.1   0.1   1.3   1   0   0   1   1   1   1 # 2057 # 3004 # -1 # ID=552_2;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.699
+Ga0394824_0000015_44 -          PF04773_FecR         PF04773.13   4.2e-17   63.8   0.1   7.1e-17   63.1   0.1   1.4   1   0   0   1   1   1   1 # 42680 # 43657 # -1 # ID=1452_44;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.726
+Ga0394838_0002976_6  -          PF04773_FecR         PF04773.13   3.9e-16   60.7   1.0   7.8e-16   59.7   1.0   1.5   1   0   0   1   1   1   1 # 6102 # 7205 # -1 # ID=3370_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.641
+Ga0394817_0003477_6  -          PF04773_FecR         PF04773.13     1e-15   59.4   0.1     2e-15   58.4   0.1   1.5   1   0   0   1   1   1   1 # 6188 # 7630 # 1 # ID=5916_6;partial=01;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.731
+Ga0394820_0001193_3  -          PF04773_FecR         PF04773.13   1.4e-15   58.9   0.1   2.9e-15   57.9   0.1   1.5   1   0   0   1   1   1   1 # 1372 # 3156 # 1 # ID=875_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.728
+Ga0394824_0000204_8  -          PF04773_FecR         PF04773.13   1.8e-12   49.0   0.8   3.9e-12   47.9   0.5   1.8   2   0   0   2   2   1   1 # 7625 # 9304 # -1 # ID=5540_8;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.681
+Ga0394821_0000325_3  -          PF04773_FecR         PF04773.13   2.8e-09   38.7   0.3   4.5e-09   38.1   0.3   1.3   1   0   0   1   1   1   1 # 1360 # 1986 # -1 # ID=4129_3;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.640
+Ga0394821_0000675_1  -          PF04773_FecR         PF04773.13   3.6e-09   38.4   0.6   6.1e-09   37.6   0.2   1.6   2   0   0   2   2   2   1 # 1 # 642 # -1 # ID=4210_1;partial=10;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.642
+Ga0394821_0000999_3  -          PF04773_FecR         PF04773.13   7.2e-09   37.4   0.0   1.4e-08   36.4   0.0   1.5   1   0   0   1   1   1   1 # 4035 # 5003 # 1 # ID=5537_3;partial=01;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=3-4bp;gc_cont=0.685
+Ga0394824_0002169_1  -          PF04773_FecR         PF04773.13     1e-08   36.9   0.1   1.8e-08   36.1   0.1   1.4   1   0   0   1   1   1   1 # 224 # 1195 # -1 # ID=2695_1;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.676
+Ga0394824_0000089_24 -          PF04773_FecR         PF04773.13   3.3e-08   35.3   0.4   5.8e-08   34.5   0.4   1.4   1   0   0   1   1   1   1 # 24288 # 26759 # -1 # ID=5150_24;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.710
+Ga0394821_0000325_1  -          PF04773_FecR         PF04773.13   1.6e-07   33.1   0.0   2.9e-07   32.3   0.0   1.5   1   0   0   1   1   1   1 # 207 # 1016 # -1 # ID=4129_1;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.651
+Ga0394824_0001313_4  -          PF04773_FecR         PF04773.13   1.4e-06   30.1   0.0   2.6e-06   29.2   0.0   1.4   1   0   0   1   1   1   1 # 2346 # 3209 # -1 # ID=3534_4;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.612
+Ga0394828_0016159_2  -          PF04773_FecR         PF04773.13   1.7e-06   29.8   1.5   3.3e-06   28.8   0.2   2.1   1   1   1   2   2   2   1 # 765 # 1613 # 1 # ID=701_2;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.576
+Ga0394820_0000555_14 -          PF04773_FecR         PF04773.13   4.4e-06   28.5   0.0   2.2e-05   26.2   0.0   2.0   1   1   1   2   2   2   1 # 15181 # 15735 # 1 # ID=1613_14;partial=01;start_type=GTG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.683
+Ga0394831_0000839_6  -          PF04773_FecR         PF04773.13   2.9e-05   25.8   0.2   4.1e-05   25.3   0.2   1.2   1   0   0   1   1   1   1 # 4083 # 4484 # -1 # ID=174_6;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.570
+Ga0394823_0003704_3  -          PF04773_FecR         PF04773.13     3e-05   25.8   0.2   4.1e-05   25.3   0.2   1.2   1   0   0   1   1   1   1 # 2471 # 2872 # 1 # ID=314_3;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.570
+Ga0394823_0000107_2  -          PF04773_FecR         PF04773.13     4e-05   25.4   0.0   0.00022   23.0   0.0   2.1   2   0   0   2   2   2   1 # 527 # 1231 # 1 # ID=5494_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.529
+Ga0394831_0003396_2  -          PF04773_FecR         PF04773.13     4e-05   25.4   0.0   0.00022   23.0   0.0   2.1   2   0   0   2   2   2   1 # 483 # 1187 # -1 # ID=3378_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.529
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_gene_regulation//PF04773_FecR.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PF04773_FecR.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PF04773_FecR.hmm.tblout -T 21 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_gene_regulation//PF04773_FecR.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:52 2023
+# [ok]

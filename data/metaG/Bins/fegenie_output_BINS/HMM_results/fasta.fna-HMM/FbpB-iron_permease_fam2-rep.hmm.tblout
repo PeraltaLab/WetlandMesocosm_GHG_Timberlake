@@ -1,0 +1,15 @@
+#                                                                      --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                  accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------        -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394817_0002784_6  -          FbpB-iron_permease_fam2-rep -            8.1e-49  168.1  32.6   1.1e-48  167.7  32.6   1.0   1   0   0   1   1   1   1 # 4970 # 6691 # -1 # ID=4336_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.656
+Ga0394820_0006268_2  -          FbpB-iron_permease_fam2-rep -            8.1e-49  168.1  32.6   1.1e-48  167.7  32.6   1.0   1   0   0   1   1   1   1 # 1014 # 2735 # -1 # ID=5398_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.656
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//FbpB-iron_permease_fam2-rep.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/FbpB-iron_permease_fam2-rep.hmm.txt --tblout fegenie_output/fasta.fna-HMM/FbpB-iron_permease_fam2-rep.hmm.tblout -T 88 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//FbpB-iron_permease_fam2-rep.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:24 2023
+# [ok]

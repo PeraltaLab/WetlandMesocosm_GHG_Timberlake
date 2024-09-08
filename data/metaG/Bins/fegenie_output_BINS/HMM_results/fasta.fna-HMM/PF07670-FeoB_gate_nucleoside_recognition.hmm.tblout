@@ -1,0 +1,15 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394820_0000713_7  -          Gate                 PF07670.9    3.1e-40  137.9  21.4   9.2e-27   94.6   2.0   3.5   4   0   0   4   4   4   2 # 4483 # 6384 # 1 # ID=2107_7;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.679
+Ga0394824_0000029_3  -          Gate                 PF07670.9    1.6e-38  132.4  19.2     3e-27   96.1   1.4   2.8   3   0   0   3   3   3   2 # 762 # 2612 # -1 # ID=903_3;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.678
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//PF07670-FeoB_gate_nucleoside_recognition.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PF07670-FeoB_gate_nucleoside_recognition.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PF07670-FeoB_gate_nucleoside_recognition.hmm.tblout -T 52 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//PF07670-FeoB_gate_nucleoside_recognition.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:20 2023
+# [ok]

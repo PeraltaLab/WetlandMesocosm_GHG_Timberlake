@@ -1,0 +1,16 @@
+#                                                                                                     --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                                 accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                                       -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394824_0005552_1  -          Sid_PvdO_Pyoverdine_biosynthesis_Paeruginosa_PA2395_180623 -            3.9e-58  198.2   4.3   2.1e-57  195.8   4.3   1.9   1   1   0   1   1   1   1 # 193 # 1722 # -1 # ID=1351_1;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.659
+Ga0394824_0000137_8  -          Sid_PvdO_Pyoverdine_biosynthesis_Paeruginosa_PA2395_180623 -            1.3e-51  176.7   8.3   5.1e-51  174.8   8.3   1.9   1   1   0   1   1   1   1 # 6847 # 8796 # 1 # ID=568_8;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.676
+Ga0394831_0000130_5  -          Sid_PvdO_Pyoverdine_biosynthesis_Paeruginosa_PA2395_180623 -            2.2e-48  166.1   4.8     3e-48  165.7   4.8   1.1   1   0   0   1   1   1   1 # 3536 # 4570 # 1 # ID=170_5;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.557
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//Sid_PvdO_Pyoverdine_biosynthesis_Paeruginosa_PA2395_180623.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/Sid_PvdO_Pyoverdine_biosynthesis_Paeruginosa_PA2395_180623.hmm.txt --tblout fegenie_output/fasta.fna-HMM/Sid_PvdO_Pyoverdine_biosynthesis_Paeruginosa_PA2395_180623.hmm.tblout -T 154 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//Sid_PvdO_Pyoverdine_biosynthesis_Paeruginosa_PA2395_180623.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:22:56 2023
+# [ok]

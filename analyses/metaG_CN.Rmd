@@ -203,7 +203,7 @@ colnames(GHG)[18] <- "co2_ppm"
 #GHG_less_columns <- cbind(GHG[,1:4], GHG[24:32])
 GHG_less_columns <- cbind(GHG[,1:4], GHG[17:19])
 
-# Select only T1 rows, and July 24 (night sampling):
+# Select only T1 rows, and not July 24 (night sampling):
 #GHG_less_columns <- GHG_less_columns %>% drop_na()
 GHG_less_columns <- GHG_less_columns %>%
   dplyr::filter(timepoint == "T1" & date !='7/24/2016')

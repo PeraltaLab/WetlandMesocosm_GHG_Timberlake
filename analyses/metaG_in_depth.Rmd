@@ -307,26 +307,10 @@ design2 <- design2[!(design2$source %in% "s"),] # Consider using start samples l
 Bin_genome_IDs <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Bins/Bin_Genome_IDs.csv")
 
 #Greenhouse gas data:
-GHG <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/TMG_GHG-Flux_T1_Pub_2-2020.csv")
+GHG <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv")
 
 # Import soil physiochemical data:
 soil <- read.csv("../data/Design_and_soil.csv",  header=T)
-```
-
-```{r Playing around with a list of dfs for control structures}
-# Make a list of all the metaG df names:
-metaG_string_list <- c("denit", "meth", "carb_metab", "cytoCox", "SO4_S_Assim", "Assim_SO4_red", "Dissim_SO4_red", "ThioSOX", "DNRA", "ANRA", "Nitrific", "COMAMMOX", "Nfix", "CH4_ox", "mtrBC_TIGR")
-
-for (i in metaG_string_list) {
-  print(i)
-}
-
-# Make names for numerical only data frames:
-for (i in metaG_string_list) {
-  print(paste(i, "Numerical", sep = ""))
-}
-
-# Later, you'll want to print the colnames() (KOs) of each metaG df to use for indexing Bins-all-KOs data
 ```
 
 # Data Wrangling
@@ -457,16 +441,6 @@ FeGenieNumerical$magnetosome_formation <- as.numeric(FeGenieNumerical$magnetosom
 SO4_red_combinedNumerical <- SO4_red_combinedNumerical[,-(1:2)]
 ```
 
-```{r for loop to generate text for RA calculations}
-
-for (i in metaG_string_list) {
-  cat(i, "RA <- ", i,"Numerical", sep = "")
-  cat("\nfor(i in 1:dim(", i, "Numerical)[1]){\n  ", i, "RA[i,] <- ", i, "Numerical[i,]/sum(", i, "Numerical[i,])\n}\n\n", sep = "")
-}
-
-# Output of loop to write following chunk
-```
-
 Note for future analyses:
 - use the package "funrar", and function make_relative() to do relative abundance calculations
   - yields same results as our for loops below
@@ -582,13 +556,6 @@ start_metaG_samples <- c("03Pre", "06Pre", "08Pre", "09Pre", "10Pre", "11Pre", "
 finish_metaG_samples <- c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC", "09PFC", "10NFC", "10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC")
 ```
 
-```{r for loop to create start and finish subsets}
-for (i in metaG_string_list) {
-  cat(i, "RA_start <- ", i,"RA[start_metaG_samples, ]\n", sep = "")
-  cat(i, "RA_finish <- ", i,"RA[finish_metaG_samples, ]\n\n", sep = "")
-}
-```
-
 ```{r Subset start and finish samples from all gene sets}
 denitRA_start <- denitRA[start_metaG_samples, ]
 denitRA_finish <- denitRA[finish_metaG_samples, ]
@@ -646,23 +613,6 @@ FeReductionRA_finish <- FeReductionRA[finish_metaG_samples,]
 
 FeOxidationRA_start <- FeOxidationRA[start_metaG_samples,]
 FeOxidationRA_finish <- FeOxidationRA[finish_metaG_samples,]
-```
-
-```{r for loop to generate dimension checks}
-# Relative abundance (RA) dimension check:
-for (i in metaG_string_list) {
-  cat("dim(",i, "RA)\n", sep = "")
-}
-
-# Start samples only (RA_start) dimension check:
-for (i in metaG_string_list) {
-  cat("dim(",i, "RA_start)\n", sep = "")
-}
-
-# Finish samples only (RA_finish) dimension check:
-for (i in metaG_string_list) {
-  cat("dim(",i, "RA_finish)\n", sep = "")
-}
 ```
 
 ```{r Dimension check for RA matrices}
@@ -727,12 +677,6 @@ rownames(design) <- design$Sample
 design <- design[,2:4]
 ```
 
-```{r for loop for RA & design combination}
-for (i in metaG_string_list) {
-  cat(i, "RA_design <- cbind(design, ", i, "RA)\n", sep = "")
-}
-```
-
 ```{r combine RA and design data frames}
 # Make data frames from gene set relative abundance (RA) data frames and design
 denitRA_design <- cbind(design, denitRA)
@@ -761,15 +705,6 @@ FeOxidationRA_design <- cbind(design, FeOxidationRA)
 ```
 
 ## Bray Curtis dissimilarity
-
-```{r for loop for BC calculation}
-# Combined loop:
-for (i in metaG_string_list) {
-  cat(i, "BC <- vegdist(", i, "RA, method = 'bray')\n", sep = "")
-  cat(i, "BC_start <- vegdist(", i, "RA_start, method = 'bray')\n", sep = "")
-  cat(i, "BC_finish <- vegdist(", i, "RA_finish, method = 'bray')\n\n", sep = "")
-}
-```
 
 Calculate Bray Curtis dissimilarity:
 ```{r relative abundance to Bray Curtis dissimilarity}
@@ -855,11 +790,17 @@ FeOxidationBC_finish <- vegdist(FeOxidationRA_finish, method = 'bray')
 
 Wrangling greenhouse gas (GHG) data:
 ```{r wrangling GHG data}
-#Create a new GHG data frame with less columns:
-GHG_less_columns <- cbind(GHG[,1:4], GHG[24:32])
+# Fix 'c2o' typo:
+colnames(GHG)[18] <- "co2_ppm"
 
-#Drop rows with NAs (non-T1 rows):
-GHG_less_columns <- GHG_less_columns %>% drop_na()
+#Create a new GHG data frame with less columns:
+#GHG_less_columns <- cbind(GHG[,1:4], GHG[24:32])
+GHG_less_columns <- cbind(GHG[,1:4], GHG[17:19])
+
+# Select only T1 rows, and not July 24 (night sampling):
+#GHG_less_columns <- GHG_less_columns %>% drop_na()
+GHG_less_columns <- GHG_less_columns %>%
+  dplyr::filter(timepoint == "T1" & date !='7/24/2016')
 
 #Change column name "chamber" to "box" to match with design2:
 colnames(GHG_less_columns)[2] <- "box"
@@ -868,8 +809,8 @@ colnames(GHG_less_columns)[2] <- "box"
 GHG_less_columns$plant <- tolower(GHG_less_columns$plant)
 
 #Subset GHG_less_columns for 'start' time point (6/13/2016) and 'finish' time point (8/11/2016):
-GHG_start <- GHG_less_columns[1:36,]
-GHG_finish <- GHG_less_columns[157:192,]
+GHG_start <- dplyr::filter(GHG_less_columns, date == "6/13/2016")
+GHG_finish <- dplyr::filter(GHG_less_columns, date == "8/11/2016")
 
 #Add design2 into GHG 'start' and 'finish':
 GHG_start <- left_join(GHG_start, design2, by = c("box", "plant"))
@@ -879,36 +820,36 @@ GHG_finish <- left_join(GHG_finish, design2, by = c("box", "plant"))
 GHG_start_metaG <- rbind(GHG_start[5:6,], GHG_start[11:12,], GHG_start[15:24,], GHG_start[31:32,], make.row.names = FALSE)
 GHG_finish_metaG <- rbind(GHG_finish[5:6,], GHG_finish[11:12,], GHG_finish[15:24,], GHG_finish[31:32,], make.row.names = FALSE)
 
-#To align "pre" metaG samples with a single, initial GHG value (from the start GHG measurements on 6/13/206), average together GHG samples in the same box number, then transpose and set row name to corresponding metaG Sample ID:
-GHG_start_03 <- data.frame(colMeans(GHG_start_metaG[1:2, 5:13]))
+#To align "pre" metaG samples with a single, initial GHG value (from the start GHG measurements on 6/28/206), average together GHG samples in the same box number, then transpose and set row name to corresponding metaG Sample ID:
+GHG_start_03 <- data.frame(colMeans(GHG_start_metaG[1:2, 5:7]))
 GHG_start_03 <- as.data.frame(t(GHG_start_03))
 row.names(GHG_start_03) <- "03Pre"
 
-GHG_start_06 <- data.frame(colMeans(GHG_start_metaG[3:4, 5:13]))
+GHG_start_06 <- data.frame(colMeans(GHG_start_metaG[3:4, 5:7]))
 GHG_start_06 <- as.data.frame(t(GHG_start_06))
 row.names(GHG_start_06) <- "06Pre"
 
-GHG_start_08 <- data.frame(colMeans(GHG_start_metaG[5:6, 5:13]))
+GHG_start_08 <- data.frame(colMeans(GHG_start_metaG[5:6, 5:7]))
 GHG_start_08 <- as.data.frame(t(GHG_start_08))
 row.names(GHG_start_08) <- "08Pre"
 
-GHG_start_09 <- data.frame(colMeans(GHG_start_metaG[7:8, 5:13]))
+GHG_start_09 <- data.frame(colMeans(GHG_start_metaG[7:8, 5:7]))
 GHG_start_09 <- as.data.frame(t(GHG_start_09))
 row.names(GHG_start_09) <- "09Pre"
 
-GHG_start_10 <- data.frame(colMeans(GHG_start_metaG[9:10, 5:13]))
+GHG_start_10 <- data.frame(colMeans(GHG_start_metaG[9:10, 5:7]))
 GHG_start_10 <- as.data.frame(t(GHG_start_10))
 row.names(GHG_start_10) <- "10Pre"
 
-GHG_start_11 <- data.frame(colMeans(GHG_start_metaG[11:12, 5:13]))
+GHG_start_11 <- data.frame(colMeans(GHG_start_metaG[11:12, 5:7]))
 GHG_start_11 <- as.data.frame(t(GHG_start_11))
 row.names(GHG_start_11) <- "11Pre"
 
-GHG_start_12 <- data.frame(colMeans(GHG_start_metaG[13:14, 5:13]))
+GHG_start_12 <- data.frame(colMeans(GHG_start_metaG[13:14, 5:7]))
 GHG_start_12 <- as.data.frame(t(GHG_start_12))
 row.names(GHG_start_12) <- "12Pre"
 
-GHG_start_16 <- data.frame(colMeans(GHG_start_metaG[15:16, 5:13]))
+GHG_start_16 <- data.frame(colMeans(GHG_start_metaG[15:16, 5:7]))
 GHG_start_16 <- as.data.frame(t(GHG_start_16))
 row.names(GHG_start_16) <- "16Pre"
 
@@ -918,14 +859,13 @@ GHG_start_metaG_avg <- rbind(GHG_start_03, GHG_start_06, GHG_start_08, GHG_start
 #Set the row names of GHG data to the metaG sample names, so that stats functions can compare the GHG and metaG data sets:
 row.names(GHG_finish_metaG) <- c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC","09PFC", "10NFC","10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC")
 
-#Combine GHG_start_metaG_avg and GHG_finish_metaG[,5:13] to have all 24 samples:
-GHG_metaG <- rbind(GHG_start_metaG_avg, GHG_finish_metaG[,5:13])
+#Combine GHG_start_metaG_avg and GHG_finish_metaG[,5:7] to have all 24 samples:
+GHG_metaG <- rbind(GHG_start_metaG_avg, GHG_finish_metaG[,5:7])
 GHG_metaG <- GHG_metaG[match(sample_order, rownames(GHG_metaG)), ]
-GHG_metaG <- GHG_metaG[,c(2,5,8)] #Subset to only have units in mg
 
 #Clean up GHG_finish_metaG for envfitting:
 GHG_finish_envfit <- GHG_finish_metaG %>%
-  dplyr::select(-c(date, timepoint, ug.ch4c.m2, g.CH4.N.m.2, ug.co2c.m2, g.CO2.N.m.2, ug.n2on.m2, g.N2O.N.m.2, source, ttreat, hhistory))
+  dplyr::select(-c(date, timepoint, source, ttreat, hhistory))
 ```
 
 ```{r Combined GHG and Soil FINISH data frames for envfit}
@@ -1025,80 +965,37 @@ SoilGHG_StartFinish_Envfit <- cbind(GHG_metaG, Soil_StartFinish_forEnvfit)
 ## dbplsr
 
 Distance-based partial least squares regression:
-```{r distance-based partial least squares regression}
-start.denit.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.N2O.N.m.2 ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
-summary(start.denit.dbplsr)
-#plot(start.denit.dbplsr)
-
-finish.denit.dbplsr <- dbplsr(GHG_finish_metaG$mg.N2O.N.m.2 ~ as.matrix(denitBC_finish), ncomp = 15, method = "GCV")
-summary(finish.denit.dbplsr)
-#plot(finish.denit.dbplsr)
-
-start.meth.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CH4.N.m.2 ~ as.matrix(methBC_start), ncomp = 7, method = "GCV")
-summary(start.meth.dbplsr)
-#plot(start.meth.dbplsr)
-
-finish.meth.dbplsr <- dbplsr(GHG_finish_metaG$mg.CH4.N.m.2 ~ as.matrix(methBC_finish), ncomp = 15, method = "GCV")
-summary(finish.meth.dbplsr)
-#plot(finish.meth.dbplsr)
-
-start.carb_metab.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CO2.N.m.2 ~ as.matrix(carb_metabBC_start), ncomp = 7, method = "GCV")
-summary(start.carb_metab.dbplsr)
-#plot(start.carb_metab.dbplsr)
-
-finish.carb_metab.dbplsr <- dbplsr(GHG_finish_metaG$mg.CO2.N.m.2 ~ as.matrix(carb_metabBC_finish), ncomp = 15, method = "GCV")
-summary(finish.carb_metab.dbplsr)
-#plot(finish.carb_metab.dbplsr)
-
-start.cytoCox.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CO2.N.m.2 ~ as.matrix(cytoCoxBC_start), ncomp = 7, method = "GCV")
-summary(start.cytoCox.dbplsr)
-#plot(start.cytoCox.dbplsr)
-
-finish.cytoCox.dbplsr <- dbplsr(GHG_finish_metaG$mg.CO2.N.m.2 ~ as.matrix(cytoCoxBC_finish), ncomp = 15, method = "GCV")
-summary(finish.cytoCox.dbplsr)
-#plot(finish.cytoCox.dbplsr)
-
-# Because of envfit() results showing significant relationship between denitrification composition and [CO2], running dbplsrs for denit and CO2:
-start.denit.dbplsr.co2 <- dbplsr(GHG_start_metaG_avg$mg.CO2.N.m.2 ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
-summary(start.denit.dbplsr.co2)
-#plot(start.denit.dbplsr.co2)
-
-finish.denit.dbplsr.co2 <- dbplsr(GHG_finish_metaG$mg.CO2.N.m.2 ~ as.matrix(denitBC_finish), ncomp = 15, method = "GCV")
-summary(finish.denit.dbplsr.co2)
-#plot(finish.denit.dbplsr.co2)
-```
-
-```{r dbplsr continued}
+```{r dbplsr}
 # CO2 ~ Assimilatory sulfate reduction:
-start.Assim_SO4_red.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CO2.N.m.2 ~ as.matrix(Assim_SO4_redBC_start), ncomp = 7, method = "GCV")
+start.Assim_SO4_red.dbplsr <- dbplsr(GHG_start_metaG_avg$co2_ppm ~ as.matrix(Assim_SO4_redBC_start), ncomp = 7, method = "GCV")
 summary(start.Assim_SO4_red.dbplsr)
 #plot(start.Assim_SO4_red.dbplsr)
 
-finish.Assim_SO4_red.dbplsr <- dbplsr(GHG_finish_metaG$mg.CO2.N.m.2 ~ as.matrix(Assim_SO4_redBC_finish), ncomp = 15, method = "GCV")
+finish.Assim_SO4_red.dbplsr <- dbplsr(GHG_finish_metaG$co2_ppm ~ as.matrix(Assim_SO4_redBC_finish), ncomp = 15, method = "GCV")
 summary(finish.Assim_SO4_red.dbplsr)
 #plot(finish.Assim_SO4_red.dbplsr)
 
 # CH4 ~ Dissimilatory sulfate reduction:
-start.Dissim_SO4_red.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CH4.N.m.2~ as.matrix(Dissim_SO4_redBC_start), ncomp = 7, method = "GCV")
+start.Dissim_SO4_red.dbplsr <- dbplsr(GHG_start_metaG_avg$ch4_ppm~ as.matrix(Dissim_SO4_redBC_start), ncomp = 7, method = "GCV")
 summary(start.Dissim_SO4_red.dbplsr)
 #plot(start.Dissim_SO4_red.dbplsr)
 
-finish.Dissim_SO4_red.dbplsr <- dbplsr(GHG_finish_metaG$mg.CH4.N.m.2 ~ as.matrix(Dissim_SO4_redBC_finish), ncomp = 15, method = "GCV")
+finish.Dissim_SO4_red.dbplsr <- dbplsr(GHG_finish_metaG$ch4_ppm ~ as.matrix(Dissim_SO4_redBC_finish), ncomp = 15, method = "GCV")
 summary(finish.Dissim_SO4_red.dbplsr)
 #plot(finish.Dissim_SO4_red.dbplsr)
 
 # CH4 ~ Fe reduction:
-start.FeReduction.dbplsr <- dbplsr(GHG_start_metaG_avg$mg.CH4.N.m.2 ~ as.matrix(FeReductionBC_start), ncomp = 7, method = "GCV")
+start.FeReduction.dbplsr <- dbplsr(GHG_start_metaG_avg$ch4_ppm ~ as.matrix(FeReductionBC_start), ncomp = 7, method = "GCV")
 summary(start.FeReduction.dbplsr)
 #plot(start.FeReduction.dbplsr)
 
-finish.FeReduction.dbplsr <- dbplsr(GHG_finish_metaG$mg.CH4.N.m.2 ~ as.matrix(FeReductionBC_finish), ncomp = 15, method = "GCV")
+finish.FeReduction.dbplsr <- dbplsr(GHG_finish_metaG$ch4_ppm ~ as.matrix(FeReductionBC_finish), ncomp = 15, method = "GCV")
 summary(finish.FeReduction.dbplsr)
 #plot(finish.FeReduction.dbplsr)
 ```
 
 ```{r DBPLSR barplots}
-# read in formatted table of dbplsr component 2 adjuste R2 results:
+# read in formatted table of dbplsr component 2 adjusted R2 results:
 dbplsr_comp2 <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/dbplsr_comp2.csv")
 
 
@@ -1124,7 +1021,7 @@ methane.dbplsr.plot <- ggplot(data = dbplsr_meth_modules, aes(x=Timepoint, y=Com
 
 methane.dbplsr.plot
 
-ggsave("../figures/Thesis/methane_dbplsr_plot.png", plot=methane.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=300, limitsize=TRUE, bg = "white")
+#ggsave("../figures/Thesis/methane_dbplsr_plot.png", plot=methane.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=300, limitsize=TRUE, bg = "white")
 
 # CO2:
 dbplsr_CO2_modules <- dplyr::filter(dbplsr_comp2, dbplsr_comp2$GHG == "CO2", .preserve = T)
@@ -1148,7 +1045,7 @@ CO2.dbplsr.plot <- ggplot(data = dbplsr_CO2_modules, aes(x=Timepoint, y=Comp2_ad
 
 CO2.dbplsr.plot
 
-ggsave("../figures/Thesis/CO2_dbplsr_plot.png", plot=CO2.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=300, limitsize=TRUE, bg = "white")
+#ggsave("../figures/Thesis/CO2_dbplsr_plot.png", plot=CO2.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=300, limitsize=TRUE, bg = "white")
 ```
 
 
@@ -1276,6 +1173,9 @@ pcoa_denit2.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 denit_centroids_points_merged <- rbind(pcoa_denit2.cent.dataframe.trts, pcoa_denit2.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_denit_DF <- as.data.frame(pcoa_denit$points)
 ```
 ```{r envfit with GHGs ONLY}
 #Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
@@ -1290,7 +1190,7 @@ denit_centroids_points_merged <- rbind(pcoa_denit2.cent.dataframe.trts, pcoa_den
 ```
 ```{r denit SSF envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_denit_SSF <- envfit(pcoa_denit$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_denit_SSF <- envfit(pcoa_denit_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_denit_SSF
 
 A_denit_SSF <-as.list(fit_denit_SSF$vectors)
@@ -1312,8 +1212,8 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_denit}%)")) + ylab(glue("PCoA 2 ({explainvar2b_denit}%)")) + 
-  geom_segment(data=vec_denit_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_denit_SSF, aes(x=Dim1+0.04, y=Dim2), label= expression(paste("mg CO"[2],"-C m"^{-2})), size=3, inherit.aes=F)+
+  geom_segment(data=vec_denit_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
+ geom_text(data=vec_denit_SSF, aes(x=V1+0.04, y=V2), label= expression(paste("mg CO")), size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1392,9 +1292,11 @@ pcoa_denit_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 denit_FIN_centroids_points_merged <- rbind(pcoa_denit_FIN.cent.dataframe.trts, pcoa_denit_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_denit_FINAL_DF <- as.data.frame(pcoa_denit_FINAL$points)
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_denit_SFO <- envfit(pcoa_denit_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_denit_SFO <- envfit(pcoa_denit_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_denit_SFO
 
 A_denit_SFO <-as.list(fit_denit_SFO$vectors)
@@ -1417,8 +1319,8 @@ plot3a <- ggplot(df3a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_denit_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_denit_FIN}%)")) + 
-  geom_segment(data=vec_denit_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")), colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_denit_SFO, aes(x=Dim1, y=Dim2+0.01), label= expression(paste("mg CO"[2],"-C m"^{-2})), size=3, inherit.aes=F)+
+  geom_segment(data=vec_denit_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")), colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_denit_SFO, aes(x=V1, y=V2+0.01), label= expression(paste("CO"[2])), size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1491,6 +1393,9 @@ pcoa_meth2.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 meth_centroids_points_merged <- rbind(pcoa_meth2.cent.dataframe.trts, pcoa_meth2.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_meth_DF <- as.data.frame(pcoa_meth$points)
 ```
 ```{r envfit with GHGs ONLY}
 #Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
@@ -1505,7 +1410,7 @@ meth_centroids_points_merged <- rbind(pcoa_meth2.cent.dataframe.trts, pcoa_meth2
 ```
 ```{r meth SSF envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_meth_SSF <- envfit(pcoa_meth$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_meth_SSF <- envfit(pcoa_meth_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_meth_SSF
 
 A_meth_SSF <-as.list(fit_meth_SSF$vectors)
@@ -1607,9 +1512,11 @@ pcoa_meth_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 meth_FIN_centroids_points_merged <- rbind(pcoa_meth_FIN.cent.dataframe.trts, pcoa_meth_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_meth_FINAL_DF <- as.data.frame(pcoa_meth_FINAL$points)
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_meth_SFO <- envfit(pcoa_meth_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_meth_SFO <- envfit(pcoa_meth_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_meth_SFO
 
 A_meth_SFO <-as.list(fit_meth_SFO$vectors)
@@ -1634,8 +1541,8 @@ plot3b <- ggplot(df3b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_meth_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_meth_FIN}%)")) + 
-  geom_segment(data=vec_meth_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_meth_SFO, aes(x=Dim1-0.01, y=Dim2), label=vec_meth_SFO$labels, size=3.5, inherit.aes=F)+
+  geom_segment(data=vec_meth_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_meth_SFO, aes(x=V1-0.01, y=V2), label=vec_meth_SFO$labels, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1709,6 +1616,9 @@ pcoa_carb_metab2.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 carb_metab_centroids_points_merged <- rbind(pcoa_carb_metab2.cent.dataframe.trts, pcoa_carb_metab2.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_carb_metab_DF <- as.data.frame(pcoa_carb_metab$points)
 ```
 ```{r envfit with GHGs ONLY}
 #Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
@@ -1723,7 +1633,7 @@ carb_metab_centroids_points_merged <- rbind(pcoa_carb_metab2.cent.dataframe.trts
 ```
 ```{r carb_metab SSF envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_carb_metab_SSF <- envfit(pcoa_carb_metab$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_carb_metab_SSF <- envfit(pcoa_carb_metab_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_carb_metab_SSF
 
 A_carb_metab_SSF <-as.list(fit_carb_metab_SSF$vectors)
@@ -1744,8 +1654,8 @@ plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_carb_metab}%)")) + ylab(glue("PCoA 2 ({explainvar2b_carb_metab}%)")) + 
-  #geom_segment(data=vec_carb_metab_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- #geom_text(data=vec_carb_metab_SSF, aes(x=Dim1-0.01, y=Dim2-0.005), label= c(expression(paste("mg CO"[2],"-C m"^{-2})), "%paint removed (redox)"), size=3, inherit.aes=F)+
+  geom_segment(data=vec_carb_metab_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
+ geom_text(data=vec_carb_metab_SSF, aes(x=V1-0.01, y=V2-0.005), label= expression(paste("CO"[2])), size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1822,9 +1732,12 @@ pcoa_carb_metab_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 carb_metab_FIN_centroids_points_merged <- rbind(pcoa_carb_metab_FIN.cent.dataframe.trts, pcoa_carb_metab_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_carb_metab_FINAL_DF <- as.data.frame(pcoa_carb_metab_FINAL$points)
+
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_carb_metab_SFO <- envfit(pcoa_carb_metab_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_carb_metab_SFO <- envfit(pcoa_carb_metab_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_carb_metab_SFO
 
 A_carb_metab_SFO <-as.list(fit_carb_metab_SFO$vectors)
@@ -1849,8 +1762,8 @@ plot3c <- ggplot(df3c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_carb_metab_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_carb_metab_FIN}%)")) + 
-  geom_segment(data=vec_carb_metab_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_carb_metab_SFO, aes(x=Dim1, y=Dim2), label=vec_carb_metab_SFO$labels, size=3, check_overlap = T, nudge_x = 0.01, inherit.aes=F)+
+  geom_segment(data=vec_carb_metab_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_carb_metab_SFO, aes(x=V1, y=V2), label=vec_carb_metab_SFO$labels, size=4, check_overlap = T, nudge_x = 0.01, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1924,6 +1837,9 @@ pcoa_cytoCox2.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 cytoCox_centroids_points_merged <- rbind(pcoa_cytoCox2.cent.dataframe.trts, pcoa_cytoCox2.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_cytoCox_DF <- as.data.frame(pcoa_cytoCox$points)
 ```
 ```{r envfit with GHGs ONLY}
 #Run envfit to see which [GHG]s (start or finish) have good fit with ordination:
@@ -1938,7 +1854,7 @@ cytoCox_centroids_points_merged <- rbind(pcoa_cytoCox2.cent.dataframe.trts, pcoa
 ```
 ```{r cytoCox SSF envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_cytoCox_SSF <- envfit(pcoa_cytoCox$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_cytoCox_SSF <- envfit(pcoa_cytoCox_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_cytoCox_SSF
 
 A_cytoCox_SSF <-as.list(fit_cytoCox_SSF$vectors)
@@ -2035,9 +1951,11 @@ pcoa_cytoCox_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 cytoCox_FIN_centroids_points_merged <- rbind(pcoa_cytoCox_FIN.cent.dataframe.trts, pcoa_cytoCox_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_cytoCox_FINAL_DF <- as.data.frame(pcoa_cytoCox_FINAL$points)
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_cytoCox_SFO <- envfit(pcoa_cytoCox_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_cytoCox_SFO <- envfit(pcoa_cytoCox_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_cytoCox_SFO
 
 A_cytoCox_SFO <-as.list(fit_cytoCox_SFO$vectors)
@@ -2047,7 +1965,6 @@ vec_cytoCox_SFO <- cbind(vec_cytoCox_SFO, p_cytoCox_SFO)
 vec_cytoCox_SFO <- subset(vec_cytoCox_SFO, A_cytoCox_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
-#vec_cytoCox_SFO$labels <- c("ppm P", "ppm Zn", "ppm Cu")
 vec_cytoCox_SFO$labels <- c("P", "Zn", "Cu")
 
 
@@ -2063,8 +1980,8 @@ plot3d <- ggplot(df3d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_cytoCox_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_cytoCox_FIN}%)")) + 
-  geom_segment(data=vec_cytoCox_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_cytoCox_SFO, aes(x=Dim1-0.005, y=Dim2), label=vec_cytoCox_SFO$labels, size=3.5, inherit.aes=F)+
+  geom_segment(data=vec_cytoCox_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_cytoCox_SFO, aes(x=V1-0.005, y=V2), label=vec_cytoCox_SFO$labels, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2160,10 +2077,13 @@ pcoa_SO4_S_Assim2.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 SO4_S_Assim_centroids_points_merged <- rbind(pcoa_SO4_S_Assim2.cent.dataframe.trts, pcoa_SO4_S_Assim2.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_SO4_S_Assim_DF <- as.data.frame(pcoa_SO4_S_Assim$points)
 ```
 ```{r SO4_S_Assim envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_SO4_S_Assim_SSF <- envfit(pcoa_SO4_S_Assim$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_SO4_S_Assim_SSF <- envfit(pcoa_SO4_S_Assim_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_SO4_S_Assim_SSF
 
 A_SO4_S_Assim_SSF <-as.list(fit_SO4_S_Assim_SSF$vectors)
@@ -2171,6 +2091,9 @@ vec_SO4_S_Assim_SSF <- as.data.frame(fit_SO4_S_Assim_SSF$vectors$arrows*sqrt(fit
 p_SO4_S_Assim_SSF <- as.data.frame(A_SO4_S_Assim_SSF$pvals)
 vec_SO4_S_Assim_SSF <- cbind(vec_SO4_S_Assim_SSF, p_SO4_S_Assim_SSF)
 vec_SO4_S_Assim_SSF <- subset(vec_SO4_S_Assim_SSF, A_SO4_S_Assim_SSF$pvals<0.05)
+
+# add vector lables for envfit on PCoA:
+vec_SO4_S_Assim_SSF$vec_labels <- c(expression(paste("CO"[2])), "%paint removed (redox)")
 
 #Plot using ggplot2
 df4a <- as.data.frame(SO4_S_Assim_centroids_points_merged)
@@ -2184,8 +2107,8 @@ plot4a <- ggplot(df4a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_SO4_S_Assim}%)")) + ylab(glue("PCoA 2 ({explainvar2b_SO4_S_Assim}%)")) + 
-  geom_segment(data=vec_SO4_S_Assim_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_SO4_S_Assim_SSF, aes(x=Dim1, y=Dim2-0.003), label= "%paint removed (redox)", size=3, inherit.aes=F)+
+  geom_segment(data=vec_SO4_S_Assim_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
+ geom_text(data=vec_SO4_S_Assim_SSF, aes(x=V1-0.004, y=V2-0.003), label= vec_SO4_S_Assim_SSF$vec_labels, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2262,9 +2185,12 @@ pcoa_SO4_S_Assim_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 SO4_S_Assim_FIN_centroids_points_merged <- rbind(pcoa_SO4_S_Assim_FIN.cent.dataframe.trts, pcoa_SO4_S_Assim_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_SO4_S_Assim_FINAL_DF <- as.data.frame(pcoa_SO4_S_Assim_FINAL$points)
+
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_SO4_S_Assim_SFO <- envfit(pcoa_SO4_S_Assim_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_SO4_S_Assim_SFO <- envfit(pcoa_SO4_S_Assim_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_SO4_S_Assim_SFO
 
 A_SO4_S_Assim_SFO <-as.list(fit_SO4_S_Assim_SFO$vectors)
@@ -2289,8 +2215,8 @@ plot5a <- ggplot(df5a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_SO4_S_Assim_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_SO4_S_Assim_FIN}%)")) + 
-  geom_segment(data=vec_SO4_S_Assim_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_SO4_S_Assim_SFO, aes(x=Dim1-0.007, y=Dim2+0.003), label=vec_SO4_S_Assim_SFO$labels, size=3.5, inherit.aes=F)+
+  geom_segment(data=vec_SO4_S_Assim_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_SO4_S_Assim_SFO, aes(x=V1-0.007, y=V2+0.003), label=vec_SO4_S_Assim_SFO$labels, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2301,7 +2227,7 @@ plot5a <- ggplot(df5a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
   guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
            colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
-    ggtitle("Sulfate-S Assimilation")
+    ggtitle("Sulfate-S Assimilation Week 8")
 
 plot5a
 ```
@@ -2362,10 +2288,13 @@ pcoa_Assim_SO4_red2.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 Assim_SO4_red_centroids_points_merged <- rbind(pcoa_Assim_SO4_red2.cent.dataframe.trts, pcoa_Assim_SO4_red2.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_Assim_SO4_red_DF <- as.data.frame(pcoa_Assim_SO4_red$points)
 ```
 ```{r Assim_SO4_red envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_Assim_SO4_red_SSF <- envfit(pcoa_Assim_SO4_red$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_Assim_SO4_red_SSF <- envfit(pcoa_Assim_SO4_red_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_Assim_SO4_red_SSF
 
 A_Assim_SO4_red_SSF <-as.list(fit_Assim_SO4_red_SSF$vectors)
@@ -2375,8 +2304,11 @@ vec_Assim_SO4_red_SSF <- cbind(vec_Assim_SO4_red_SSF, p_Assim_SO4_red_SSF)
 vec_Assim_SO4_red_SSF <- subset(vec_Assim_SO4_red_SSF, A_Assim_SO4_red_SSF$pvals<0.05)
 
 # Add a column with nudges for nudge_x and nudge_y:
-vec_Assim_SO4_red_SSF$X_nudge <- c(0.02, 0)
+vec_Assim_SO4_red_SSF$X_nudge <- c(0.01, 0)
 vec_Assim_SO4_red_SSF$Y_nudge <- c(-0.0035, 0.005)
+
+# Add column with vector labels for envfit on PCoA:
+vec_Assim_SO4_red_SSF$vec_labels <- c(expression(paste("CO"[2])), "%paint removed (redox)")
 
 #Plot using ggplot2
 df4b <- as.data.frame(Assim_SO4_red_centroids_points_merged)
@@ -2390,8 +2322,8 @@ plot4b <- ggplot(df4b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_Assim_SO4_red}%)")) + ylab(glue("PCoA 2 ({explainvar2b_Assim_SO4_red}%)")) + 
-  geom_segment(data=vec_Assim_SO4_red_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_Assim_SO4_red_SSF, aes(x=Dim1, y=Dim2), label= c(expression(paste("mg CO"[2],"-C m"^{-2})), "%paint removed (redox)"), size=3, nudge_x = vec_Assim_SO4_red_SSF$X_nudge, nudge_y = vec_Assim_SO4_red_SSF$Y_nudge, inherit.aes=F)+
+  geom_segment(data=vec_Assim_SO4_red_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
+ geom_text(data=vec_Assim_SO4_red_SSF, aes(x=V1, y=V2), label= vec_Assim_SO4_red_SSF$vec_labels, size=4, nudge_x = vec_Assim_SO4_red_SSF$X_nudge, nudge_y = vec_Assim_SO4_red_SSF$Y_nudge, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2406,7 +2338,7 @@ plot4b <- ggplot(df4b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 
 plot4b
 
-ggsave("../figures/Thesis/Assim_sulf_red.png", plot = plot4b, path=NULL, device="png", scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
+#ggsave("../figures/Thesis/Assim_sulf_red.png", plot = plot4b, path=NULL, device="png", scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
 ```{r PCoA: Assim_SO4_red finish only}
@@ -2470,9 +2402,11 @@ pcoa_Assim_SO4_red_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 Assim_SO4_red_FIN_centroids_points_merged <- rbind(pcoa_Assim_SO4_red_FIN.cent.dataframe.trts, pcoa_Assim_SO4_red_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_Assim_SO4_red_FINAL_DF <- as.data.frame(pcoa_Assim_SO4_red_FINAL$points)
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_Assim_SO4_red_SFO <- envfit(pcoa_Assim_SO4_red_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_Assim_SO4_red_SFO <- envfit(pcoa_Assim_SO4_red_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_Assim_SO4_red_SFO
 
 A_Assim_SO4_red_SFO <-as.list(fit_Assim_SO4_red_SFO$vectors)
@@ -2496,9 +2430,9 @@ plot5b <- ggplot(df5b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
-  xlab(glue("PCoA 1 ({explainvar1_Assim_SO4_red_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_Assim_SO4_red_FIN}%)")) + 
-  geom_segment(data=vec_Assim_SO4_red_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_Assim_SO4_red_SFO, aes(x=Dim1-0.005, y=Dim2+0.002), label=vec_Assim_SO4_red_SFO$labels, size=2.5, inherit.aes=F)+
+  xlab(glue("PCoA 1 ({explainvar1_Assim_SO4_red_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_Assim_SO4_red_FIN}%)"))+
+  geom_segment(data=vec_Assim_SO4_red_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_Assim_SO4_red_SFO, aes(x=V1-0.005, y=V2+0.002), label=vec_Assim_SO4_red_SFO$labels, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2509,7 +2443,7 @@ plot5b <- ggplot(df5b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
   guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
            colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
-    ggtitle("Assimilatory Sulfate Reduction")
+    ggtitle("Assimilatory Sulfate Reduction Week 8")
 
 plot5b
 ```
@@ -2570,10 +2504,13 @@ pcoa_Dissim_SO4_red2.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 Dissim_SO4_red_centroids_points_merged <- rbind(pcoa_Dissim_SO4_red2.cent.dataframe.trts, pcoa_Dissim_SO4_red2.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_Dissim_SO4_red_DF <- as.data.frame(pcoa_Dissim_SO4_red$points)
 ```
 ```{r Dissim_SO4_red envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_Dissim_SO4_red_SSF <- envfit(pcoa_Dissim_SO4_red$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_Dissim_SO4_red_SSF <- envfit(pcoa_Dissim_SO4_red_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_Dissim_SO4_red_SSF
 
 A_Dissim_SO4_red_SSF <-as.list(fit_Dissim_SO4_red_SSF$vectors)
@@ -2669,9 +2606,12 @@ pcoa_Dissim_SO4_red_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 Dissim_SO4_red_FIN_centroids_points_merged <- rbind(pcoa_Dissim_SO4_red_FIN.cent.dataframe.trts, pcoa_Dissim_SO4_red_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_Dissim_SO4_red_FINAL_DF <- as.data.frame(pcoa_Dissim_SO4_red_FINAL$points)
+
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_Dissim_SO4_red_SFO <- envfit(pcoa_Dissim_SO4_red_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_Dissim_SO4_red_SFO <- envfit(pcoa_Dissim_SO4_red_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_Dissim_SO4_red_SFO
 
 A_Dissim_SO4_red_SFO <-as.list(fit_Dissim_SO4_red_SFO$vectors)
@@ -2681,7 +2621,7 @@ vec_Dissim_SO4_red_SFO <- cbind(vec_Dissim_SO4_red_SFO, p_Dissim_SO4_red_SFO)
 vec_Dissim_SO4_red_SFO <- subset(vec_Dissim_SO4_red_SFO, A_Dissim_SO4_red_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
-vec_Dissim_SO4_red_SFO$labels <- c(expression(paste("mg CH"[4],"-C m"^{-2})), "P", "Ca", "Cu")
+vec_Dissim_SO4_red_SFO$labels <- c(expression(paste("CH"[4])), "P", "Ca", "Cu")
 
 
 
@@ -2697,8 +2637,8 @@ plot5c <- ggplot(df5c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_Dissim_SO4_red_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_Dissim_SO4_red_FIN}%)")) + 
-  geom_segment(data=vec_Dissim_SO4_red_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_Dissim_SO4_red_SFO, aes(x=Dim1+0.001, y=Dim2+0.005), label=vec_Dissim_SO4_red_SFO$labels, size=3.5, inherit.aes=F)+
+  geom_segment(data=vec_Dissim_SO4_red_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_Dissim_SO4_red_SFO, aes(x=V1+0.001, y=V2+0.005), label=vec_Dissim_SO4_red_SFO$labels, size=3.5, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2709,7 +2649,7 @@ plot5c <- ggplot(df5c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
   guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
            colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
-    ggtitle("Dissimilatory Sulfate Reduction")
+    ggtitle("Dissimilatory Sulfate Reduction Week 8")
 
 plot5c
 
@@ -2771,10 +2711,13 @@ pcoa_ThioSOX2.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 ThioSOX_centroids_points_merged <- rbind(pcoa_ThioSOX2.cent.dataframe.trts, pcoa_ThioSOX2.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_ThioSOX_DF <- as.data.frame(pcoa_ThioSOX$points)
 ```
 ```{r ThioSox envfit and PCoA}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_ThioSOX_SSF <- envfit(pcoa_ThioSOX$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_ThioSOX_SSF <- envfit(pcoa_ThioSOX_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_ThioSOX_SSF
 
 A_ThioSOX_SSF <-as.list(fit_ThioSOX_SSF$vectors)
@@ -2870,9 +2813,11 @@ pcoa_ThioSOX_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 ThioSOX_FIN_centroids_points_merged <- rbind(pcoa_ThioSOX_FIN.cent.dataframe.trts, pcoa_ThioSOX_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_ThioSOX_FINAL_DF <- as.data.frame(pcoa_ThioSOX_FINAL$points)
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_ThioSOX_SFO <- envfit(pcoa_ThioSOX_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_ThioSOX_SFO <- envfit(pcoa_ThioSOX_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_ThioSOX_SFO
 
 A_ThioSOX_SFO <-as.list(fit_ThioSOX_SFO$vectors)
@@ -2900,8 +2845,8 @@ plot5d <- ggplot(df5d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_ThioSOX_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_ThioSOX_FIN}%)")) + 
-  geom_segment(data=vec_ThioSOX_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_ThioSOX_SFO, aes(x=Dim1+0.003, y=Dim2+0.006), label=vec_ThioSOX_SFO$labels, nudge_x = vec_ThioSOX_SFO$X_nudge, nudge_y = vec_ThioSOX_SFO$Y_nudge, size=3.5, inherit.aes=F)+
+  geom_segment(data=vec_ThioSOX_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_ThioSOX_SFO, aes(x=V1+0.003, y=V2+0.006), label=vec_ThioSOX_SFO$labels, nudge_x = vec_ThioSOX_SFO$X_nudge, nudge_y = vec_ThioSOX_SFO$Y_nudge, size=3.5, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2912,7 +2857,7 @@ plot5d <- ggplot(df5d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
   guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
            colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
-    ggtitle("Thiosulfate Oxidation by SOX")
+    ggtitle("Thiosulfate Oxidation by SOX Week 8")
 
 plot5d
 ```
@@ -2924,9 +2869,7 @@ S_pcoa_4panel_SSF <- ggarrange(plot4a, plot4b, plot4c, plot4d, labels = c("A", "
 
 S_pcoa_4panel_SSF
 
-#ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 300)
-
-#ggsave("../figures/Thesis/S_pcoa4panel_SSF.jpg", plot = S_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
+#ggsave("../figures/Fe_S_manuscript/S_pcoa4panel_SSF.jpg", plot = S_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 12, limitsize = TRUE, dpi = 600)
 
 # 4 panel Sulfur PCoA, Finish samples only (SFO)
 
@@ -2934,7 +2877,7 @@ S_pcoa_4panel_SFO <- ggarrange(plot5a, plot5b, plot5c, plot5d, labels = c("A", "
 
 S_pcoa_4panel_SFO
 
-#ggsave("../figures/Thesis/S_pcoa4panel_SFO.jpg", plot = S_pcoa_4panel_SFO, device=NULL, path=NULL, scale=1, height = 7, width = 12, limitsize = TRUE, dpi = 600)
+#ggsave("../figures/Fe_S_manuscript/S_pcoa4panel_SFO.jpg", plot = S_pcoa_4panel_SFO, device=NULL, path=NULL, scale=1, height = 7, width = 12, limitsize = TRUE, dpi = 600)
 ```
 
 ```{r FeGenie total: SSF}
@@ -2992,10 +2935,13 @@ pcoa_FeGenie.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 FeGenie_centroids_points_merged <- rbind(pcoa_FeGenie.cent.dataframe.trts, pcoa_FeGenie.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_FeGenie_DF <- as.data.frame(pcoa_FeGenie$points)
 ```
 ```{r FeGenie SSF envit and plot}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_FeGenie_SSF <- envfit(pcoa_FeGenie$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_FeGenie_SSF <- envfit(pcoa_FeGenie_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_FeGenie_SSF
 
 A_FeGenie_SSF <-as.list(fit_FeGenie_SSF$vectors)
@@ -3004,8 +2950,6 @@ p_FeGenie_SSF <- as.data.frame(A_FeGenie_SSF$pvals)
 vec_FeGenie_SSF <- cbind(vec_FeGenie_SSF, p_FeGenie_SSF)
 vec_FeGenie_SSF <- subset(vec_FeGenie_SSF, A_FeGenie_SSF$pvals<0.05)
 
-# Add column with labels, for plotting:
-#vec_FeGenie_SSF$labels <- c(expression(paste("mg CH"[4],"-C m"^{-2})), "P", "Ca", "Cu")
 
 #Plot using ggplot2
 df6a <- as.data.frame(FeGenie_centroids_points_merged)
@@ -3094,9 +3038,12 @@ pcoa_FeGenie_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 FeGenie_FIN_centroids_points_merged <- rbind(pcoa_FeGenie_FIN.cent.dataframe.trts, pcoa_FeGenie_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_FeGenie_FINAL_DF <- as.data.frame(pcoa_FeGenie_FINAL$points)
+
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_FeGenie_SFO <- envfit(pcoa_FeGenie_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_FeGenie_SFO <- envfit(pcoa_FeGenie_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_FeGenie_SFO
 
 A_FeGenie_SFO <-as.list(fit_FeGenie_SFO$vectors)
@@ -3121,8 +3068,8 @@ plot6b <- ggplot(df6b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_FeGenie_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_FeGenie_FIN}%)")) + 
-  geom_segment(data=vec_FeGenie_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_FeGenie_SFO, aes(x=Dim1, y=Dim2+0.005), label=vec_FeGenie_SFO$labels, size=3.5, inherit.aes=F)+
+  geom_segment(data=vec_FeGenie_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_FeGenie_SFO, aes(x=V1, y=V2+0.005), label=vec_FeGenie_SFO$labels, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -3147,7 +3094,7 @@ FeGenieTotal_2panel <- ggarrange(plot6a, plot6b, ncol = 1, nrow = 2, labels = c(
 
 FeGenieTotal_2panel
 
-#ggsave("../figures/Thesis/FeGenieTotal_2panel.jpg", plot = FeGenieTotal_2panel, device=NULL, path=NULL, scale=1, height = 10, width = 7, limitsize = TRUE, dpi = 600)
+#ggsave("../figures/Fe_S_manuscript/FeGenieTotal_2panel.jpg", plot = FeGenieTotal_2panel, device=NULL, path=NULL, scale=1, height = 10, width = 7, limitsize = TRUE, dpi = 600)
 ```
 
 ```{r Fe reduction FeGenie: SSF}
@@ -3205,10 +3152,13 @@ pcoa_FeReduction.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 FeReduction_centroids_points_merged <- rbind(pcoa_FeReduction.cent.dataframe.trts, pcoa_FeReduction.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_FeReduction_DF <- as.data.frame(pcoa_FeReduction$points)
 ```
 ```{r Fe reduction FeGenie SSF envit and plot}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_FeReduction_SSF <- envfit(pcoa_FeReduction$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_FeReduction_SSF <- envfit(pcoa_FeReduction_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_FeReduction_SSF
 
 A_FeReduction_SSF <-as.list(fit_FeReduction_SSF$vectors)
@@ -3307,9 +3257,11 @@ pcoa_FeReduction_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 FeReduction_FIN_centroids_points_merged <- rbind(pcoa_FeReduction_FIN.cent.dataframe.trts, pcoa_FeReduction_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_FeReduction_FINAL_DF <- as.data.frame(pcoa_FeReduction_FINAL$points)
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_FeReduction_SFO <- envfit(pcoa_FeReduction_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_FeReduction_SFO <- envfit(pcoa_FeReduction_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_FeReduction_SFO
 
 A_FeReduction_SFO <-as.list(fit_FeReduction_SFO$vectors)
@@ -3319,7 +3271,7 @@ vec_FeReduction_SFO <- cbind(vec_FeReduction_SFO, p_FeReduction_SFO)
 vec_FeReduction_SFO <- subset(vec_FeReduction_SFO, A_FeReduction_SFO$pvals<0.05)
 
 # Add column with labels, for plotting:
-vec_FeReduction_SFO$labels <- c(expression(paste("mg CH"[4],"-C m"^{-2})), "%C, %N", "%N, %C", "P", "Ca", "Cu", "CEC")
+vec_FeReduction_SFO$labels <- c(expression(paste("CH"[4])), "%C, %N", "%N, %C", "P", "Ca", "Cu", "CEC")
   # %C and %N will overlap below, and one label needs to be removed using check_overlap = T. So, the label for both has been combined into one
 
 #Plot using ggplot2
@@ -3334,8 +3286,8 @@ plot7b <- ggplot(df7b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_FeReduction_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_FeReduction_FIN}%)")) + 
-  geom_segment(data=vec_FeReduction_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_FeReduction_SFO, aes(x=Dim1, y=Dim2+0.02), label=vec_FeReduction_SFO$labels, size=3.5, check_overlap = T,inherit.aes=F)+
+  geom_segment(data=vec_FeReduction_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_FeReduction_SFO, aes(x=V1, y=V2+0.02), label=vec_FeReduction_SFO$labels, size=4, check_overlap = T,inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -3409,10 +3361,13 @@ pcoa_SO4_red_combined.points_ForPlot$centroid_or_sample <- "sample"
 
 #Merge:
 SO4_red_combined_centroids_points_merged <- rbind(pcoa_SO4_red_combined.cent.dataframe.trts, pcoa_SO4_red_combined.points_ForPlot)
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_SO4_red_combined_DF <- as.data.frame(pcoa_SO4_red_combined$points)
 ```
 ```{r SO4 reduction combined SSF envit and plot}
 #Run envfit with new Soil data (SSF = Soil Start & Finish):
-fit_SO4_red_combined_SSF <- envfit(pcoa_SO4_red_combined$points, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_SO4_red_combined_SSF <- envfit(pcoa_SO4_red_combined_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
 fit_SO4_red_combined_SSF
 
 A_SO4_red_combined_SSF <-as.list(fit_SO4_red_combined_SSF$vectors)
@@ -3436,8 +3391,8 @@ plot7c <- ggplot(df7c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_SO4_red_combined}%)")) + ylab(glue("PCoA 2 ({explainvar2_SO4_red_combined}%)")) + 
-  geom_segment(data=vec_SO4_red_combined_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_SO4_red_combined_SSF, aes(x=Dim1, y=Dim2-0.004), label=vec_SO4_red_combined_SSF$labels, size=3.5, inherit.aes=F)+
+  geom_segment(data=vec_SO4_red_combined_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_SO4_red_combined_SSF, aes(x=V1, y=V2-0.004), label=vec_SO4_red_combined_SSF$labels, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -3513,9 +3468,12 @@ pcoa_SO4_red_combined_FIN.points_ForPlot$centroid_or_sample <- "sample"
 #Merge:
 SO4_red_combined_FIN_centroids_points_merged <- rbind(pcoa_SO4_red_combined_FIN.cent.dataframe.trts, pcoa_SO4_red_combined_FIN.points_ForPlot)
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_SO4_red_combined_FINAL_DF <- as.data.frame(pcoa_SO4_red_combined_FINAL$points)
+
 
 #Run envfit with new Soil data (SFO = Soil Finish Only):
-fit_SO4_red_combined_SFO <- envfit(pcoa_SO4_red_combined_FINAL$points, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
+fit_SO4_red_combined_SFO <- envfit(pcoa_SO4_red_combined_FINAL_DF, envfit_FINISH_numerical, permutations = 10000, set.seed(42))
 fit_SO4_red_combined_SFO
 
 A_SO4_red_combined_SFO <-as.list(fit_SO4_red_combined_SFO$vectors)
@@ -3540,8 +3498,8 @@ plot7d <- ggplot(df7d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1_SO4_red_combined_FIN}%)")) + ylab(glue("PCoA 2 ({explainvar2_SO4_red_combined_FIN}%)")) + 
-  geom_segment(data=vec_SO4_red_combined_SFO, aes(x=0,xend=Dim1,y=0,yend=Dim2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
- geom_text(data=vec_SO4_red_combined_SFO, aes(x=Dim1, y=Dim2+0.005), label=vec_SO4_red_combined_SFO$labels, size=3.5, inherit.aes=F)+
+  geom_segment(data=vec_SO4_red_combined_SFO, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+ geom_text(data=vec_SO4_red_combined_SFO, aes(x=V1, y=V2+0.005), label=vec_SO4_red_combined_SFO$labels, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -3565,7 +3523,7 @@ FeRed_SO4Red_4panel <- ggarrange(plot7a, plot7b, plot7c, plot7d, ncol = 2, nrow 
 
 FeRed_SO4Red_4panel
 
-#ggsave("../figures/Thesis/FeRed_SO4Red_4panel.jpg", plot = FeRed_SO4Red_4panel, device=NULL, path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
+#ggsave("../figures/Fe_S_manuscript/FeRed_SO4Red_4panel.jpg", plot = FeRed_SO4Red_4panel, device=NULL, path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
 ```
 
 ```{r 3-panel ASR/DSR/FeR}
@@ -3573,9 +3531,10 @@ ASR_DSR_FeR_3panel <- ggarrange(plot4b, plot4c, plot7a, ncol = 3, nrow = 1, labe
 
 ASR_DSR_FeR_3panel
 
-ggsave("../figures/Thesis/ASR_DSR_FeR_3panel.png", plot = ASR_DSR_FeR_3panel, device="png", path=NULL, scale=1, height = 5, width = 20, limitsize = F, dpi = 300, bg = "white")
+#ggsave("../figures/Thesis/ASR_DSR_FeR_3panel.png", plot = ASR_DSR_FeR_3panel, device="png", path=NULL, scale=1, height = 5, width = 20, limitsize = F, dpi = 300, bg = "white")
 ```
 
+### More stats (PERMANOVA and Mantel)
 
 ```{r PERMANOVA on Finish only gene sets}
 # this chunk is down here because *RA_FIN_design data frames were made in PCoAs. This chunk, and the creation of *RA_FIN_design data frames may be re positioned later.

@@ -1,0 +1,22 @@
+#                                                                                                     --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                                 accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                                       -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394824_0000027_56 -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            3.3e-31  109.6   4.6   9.8e-31  108.1   4.4   1.7   1   1   0   1   1   1   1 # 52301 # 53005 # -1 # ID=2150_56;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.671
+Ga0394821_0003471_2  -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            7.8e-22   79.0   4.6   2.3e-21   77.5   4.3   1.9   1   1   0   1   1   1   1 # 1003 # 1620 # -1 # ID=4619_2;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.647
+Ga0394824_0003449_3  -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            7.8e-22   79.0   4.6   2.3e-21   77.5   4.3   1.9   1   1   0   1   1   1   1 # 2335 # 2952 # 1 # ID=2707_3;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.647
+Ga0394821_0003246_1  -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            4.2e-20   73.4   0.3   4.7e-20   73.2   0.3   1.1   1   0   0   1   1   1   1 # 137 # 682 # 1 # ID=4817_1;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.716
+Ga0394838_0003881_5  -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            8.6e-17   62.5   1.2   8.6e-17   62.5   1.2   1.8   1   1   1   2   2   2   1 # 5421 # 6149 # 1 # ID=311_5;partial=00;start_type=ATG;rbs_motif=AGGAG/GGAGG;rbs_spacer=11-12bp;gc_cont=0.492
+Ga0394834_0003092_2  -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            4.1e-12   47.2   0.0   6.2e-12   46.7   0.0   1.2   1   0   0   1   1   1   1 # 498 # 1250 # -1 # ID=4406_2;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.754
+Ga0394838_0001069_2  -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            2.6e-05   25.1   0.0     3e-05   24.8   0.0   1.1   1   0   0   1   1   1   1 # 1030 # 1371 # -1 # ID=4714_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.608
+Ga0394821_0000317_7  -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            0.00046   21.0   0.0   0.00059   20.6   0.0   1.1   1   0   0   1   1   1   1 # 3289 # 3855 # 1 # ID=4272_7;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.691
+Ga0394838_0005061_2  -          Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606 -            0.00058   20.6   0.0   0.00071   20.3   0.0   1.0   1   0   0   1   1   1   1 # 1898 # 2245 # -1 # ID=5991_2;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=11-12bp;gc_cont=0.647
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_gene_regulation//Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606.hmm.txt --tblout fegenie_output/fasta.fna-HMM/Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606.hmm.tblout -T 20 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_gene_regulation//Sid_YqjI_regulator_for_YqjH_P64588_Escherichia_coli_180606.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:52 2023
+# [ok]

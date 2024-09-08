@@ -1,0 +1,24 @@
+#                                                                                                                   --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name         accession  query name                                                              accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+# ------------------- ----------                                                    -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394824_0000032_6   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   8.6e-38  131.5   0.0   1.1e-37  131.2   0.0   1.0   1   0   0   1   1   1   1 # 4398 # 5201 # 1 # ID=4284_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.683
+Ga0394817_0000617_4   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   5.3e-36  125.6   0.0     6e-36  125.5   0.0   1.0   1   0   0   1   1   1   1 # 2421 # 3221 # -1 # ID=2828_4;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.687
+Ga0394829_0000001_128 -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   1.3e-28  101.4   0.0   1.5e-28  101.3   0.0   1.0   1   0   0   1   1   1   1 # 174935 # 175711 # 1 # ID=5767_128;partial=00;start_type=TTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.450
+Ga0394838_0000845_6   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   2.4e-25   90.8   0.0   4.3e-25   89.9   0.0   1.4   1   1   0   1   1   1   1 # 11675 # 12616 # -1 # ID=6008_6;partial=00;start_type=GTG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.512
+Ga0394817_0007109_5   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   3.3e-20   73.9   0.0   3.9e-20   73.7   0.0   1.1   1   0   0   1   1   1   1 # 3463 # 4365 # -1 # ID=3005_5;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.687
+Ga0394820_0001890_3   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   3.3e-20   73.9   0.0   3.9e-20   73.7   0.0   1.1   1   0   0   1   1   1   1 # 1042 # 1944 # 1 # ID=2861_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.687
+Ga0394826_0000173_7   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   1.1e-19   72.3   0.0   2.8e-19   70.9   0.0   1.6   1   1   0   1   1   1   1 # 7515 # 8504 # -1 # ID=2592_7;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.328
+Ga0394821_0000216_2   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   2.7e-17   64.4   0.0   4.3e-17   63.7   0.0   1.3   1   1   0   1   1   1   1 # 271 # 1179 # 1 # ID=5626_2;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.747
+Ga0394823_0000287_18  -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18     1e-10   42.9   0.0   1.4e-10   42.4   0.0   1.2   1   0   0   1   1   1   1 # 13929 # 14837 # 1 # ID=3393_18;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.559
+Ga0394831_0000099_8   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18     1e-10   42.9   0.0   1.4e-10   42.4   0.0   1.2   1   0   0   1   1   1   1 # 5906 # 6814 # 1 # ID=3918_8;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.559
+Ga0394821_0000758_6   -          PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA PF01497.18   1.3e-06   29.4   0.0   1.7e-06   29.0   0.0   1.1   1   0   0   1   1   1   1 # 3130 # 3693 # -1 # ID=3132_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.732
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA.hmm.tblout -T 27 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//PF01497_Peripla_BP_2-HatD-SsstD-PhuT-FhuD-HmuT-YfiY-FpuA-FatB-ViuP-CbrA.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:25:18 2023
+# [ok]

@@ -1,0 +1,17 @@
+#                                                                                                                                   --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                                                               accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                                                                     -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394824_0001486_1  -          Iron_uptake_YfeA_Periplasmic_chelated_iron-binding_protein_Q56952_Yersinia_pestis_180610 -            5.9e-48  164.7   0.1   6.5e-48  164.6   0.1   1.0   1   0   0   1   1   1   1 # 1 # 777 # 1 # ID=5132_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.575
+Ga0394821_0000462_3  -          Iron_uptake_YfeA_Periplasmic_chelated_iron-binding_protein_Q56952_Yersinia_pestis_180610 -            6.8e-39  134.9   0.0   9.7e-39  134.4   0.0   1.1   1   0   0   1   1   1   1 # 1488 # 3233 # -1 # ID=3439_3;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.753
+Ga0394821_0001433_7  -          Iron_uptake_YfeA_Periplasmic_chelated_iron-binding_protein_Q56952_Yersinia_pestis_180610 -            1.2e-28  101.3   0.0   1.3e-28  101.2   0.0   1.0   1   0   0   1   1   1   1 # 3972 # 4466 # -1 # ID=4607_7;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.570
+Ga0394828_0007347_2  -          Iron_uptake_YfeA_Periplasmic_chelated_iron-binding_protein_Q56952_Yersinia_pestis_180610 -              1e-14   55.5   0.0   1.5e-14   54.9   0.0   1.2   1   0   0   1   1   1   1 # 1887 # 2819 # 1 # ID=4107_2;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.587
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//Iron_uptake_YfeA_Periplasmic_chelated_iron-binding_protein_Q56952_Yersinia_pestis_180610.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/Iron_uptake_YfeA_Periplasmic_chelated_iron-binding_protein_Q56952_Yersinia_pestis_180610.hmm.txt --tblout fegenie_output/fasta.fna-HMM/Iron_uptake_YfeA_Periplasmic_chelated_iron-binding_protein_Q56952_Yersinia_pestis_180610.hmm.tblout -T 46 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//Iron_uptake_YfeA_Periplasmic_chelated_iron-binding_protein_Q56952_Yersinia_pestis_180610.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:21 2023
+# [ok]

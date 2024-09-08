@@ -1,0 +1,40 @@
+#                                                                --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name         accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+# ------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394829_0000015_31  -          PF03544_TonB_C       PF03544.14   2.7e-34  118.7   0.1     2e-18   67.8   0.0   2.1   2   0   0   2   2   2   2 # 33698 # 34354 # -1 # ID=1615_31;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.489
+Ga0394829_0000014_46  -          PF03544_TonB_C       PF03544.14   6.4e-31  107.9   0.0   2.3e-19   70.8   0.0   2.4   2   0   0   2   2   2   2 # 55899 # 56819 # 1 # ID=199_46;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.455
+Ga0394824_0000007_6   -          PF03544_TonB_C       PF03544.14   4.1e-24   86.0   0.3   2.6e-23   83.5   0.0   2.2   2   0   0   2   2   2   1 # 7756 # 8415 # 1 # ID=4429_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.656
+Ga0394824_0000001_156 -          PF03544_TonB_C       PF03544.14     2e-22   80.6   0.1     2e-22   80.6   0.1   2.3   3   0   0   3   3   1   1 # 203008 # 204042 # -1 # ID=1422_156;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.674
+Ga0394829_0000008_52  -          PF03544_TonB_C       PF03544.14   4.9e-22   79.4   0.1   8.4e-22   78.6   0.1   1.3   1   0   0   1   1   1   1 # 55422 # 56189 # 1 # ID=4383_52;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.525
+Ga0394824_0000084_8   -          PF03544_TonB_C       PF03544.14   5.3e-21   76.1   0.1   3.2e-20   73.6   0.0   2.2   2   0   0   2   2   2   1 # 4424 # 5395 # -1 # ID=3038_8;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.695
+Ga0394824_0000012_53  -          PF03544_TonB_C       PF03544.14   8.6e-20   72.2   0.0   1.5e-19   71.4   0.0   1.4   1   0   0   1   1   1   1 # 48907 # 49584 # -1 # ID=4154_53;partial=00;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=5-10bp;gc_cont=0.690
+Ga0394824_0000155_13  -          PF03544_TonB_C       PF03544.14   8.9e-19   69.0   0.0   2.2e-18   67.7   0.0   1.7   1   0   0   1   1   1   1 # 14236 # 15153 # -1 # ID=1703_13;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.637
+Ga0394824_0000032_26  -          PF03544_TonB_C       PF03544.14   2.6e-18   67.5   0.1   5.1e-18   66.5   0.0   1.6   2   0   0   2   2   1   1 # 33373 # 34239 # -1 # ID=4284_26;partial=00;start_type=GTG;rbs_motif=GGA/GAG/AGG;rbs_spacer=11-12bp;gc_cont=0.687
+Ga0394831_0000300_8   -          PF03544_TonB_C       PF03544.14   1.2e-15   58.9   0.0   5.8e-10   40.7   0.0   2.2   2   0   0   2   2   2   2 # 6105 # 6860 # -1 # ID=1475_8;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.528
+Ga0394838_0008009_5   -          PF03544_TonB_C       PF03544.14   3.8e-15   57.3   0.0   5.9e-15   56.7   0.0   1.3   1   0   0   1   1   1   1 # 3580 # 4062 # -1 # ID=5055_5;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.613
+Ga0394817_0006245_4   -          PF03544_TonB_C       PF03544.14     3e-14   54.4   0.0   6.3e-14   53.4   0.0   1.6   1   0   0   1   1   1   1 # 3135 # 3809 # 1 # ID=3406_4;partial=00;start_type=GTG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.676
+Ga0394820_0001179_9   -          PF03544_TonB_C       PF03544.14     3e-14   54.4   0.0   6.3e-14   53.4   0.0   1.6   1   0   0   1   1   1   1 # 6869 # 7543 # -1 # ID=5294_9;partial=00;start_type=GTG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.676
+Ga0394823_0000147_8   -          PF03544_TonB_C       PF03544.14   5.4e-14   53.6   0.0   9.5e-14   52.8   0.0   1.4   1   0   0   1   1   1   1 # 8619 # 9227 # 1 # ID=2725_8;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.578
+Ga0394831_0001099_3   -          PF03544_TonB_C       PF03544.14   5.4e-14   53.6   0.0   9.5e-14   52.8   0.0   1.4   1   0   0   1   1   1   1 # 2342 # 2950 # -1 # ID=5927_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.578
+Ga0394823_0000408_10  -          PF03544_TonB_C       PF03544.14   8.2e-14   53.0   0.0   2.9e-10   41.7   0.0   2.1   2   0   0   2   2   2   2 # 9709 # 10254 # -1 # ID=5886_10;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.526
+Ga0394823_0000316_11  -          PF03544_TonB_C       PF03544.14   1.5e-12   49.0   0.0   3.3e-12   47.9   0.0   1.7   1   0   0   1   1   1   1 # 8303 # 9376 # -1 # ID=4470_11;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.561
+Ga0394824_0000043_7   -          PF03544_TonB_C       PF03544.14   2.1e-12   48.5   0.0   3.5e-12   47.8   0.0   1.3   1   0   0   1   1   1   1 # 8279 # 8806 # 1 # ID=3242_7;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.733
+Ga0394838_0011373_3   -          PF03544_TonB_C       PF03544.14   7.6e-12   46.7   0.1   2.3e-11   45.2   0.0   1.8   2   0   0   2   2   2   1 # 2540 # 3256 # 1 # ID=5076_3;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=11-12bp;gc_cont=0.598
+Ga0394824_0000151_2   -          PF03544_TonB_C       PF03544.14   2.5e-11   45.1   0.1   0.00049   21.7   0.0   3.2   3   0   0   3   3   3   3 # 455 # 1324 # 1 # ID=4796_2;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.670
+Ga0394831_0003562_4   -          PF03544_TonB_C       PF03544.14     3e-11   44.8   0.0   6.7e-11   43.7   0.0   1.6   1   0   0   1   1   1   1 # 1898 # 2497 # 1 # ID=907_4;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.555
+Ga0394838_0016053_3   -          PF03544_TonB_C       PF03544.14     1e-10   43.1   0.0   2.6e-10   41.8   0.0   1.7   1   0   0   1   1   1   1 # 1297 # 2199 # -1 # ID=1131_3;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.637
+Ga0394838_0018742_3   -          PF03544_TonB_C       PF03544.14   8.2e-10   40.2   0.1   9.9e-07   30.3   0.0   2.6   3   0   0   3   3   2   1 # 2089 # 2985 # 1 # ID=2981_3;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.635
+Ga0394831_0000490_3   -          PF03544_TonB_C       PF03544.14   1.5e-09   39.3   0.0   2.6e-09   38.6   0.0   1.4   1   0   0   1   1   1   1 # 1208 # 2899 # 1 # ID=1864_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.564
+Ga0394838_0002548_2   -          PF03544_TonB_C       PF03544.14     3e-08   35.2   0.1   6.6e-08   34.1   0.1   1.6   1   0   0   1   1   1   1 # 2368 # 3057 # -1 # ID=2921_2;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=3-4bp;gc_cont=0.622
+Ga0394817_0001666_10  -          PF03544_TonB_C       PF03544.14   6.9e-07   30.9   0.0   1.3e-06   29.9   0.0   1.4   1   0   0   1   1   1   1 # 8166 # 9029 # 1 # ID=5279_10;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.676
+Ga0394828_0009641_1   -          PF03544_TonB_C       PF03544.14   3.8e-06   28.5   0.0   5.8e-06   27.9   0.0   1.2   1   0   0   1   1   1   1 # 1 # 339 # 1 # ID=1971_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.560
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport_potential//PF03544_TonB_C.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/PF03544_TonB_C.hmm.txt --tblout fegenie_output/fasta.fna-HMM/PF03544_TonB_C.hmm.tblout -T 24 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport_potential//PF03544_TonB_C.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:14 2023
+# [ok]

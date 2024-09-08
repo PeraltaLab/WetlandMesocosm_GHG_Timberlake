@@ -1,0 +1,26 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394817_0000285_7  -          Cyc1                 -            2.6e-50  171.9   0.1   3.1e-50  171.6   0.1   1.1   1   0   0   1   1   1   1 # 6778 # 7428 # 1 # ID=3303_7;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.641
+Ga0394820_0002550_6  -          Cyc1                 -            2.6e-50  171.9   0.1   3.1e-50  171.6   0.1   1.1   1   0   0   1   1   1   1 # 3867 # 4517 # -1 # ID=5363_6;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.642
+Ga0394824_0000068_25 -          Cyc1                 -            1.4e-49  169.5   3.4   2.2e-39  136.3   0.8   1.6   1   1   1   2   2   2   2 # 18200 # 18838 # -1 # ID=1780_25;partial=00;start_type=ATG;rbs_motif=GGxGG;rbs_spacer=5-10bp;gc_cont=0.693
+Ga0394824_0000035_5  -          Cyc1                 -            5.9e-46  157.7  12.0     5e-36  125.4   3.1   2.6   1   1   1   2   2   2   2 # 3031 # 3738 # -1 # ID=1896_5;partial=00;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=5-10bp;gc_cont=0.701
+Ga0394817_0000259_9  -          Cyc1                 -            9.4e-46  157.0   1.9   1.2e-45  156.7   1.9   1.2   1   0   0   1   1   1   1 # 9789 # 10451 # 1 # ID=3263_9;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.659
+Ga0394817_0001290_4  -          Cyc1                 -            9.5e-46  157.0   0.1   1.2e-45  156.7   0.1   1.1   1   0   0   1   1   1   1 # 2105 # 2722 # -1 # ID=5906_4;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.659
+Ga0394820_0000448_10 -          Cyc1                 -            9.5e-46  157.0   0.1   1.2e-45  156.7   0.1   1.1   1   0   0   1   1   1   1 # 9895 # 10512 # 1 # ID=1400_10;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.660
+Ga0394824_0000150_12 -          Cyc1                 -            4.6e-43  148.3   1.5   4.6e-43  148.3   1.5   2.2   2   0   0   2   2   2   1 # 13874 # 14668 # -1 # ID=3561_12;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.691
+Ga0394824_0000036_45 -          Cyc1                 -            3.2e-41  142.3   0.0   4.1e-41  141.9   0.0   1.1   1   0   0   1   1   1   1 # 48962 # 49717 # -1 # ID=297_45;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.697
+Ga0394824_0000015_36 -          Cyc1                 -            6.1e-37  128.4   0.2   8.6e-37  127.9   0.2   1.2   1   0   0   1   1   1   1 # 32793 # 33569 # 1 # ID=1452_36;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.712
+Ga0394817_0011061_2  -          Cyc1                 -            1.4e-36  127.2   0.0   1.7e-36  126.9   0.0   1.1   1   0   0   1   1   1   1 # 646 # 1353 # 1 # ID=4618_2;partial=00;start_type=GTG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.695
+Ga0394820_0001500_5  -          Cyc1                 -            1.4e-36  127.2   0.0   1.7e-36  126.9   0.0   1.1   1   0   0   1   1   1   1 # 2667 # 3374 # 1 # ID=419_5;partial=00;start_type=GTG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.694
+Ga0394820_0001886_3  -          Cyc1                 -            9.3e-36  124.5   0.1   1.2e-35  124.2   0.1   1.1   1   0   0   1   1   1   1 # 1017 # 1604 # -1 # ID=52_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.645
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_oxidation//Cyc1.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/Cyc1.hmm.txt --tblout fegenie_output/fasta.fna-HMM/Cyc1.hmm.tblout -T 98 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_oxidation//Cyc1.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:22:33 2023
+# [ok]

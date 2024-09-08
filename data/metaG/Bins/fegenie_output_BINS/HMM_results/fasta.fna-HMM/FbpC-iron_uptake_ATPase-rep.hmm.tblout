@@ -1,0 +1,37 @@
+#                                                                      --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                  accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------        -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394820_0000568_6  -          FbpC-iron_uptake_ATPase-rep -           1.3e-113  380.2   0.3   4.1e-58  197.9   0.1   2.1   2   0   0   2   2   2   2 # 6297 # 8138 # -1 # ID=2111_6;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.690
+Ga0394817_0001758_6  -          FbpC-iron_uptake_ATPase-rep -           2.1e-111  373.0   0.4  2.7e-111  372.6   0.4   1.1   1   0   0   1   1   1   1 # 3671 # 4672 # 1 # ID=3808_6;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.684
+Ga0394820_0000139_11 -          FbpC-iron_uptake_ATPase-rep -           2.1e-111  373.0   0.4  2.7e-111  372.6   0.4   1.1   1   0   0   1   1   1   1 # 10023 # 11024 # -1 # ID=3298_11;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.684
+Ga0394817_0002784_7  -          FbpC-iron_uptake_ATPase-rep -           2.6e-105  352.9   0.2    1e-104  351.0   0.2   1.7   1   1   0   1   1   1   1 # 6738 # 7796 # -1 # ID=4336_7;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.676
+Ga0394820_0006268_3  -          FbpC-iron_uptake_ATPase-rep -           2.6e-105  352.9   0.2    1e-104  351.0   0.2   1.7   1   1   0   1   1   1   1 # 2782 # 3840 # -1 # ID=5398_3;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.676
+Ga0394821_0001836_3  -          FbpC-iron_uptake_ATPase-rep -           8.3e-104  348.0   1.2  3.1e-102  342.8   1.2   2.6   1   1   0   1   1   1   1 # 1445 # 2632 # -1 # ID=5592_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.668
+Ga0394821_0000270_6  -          FbpC-iron_uptake_ATPase-rep -           1.6e-101  340.5   0.0  3.1e-101  339.5   0.0   1.5   1   1   0   1   1   1   1 # 6182 # 7354 # 1 # ID=5678_6;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.624
+Ga0394824_0001410_2  -          FbpC-iron_uptake_ATPase-rep -           1.6e-101  340.5   0.0  3.1e-101  339.5   0.0   1.5   1   1   0   1   1   1   1 # 769 # 1941 # 1 # ID=566_2;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.624
+Ga0394821_0000236_4  -          FbpC-iron_uptake_ATPase-rep -            1.2e-99  334.4   0.2   2.3e-99  333.4   0.2   1.6   1   1   0   1   1   1   1 # 2118 # 3308 # -1 # ID=5410_4;partial=00;start_type=TTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.726
+Ga0394821_0001344_4  -          FbpC-iron_uptake_ATPase-rep -            2.5e-97  326.7   0.1   1.4e-96  324.3   0.1   1.8   1   1   1   2   2   2   1 # 2225 # 3262 # 1 # ID=433_4;partial=00;start_type=ATG;rbs_motif=AGGAGG;rbs_spacer=5-10bp;gc_cont=0.689
+Ga0394821_0003068_4  -          FbpC-iron_uptake_ATPase-rep -            1.2e-95  321.2   0.2   1.4e-95  321.0   0.2   1.0   1   0   0   1   1   1   1 # 2631 # 3473 # 1 # ID=840_4;partial=01;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.628
+Ga0394824_0000015_81 -          FbpC-iron_uptake_ATPase-rep -            1.4e-95  321.0   0.1   1.7e-95  320.7   0.1   1.1   1   0   0   1   1   1   1 # 74014 # 75159 # -1 # ID=1452_81;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.714
+Ga0394838_0010211_2  -          FbpC-iron_uptake_ATPase-rep -            1.8e-94  317.4   0.2   5.7e-94  315.7   0.1   1.6   1   1   1   2   2   2   1 # 900 # 1997 # 1 # ID=448_2;partial=00;start_type=ATG;rbs_motif=AGGA/GGAG/GAGG;rbs_spacer=11-12bp;gc_cont=0.480
+Ga0394817_0009901_5  -          FbpC-iron_uptake_ATPase-rep -            2.3e-94  317.0   0.2   1.4e-93  314.4   0.2   1.9   1   1   0   1   1   1   1 # 3436 # 4500 # 1 # ID=1479_5;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.663
+Ga0394820_0000498_14 -          FbpC-iron_uptake_ATPase-rep -            2.3e-94  317.0   0.2   1.4e-93  314.4   0.2   1.9   1   1   0   1   1   1   1 # 10447 # 11511 # -1 # ID=2342_14;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.662
+Ga0394834_0005897_1  -          FbpC-iron_uptake_ATPase-rep -            3.8e-94  316.3   0.0   7.6e-94  315.3   0.0   1.5   1   1   0   1   1   1   1 # 1 # 1020 # 1 # ID=4730_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.703
+Ga0394817_0002148_3  -          FbpC-iron_uptake_ATPase-rep -            1.1e-93  314.7   1.2   1.6e-93  314.2   1.2   1.3   1   0   0   1   1   1   1 # 1920 # 3044 # -1 # ID=4665_3;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.693
+Ga0394820_0000327_12 -          FbpC-iron_uptake_ATPase-rep -            1.1e-93  314.7   1.2   1.6e-93  314.2   1.2   1.3   1   0   0   1   1   1   1 # 12569 # 13693 # -1 # ID=2482_12;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.694
+Ga0394820_0009435_3  -          FbpC-iron_uptake_ATPase-rep -            2.3e-93  313.7   0.5   2.7e-93  313.5   0.5   1.1   1   0   0   1   1   1   1 # 1408 # 2460 # 1 # ID=5831_3;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.676
+Ga0394838_0001120_8  -          FbpC-iron_uptake_ATPase-rep -            1.1e-92  311.5   0.6   1.9e-92  310.6   0.6   1.5   1   1   0   1   1   1   1 # 9369 # 10463 # 1 # ID=4267_8;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.633
+Ga0394834_0004695_3  -          FbpC-iron_uptake_ATPase-rep -            9.4e-92  308.4   0.3   1.2e-91  308.0   0.3   1.1   1   0   0   1   1   1   1 # 1866 # 3239 # 1 # ID=1999_3;partial=00;start_type=GTG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.739
+Ga0394821_0000958_2  -          FbpC-iron_uptake_ATPase-rep -            1.3e-90  304.6   0.0   1.6e-90  304.3   0.0   1.1   1   0   0   1   1   1   1 # 2092 # 3117 # 1 # ID=5056_2;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.628
+Ga0394824_0000557_3  -          FbpC-iron_uptake_ATPase-rep -            1.3e-90  304.6   0.0   1.6e-90  304.3   0.0   1.1   1   0   0   1   1   1   1 # 2482 # 3507 # 1 # ID=2299_3;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.628
+Ga0394838_0002812_3  -          FbpC-iron_uptake_ATPase-rep -            1.4e-89  301.3   0.2   2.5e-89  300.4   0.2   1.5   1   1   0   1   1   1   1 # 4452 # 5576 # -1 # ID=1654_3;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.651
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//FbpC-iron_uptake_ATPase-rep.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/FbpC-iron_uptake_ATPase-rep.hmm.txt --tblout fegenie_output/fasta.fna-HMM/FbpC-iron_uptake_ATPase-rep.hmm.tblout -T 300 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-iron_transport//FbpC-iron_uptake_ATPase-rep.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:24:23 2023
+# [ok]

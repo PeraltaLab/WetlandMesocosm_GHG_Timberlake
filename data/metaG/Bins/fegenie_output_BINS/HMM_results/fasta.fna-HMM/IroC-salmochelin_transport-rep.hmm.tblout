@@ -1,0 +1,14 @@
+#                                                                         --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                     accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------           -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394834_0003423_3  -          IroC-salmochelin_transport-rep -           1.1e-254  849.1  35.7  7.5e-129  432.4   9.5   2.3   2   0   0   2   2   2   2 # 1973 # 5791 # -1 # ID=5744_3;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.734
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//IroC-salmochelin_transport-rep.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/IroC-salmochelin_transport-rep.hmm.txt --tblout fegenie_output/fasta.fna-HMM/IroC-salmochelin_transport-rep.hmm.tblout -T 454 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//IroC-salmochelin_transport-rep.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:25:26 2023
+# [ok]

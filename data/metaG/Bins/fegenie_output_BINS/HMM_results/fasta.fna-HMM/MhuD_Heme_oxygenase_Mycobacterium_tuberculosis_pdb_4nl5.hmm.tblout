@@ -1,0 +1,13 @@
+#                                                                                                  --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                              accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                                    -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-heme_oxygenase//MhuD_Heme_oxygenase_Mycobacterium_tuberculosis_pdb_4nl5.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/MhuD_Heme_oxygenase_Mycobacterium_tuberculosis_pdb_4nl5.hmm.txt --tblout fegenie_output/fasta.fna-HMM/MhuD_Heme_oxygenase_Mycobacterium_tuberculosis_pdb_4nl5.hmm.tblout -T 138 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-heme_oxygenase//MhuD_Heme_oxygenase_Mycobacterium_tuberculosis_pdb_4nl5.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:22:48 2023
+# [ok]

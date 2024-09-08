@@ -1,0 +1,19 @@
+#                                                                                                      --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                                  accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                                        -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394824_0001486_1  -          Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602 -              7e-24   85.9   0.4   7.8e-24   85.8   0.4   1.0   1   0   0   1   1   1   1 # 1 # 777 # 1 # ID=5132_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.575
+Ga0394821_0000462_3  -          Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602 -            4.3e-22   80.1   0.3     7e-22   79.4   0.3   1.2   1   0   0   1   1   1   1 # 1488 # 3233 # -1 # ID=3439_3;partial=00;start_type=GTG;rbs_motif=None;rbs_spacer=None;gc_cont=0.753
+Ga0394821_0001433_7  -          Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602 -            4.4e-12   47.2   0.1   4.7e-12   47.1   0.1   1.0   1   0   0   1   1   1   1 # 3972 # 4466 # -1 # ID=4607_7;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.570
+Ga0394828_0007347_2  -          Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602 -              8e-10   39.8   0.0     1e-09   39.4   0.0   1.1   1   0   0   1   1   1   1 # 1887 # 2819 # 1 # ID=4107_2;partial=00;start_type=ATG;rbs_motif=AGGAG;rbs_spacer=5-10bp;gc_cont=0.587
+Ga0394838_0001253_6  -          Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602 -            2.5e-07   31.6   0.1   1.1e-06   29.5   0.1   1.8   1   1   0   1   1   1   1 # 4370 # 5290 # -1 # ID=279_6;partial=00;start_type=ATG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.450
+Ga0394817_0017927_3  -          Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602 -            0.00056   20.6   0.0   0.00074   20.2   0.0   1.3   1   1   0   1   1   1   1 # 2404 # 3300 # 1 # ID=2832_3;partial=00;start_type=ATG;rbs_motif=GGA/GAG/AGG;rbs_spacer=5-10bp;gc_cont=0.643
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602.hmm.txt --tblout fegenie_output/fasta.fna-HMM/Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602.hmm.tblout -T 18 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_transport//Sid_FpvC_metal_ion_transport_PA2407_Paeruginosa_PAO1_180602.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:25:14 2023
+# [ok]

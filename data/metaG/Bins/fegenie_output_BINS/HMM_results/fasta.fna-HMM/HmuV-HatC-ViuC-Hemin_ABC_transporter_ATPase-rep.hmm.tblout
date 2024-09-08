@@ -1,0 +1,15 @@
+#                                                                                          --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                      accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                            -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394817_0006827_1  -          HmuV-HatC-ViuC-Hemin_ABC_transporter_ATPase-rep -            3.6e-69  234.0   0.2   6.7e-38  131.5   0.0   3.0   2   1   0   2   2   2   2 # 2 # 2002 # 1 # ID=1021_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.678
+Ga0394820_0006166_3  -          HmuV-HatC-ViuC-Hemin_ABC_transporter_ATPase-rep -            5.9e-69  233.3   0.2   8.5e-38  131.2   0.0   3.0   2   1   0   2   2   2   2 # 2648 # 4903 # -1 # ID=5849_3;partial=01;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.676
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-heme_transport//HmuV-HatC-ViuC-Hemin_ABC_transporter_ATPase-rep.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/HmuV-HatC-ViuC-Hemin_ABC_transporter_ATPase-rep.hmm.txt --tblout fegenie_output/fasta.fna-HMM/HmuV-HatC-ViuC-Hemin_ABC_transporter_ATPase-rep.hmm.tblout -T 220 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-heme_transport//HmuV-HatC-ViuC-Hemin_ABC_transporter_ATPase-rep.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:22:27 2023
+# [ok]

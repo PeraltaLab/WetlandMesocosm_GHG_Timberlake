@@ -1,0 +1,15 @@
+#                                                                                                        --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name                                                    accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ----------                                          -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+Ga0394838_0000813_13 -          Sid_PchC_pyochelin_biosynthesis_Pseudomonas_aeruginosa_PA4229 -            2.4e-49  169.2   0.1   2.9e-49  168.9   0.1   1.0   1   0   0   1   1   1   1 # 11481 # 12236 # 1 # ID=4141_13;partial=00;start_type=ATG;rbs_motif=None;rbs_spacer=None;gc_cont=0.458
+Ga0394838_0001523_6  -          Sid_PchC_pyochelin_biosynthesis_Pseudomonas_aeruginosa_PA4229 -            4.7e-42  145.3   0.0   5.7e-42  145.0   0.0   1.0   1   0   0   1   1   1   1 # 6427 # 7197 # 1 # ID=3497_6;partial=00;start_type=TTG;rbs_motif=GGAG/GAGG;rbs_spacer=5-10bp;gc_cont=0.475
+#
+# Program:         hmmsearch
+# Version:         3.3.2 (Nov 2020)
+# Pipeline mode:   SEARCH
+# Query file:      /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//Sid_PchC_pyochelin_biosynthesis_Pseudomonas_aeruginosa_PA4229.hmm
+# Target file:     fegenie_output/ORF_calls/fasta.fna-proteins.faa
+# Option settings: hmmsearch -o fegenie_output/fasta.fna-HMM/Sid_PchC_pyochelin_biosynthesis_Pseudomonas_aeruginosa_PA4229.hmm.txt --tblout fegenie_output/fasta.fna-HMM/Sid_PchC_pyochelin_biosynthesis_Pseudomonas_aeruginosa_PA4229.hmm.tblout -T 64 --cpu 1 /home/geomicroecu/miniconda3/envs/fegenie/share/fegenie-1.0/hmms/iron//iron_aquisition-siderophore_synthesis//Sid_PchC_pyochelin_biosynthesis_Pseudomonas_aeruginosa_PA4229.hmm fegenie_output/ORF_calls/fasta.fna-proteins.faa 
+# Current dir:     /media/geomicroecu/RAID-1/finlayc/FeGenie
+# Date:            Wed Apr 19 12:23:05 2023
+# [ok]
