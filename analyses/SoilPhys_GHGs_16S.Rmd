@@ -20,7 +20,7 @@ knitr::opts_knit$set(root.dir="~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses"
 ```{r load packages and functions, include FALSE }
 #Set source R tools
 source("../bin/DiversityFunctions.R")
-source("../bin/MothurTools.R")
+source("../bin/MothurTools.R") # having issues now, likely need to switch over to reshape2
 
 #load required packages
 require("vegan")
@@ -582,18 +582,11 @@ soil_Fe
 # Greenhouse gases (GHGs)
 
 ```{r GHG T1 concentration analysis}
-#read in gas data
-ghg <- read.csv("../data/TMG_GHG-Flux_T1_Pub_2-2020.csv", header=TRUE)
-
 # Version of ghg with labels for T1 through T4 analysis:
 ghg2 <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv", header=TRUE)
 
 # FIX c2o TYPO IN ghg2:
 colnames(ghg2)[18] <- "co2_ppm"
-
-ghg <- ghg %>%
-  dplyr::select('date', 'chamber', 'timepoint', 'plant', 'mg.CH4.N.m.2', 'mg.CO2.N.m.2', 'mg.N2O.N.m.2')%>%
-  dplyr::filter(timepoint=='T1' & date !='7/24/2016' & date != '6/13/2016')
 
 # ghg2, select T1 through T4, and all ppm measurements:
 ghg_ppm <- ghg2 %>%
@@ -601,35 +594,21 @@ ghg_ppm <- ghg2 %>%
   dplyr::filter(date !='7/24/2016')
 
 # Set factors:
-ghg$chamber <- as.factor(ghg$chamber)
-ghg$date <- as.factor(ghg$date)
-
 ghg_ppm$chamber <- as.factor(ghg_ppm$chamber)
 ghg_ppm$date <- as.factor(ghg_ppm$date)
 
 # Change design$box to design$chamber in order to join with ghg$chamber
 colnames(meta)[2] <- "chamber"
 
-ghg <- ghg %>%
-  left_join(meta[,-c(3, 4, 7, 8, 9)], by="chamber")
-
 ghg_ppm <- ghg_ppm %>%
   left_join(meta[,-c(3, 4, 7, 8, 9)], by="chamber")
 
 # Add new date column, to shorten:
-ghg$date_short <- ghg$date
 ghg_ppm$date_short <- ghg_ppm$date
 # remove "/2016" from date_short:
-ghg$date_short <- str_remove(ghg$date_short, "/2016")
 ghg_ppm$date_short <- str_remove(ghg_ppm$date_short, "/2016")
 
 # Separate data frames for "No Plant" and "Plant", for plotting:
-ghg.noplant <- ghg %>%
-  filter(plant=="N")
-
-ghg.plant <- ghg %>%
-  filter(plant=="P")
-
 ghg_ppm.noplant <- ghg_ppm %>%
   filter(plant=="N")
 
@@ -641,6 +620,27 @@ ghg_ppm.plant <- ghg_ppm %>%
 ghg_ppm_filtered <- ghg_ppm %>%
   dplyr::filter(timepoint == "T1")
 ```
+
+```{r Calculate T0s from WRC static chamber monitoring}
+# will attempt to use results from monthly WRC static chamber to calculate average T0. Then calculate a 2 point flux with T30 from TMG mesocosms.
+
+# read in compiled T0 data:
+WRC_T0s <- read.csv("../data/WRC_T0s_for_TMG_ambient_calculation.csv")
+
+# Set Sample_Date as factor:
+WRC_T0s$Sample_Date <- as.factor(WRC_T0s$Sample_Date)
+
+# calculate averages within each month:
+CO2_T0_monthly_avg <- aggregate(T0_CO2_ppm ~ Sample_Date, data = WRC_T0s, FUN = mean, na.rm = TRUE)
+
+# Average the two years of August data:
+CO2_T0_monthly_avg[nrow(CO2_T0_monthly_avg)+1, "T0_CO2_ppm"] <- mean(c(CO2_T0_monthly_avg[1, "T0_CO2_ppm"], CO2_T0_monthly_avg[2, "T0_CO2_ppm"]), na.rm = TRUE)
+
+# Add in the name:
+CO2_T0_monthly_avg$Sample_Date <- factor(c("Aug_2022", "August_2021", "Jul_2022", "June_2022", "August_21_22"))
+```
+
+
 
 ```{r GHG flux wrangling}
 # Format a dataframe for 'gasfluxes' package:
