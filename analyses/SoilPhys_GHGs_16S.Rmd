@@ -632,14 +632,47 @@ WRC_T0s$Sample_Date <- as.factor(WRC_T0s$Sample_Date)
 
 # calculate averages within each month:
 CO2_T0_monthly_avg <- aggregate(T0_CO2_ppm ~ Sample_Date, data = WRC_T0s, FUN = mean, na.rm = TRUE)
+CH4_T0_monthly_avg <- aggregate(T0_CH4_ppm ~ Sample_Date, data = WRC_T0s, FUN = mean, na.rm = TRUE)
+N2O_T0_monthly_avg <- aggregate(T0_N2O_ppm ~ Sample_Date, data = WRC_T0s, FUN = mean, na.rm = TRUE)
 
 # Average the two years of August data:
 CO2_T0_monthly_avg[nrow(CO2_T0_monthly_avg)+1, "T0_CO2_ppm"] <- mean(c(CO2_T0_monthly_avg[1, "T0_CO2_ppm"], CO2_T0_monthly_avg[2, "T0_CO2_ppm"]), na.rm = TRUE)
 
+CH4_T0_monthly_avg[nrow(CH4_T0_monthly_avg)+1, "T0_CH4_ppm"] <- mean(c(CH4_T0_monthly_avg[1, "T0_CH4_ppm"], CH4_T0_monthly_avg[2, "T0_CH4_ppm"]), na.rm = TRUE)
+
+N2O_T0_monthly_avg[nrow(N2O_T0_monthly_avg)+1, "T0_N2O_ppm"] <- mean(c(N2O_T0_monthly_avg[1, "T0_N2O_ppm"], N2O_T0_monthly_avg[2, "T0_N2O_ppm"]), na.rm = TRUE)
+
 # Add in the name:
 CO2_T0_monthly_avg$Sample_Date <- factor(c("Aug_2022", "August_2021", "Jul_2022", "June_2022", "August_21_22"))
+CH4_T0_monthly_avg$Sample_Date <- factor(c("Aug_2022", "August_2021", "Jul_2022", "June_2022", "August_21_22"))
+N2O_T0_monthly_avg$Sample_Date <- factor(c("Aug_2022", "August_2021", "Jul_2022", "June_2022", "August_21_22"))
 ```
 
+```{r wrangle T0 averages for flux calculation}
+# bind together the three GHGs:
+T0_averages_combined <- CH4_T0_monthly_avg %>%
+  cbind(CO2_T0_monthly_avg$T0_CO2_ppm) %>%
+  cbind(N2O_T0_monthly_avg$T0_N2O_ppm)
+
+# drop the two August monthly:
+T0_averages_combined <- T0_averages_combined[3:5,]
+
+# Rename 'Sample_Date' in T0_averages_combined to 'date' to match the 'ghg_flux' column
+colnames(T0_averages_combined)[1] <- "date"
+
+# Add chamber as NAs:
+T0_averages_combined$chamber <- NA
+
+# Rename GHG columns to match ghg_flux:
+colnames(T0_averages_combined)[2:4] <- c("ch4_ppm", "co2_ppm", "n2o_ppm")
+
+# Add time columns to match ghg_flux:
+T0_averages_combined$time_min <- 0
+T0_averages_combined$time <- 0
+
+# Add month column:
+T0_averages_combined$month <- c("July", "June", "August")
+```
 
 
 ```{r GHG flux wrangling}
@@ -662,46 +695,147 @@ ghg_flux$A <- ghg_flux$Area..m2.
 # Convert time in minutes to time in hours:
 ghg_flux$time <- (ghg_flux$time_min * (1/60))
 
+# Bind T0s from WRC:
+ghg_flux_w_T0 <- ghg_flux
+
+# Add in month column that takes date strings and matches them to "July", "June", "August":
+# Create a vector of month names
+month_names <- c("January", "February", "March", "April", "May", "June",
+                 "July", "August", "September", "October", "November", "December")
+
+# Extract the month as a number and convert it to a month name
+ghg_flux_w_T0 <- ghg_flux_w_T0 %>%
+  mutate(
+    month = month_names[as.numeric(substr(date, 1, 1))]
+  )
+
+# Copy July and June rows because there are two July and June sampling dates:
+T0_averages_combined <- rbind(T0_averages_combined, T0_averages_combined[1,])
+T0_averages_combined <- rbind(T0_averages_combined, T0_averages_combined[2,])
+
+# Add TMG-style dates to match with ghg_flux:
+T0_averages_combined$date_TMG <- c("7/11/2016", "6/13/2016", "8/11/2016", "7/25/2016", "6/28/2016")
+
+# For loop?
+for (unique_date in unique(ghg_flux_w_T0$date)) {
+  for (unique_chamber in unique(ghg_flux_w_T0$chamber)) {
+    
+    # Filter the monthly average corresponding to the current date
+    month_avg <- T0_averages_combined %>% filter(date_TMG == unique_date)
+    
+    # Skip if there is no corresponding monthly average for the date
+    if (nrow(month_avg) == 0) next
+    
+    # Create a new row with time = 0 and the averages for the current date and chamber
+    new_row <- data.frame(
+      date = unique_date,
+      chamber = unique_chamber,
+      time = month_avg$time,
+      time_min = month_avg$time_min,
+      ch4_ppm = month_avg$ch4_ppm,
+      co2_ppm = month_avg$co2_ppm,# FIX THESE NEXT
+      n2o_ppm = month_avg$n2o_ppm,
+      month = month_avg$month
+    )
+    
+    # Bind the new row to ghg_flux
+    ghg_flux_w_T0 <- bind_rows(ghg_flux_w_T0, new_row)
+  }
+}
+
+# Reorder rows by date, chamber, and time:
+ghg_flux_w_T0 <- ghg_flux_w_T0 %>%
+  arrange(date, chamber, time)
+
+# Copy some of rows following T0s onto T0s (ID, V, A):
+# Define the columns with missing values to be filled from the row below
+columns_to_fill <- c("ID", "V", "A") # Replace with your actual column names
+
+# Loop through the rows from the bottom to the top to fill missing values from the row below
+for (i in (nrow(ghg_flux_w_T0) - 1):1) {
+  # Check for missing values in the specified columns
+  missing_values <- is.na(ghg_flux_w_T0[i, columns_to_fill])
+  
+  # If there are missing values, copy the values from the row below
+  if (any(missing_values)) {
+    ghg_flux_w_T0[i, columns_to_fill][missing_values] <- ghg_flux_w_T0[i + 1, columns_to_fill][missing_values]
+  }
+}
+
+
+
 # Convert ppm to mg/m^3, based on https://www.cdc.gov/niosh/docs/2004-101/calc.html (based on 25°C and 1 atm):
 # y mg/m3 = (x ppm)(molar mass)/24.45
   # 24.45 is the volume (liters) of a mole (gram molecular weight) of a gas or vapor when the pressure is at 1 atmosphere (760 torr or 760 mm Hg) and at 25°C
 
 # CH4 mg/m3
 ghg_flux$C_ch4 <- ((ghg_flux$ch4_ppm * 16.04)/24.45) # C is the package 'gasfluxes' abbreviation for concentration. 16.04 g/mol = molar mass of CH4
+ghg_flux_w_T0$C_ch4 <- ((ghg_flux_w_T0$ch4_ppm * 16.04)/24.45)
 
 # CO2 mg/m3
 ghg_flux$C_co2 <- ((ghg_flux$co2_ppm * 44.01)/24.45) # molar mass of CO2 = 44.01 g/mol
+ghg_flux_w_T0$C_co2 <- ((ghg_flux_w_T0$co2_ppm * 44.01)/24.45)
 
 # N2O mg/m3
 ghg_flux$C_n2o <-  ((ghg_flux$n2o_ppm * 44.013)/24.45) # molar mass of N2O = 44.013 g/mol
+ghg_flux_w_T0$C_n2o <-  ((ghg_flux_w_T0$n2o_ppm * 44.013)/24.45)
 
 # Split off data frames for each greenhouse gas:
 ch4_flux_input <- ghg_flux[,9:13]
+ch4_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 14)]
 
 co2_flux_input <- ghg_flux[,c(9:12, 14)]
+co2_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 15)]
 
 n2o_flux_input <- ghg_flux[,c(9:12, 15)]
+n2o_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 16)]
 
 # Rename C_ghg columns to 'C':
 colnames(ch4_flux_input)[5] <- "C"
+colnames(ch4_flux_input_w_T0)[5] <- "C"
+
 colnames(co2_flux_input)[5] <- "C"
+colnames(co2_flux_input_w_T0)[5] <- "C"
+
 colnames(n2o_flux_input)[5] <- "C"
+colnames(n2o_flux_input_w_T0)[5] <- "C"
 
 # Must omit NAs before using gasfluxes():
 ch4_flux_input <- na.omit(ch4_flux_input)
+ch4_flux_input_w_T0 <- na.omit(ch4_flux_input_w_T0)
+
 co2_flux_input <- na.omit(co2_flux_input)
+co2_flux_input_w_T0 <- na.omit(co2_flux_input_w_T0)
 
 # n2o_flux_input has negative values, will need to be converted to NAs, then all NAs omitted
 n2o_flux_input$C[n2o_flux_input$C<0] <- NA
 n2o_flux_input <- na.omit(n2o_flux_input)
+
+n2o_flux_input_w_T0$C[n2o_flux_input_w_T0$C<0] <- NA
+n2o_flux_input_w_T0 <- na.omit(n2o_flux_input_w_T0)
 ```
+
+```{r Make T0 flux dataframes' V and A numeric}
+ch4_flux_input_w_T0$V <- as.numeric(ch4_flux_input_w_T0$V)
+ch4_flux_input_w_T0$A <- as.numeric(ch4_flux_input_w_T0$A)
+
+co2_flux_input_w_T0$V <- as.numeric(co2_flux_input_w_T0$V)
+co2_flux_input_w_T0$A <- as.numeric(co2_flux_input_w_T0$A)
+
+n2o_flux_input_w_T0$V <- as.numeric(n2o_flux_input_w_T0$V)
+n2o_flux_input_w_T0$A <- as.numeric(n2o_flux_input_w_T0$A)
+```
+
 
 ```{r GHG flux calculation}
 ch4_flux.results <- gasfluxes(ch4_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
+ch4_flux.results_w_T0 <- gasfluxes(ch4_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
 
 co2_flux.results <- gasfluxes(co2_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
+co2_flux.results_w_T0 <- gasfluxes(co2_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
 
 n2o_flux.results <- gasfluxes(n2o_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
+n2o_flux.results_w_T0 <- gasfluxes(n2o_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
 ```
 
 ```{r GHG flux results wrangling}
