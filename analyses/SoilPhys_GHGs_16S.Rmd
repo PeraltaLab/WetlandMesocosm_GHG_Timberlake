@@ -20,7 +20,7 @@ knitr::opts_knit$set(root.dir="~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses"
 ```{r load packages and functions, include FALSE }
 #Set source R tools
 source("../bin/DiversityFunctions.R")
-source("../bin/MothurTools.R") # having issues now, likely need to switch over to reshape2
+source("../bin/MothurTools.R")
 
 #load required packages
 require("vegan")
@@ -716,7 +716,7 @@ T0_averages_combined <- rbind(T0_averages_combined, T0_averages_combined[2,])
 # Add TMG-style dates to match with ghg_flux:
 T0_averages_combined$date_TMG <- c("7/11/2016", "6/13/2016", "8/11/2016", "7/25/2016", "6/28/2016")
 
-# For loop?
+# For loop:
 for (unique_date in unique(ghg_flux_w_T0$date)) {
   for (unique_chamber in unique(ghg_flux_w_T0$chamber)) {
     
@@ -733,7 +733,7 @@ for (unique_date in unique(ghg_flux_w_T0$date)) {
       time = month_avg$time,
       time_min = month_avg$time_min,
       ch4_ppm = month_avg$ch4_ppm,
-      co2_ppm = month_avg$co2_ppm,# FIX THESE NEXT
+      co2_ppm = month_avg$co2_ppm,
       n2o_ppm = month_avg$n2o_ppm,
       month = month_avg$month
     )
@@ -749,7 +749,7 @@ ghg_flux_w_T0 <- ghg_flux_w_T0 %>%
 
 # Copy some of rows following T0s onto T0s (ID, V, A):
 # Define the columns with missing values to be filled from the row below
-columns_to_fill <- c("ID", "V", "A") # Replace with your actual column names
+columns_to_fill <- c("ID", "V", "A")
 
 # Loop through the rows from the bottom to the top to fill missing values from the row below
 for (i in (nrow(ghg_flux_w_T0) - 1):1) {
@@ -844,52 +844,81 @@ n2o_flux.results_w_T0 <- gasfluxes(n2o_flux_input_w_T0, method = c("linear","rob
 # If robust linear is not available use linear
 # New DF with all three f0s:
 ch4_fluxes_only <- ch4_flux.results[,c(1:2, 11, 17)]
+ch4_fluxes_only_w_T0 <- ch4_flux.results_w_T0[,c(1:2, 11, 17)]
 
 co2_fluxes_only <- co2_flux.results[,c(1:2, 11, 17)]
+co2_fluxes_only_w_T0 <- co2_flux.results_w_T0[,c(1:2, 11, 17)]
 
 n2o_fluxes_only <- n2o_flux.results[,c(1:2, 11, 17)]
+n2o_fluxes_only_w_T0 <- n2o_flux.results_w_T0[,c(1:2, 11, 17)]
 
 # New column for final flux selection:
 ch4_fluxes_only$f0_selected <- ch4_fluxes_only$HMR.f0
+ch4_fluxes_only_w_T0$f0_selected <- ch4_fluxes_only_w_T0$HMR.f0
 
 co2_fluxes_only$f0_selected <- co2_fluxes_only$HMR.f0
+co2_fluxes_only_w_T0$f0_selected <- co2_fluxes_only_w_T0$HMR.f0
 
 n2o_fluxes_only$f0_selected <- n2o_flux.results$HMR.f0
+n2o_fluxes_only_w_T0$f0_selected <- n2o_flux.results_w_T0$HMR.f0
 
 # Where HMR = NA, replace with the robust linear value:
 ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$HMR.f0))] <- ch4_fluxes_only$robust.linear.f0[na.action(na.omit(ch4_fluxes_only$HMR.f0))]
 
+ch4_fluxes_only_w_T0$f0_selected[na.action(na.omit(ch4_fluxes_only_w_T0$HMR.f0))] <- ch4_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(ch4_fluxes_only_w_T0$HMR.f0))]
+
 co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$HMR.f0))] <- co2_fluxes_only$robust.linear.f0[na.action(na.omit(co2_fluxes_only$HMR.f0))]
 
+co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$HMR.f0))] <- co2_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(co2_fluxes_only_w_T0$HMR.f0))]
+
 n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$HMR.f0))] <- n2o_fluxes_only$robust.linear.f0[na.action(na.omit(n2o_fluxes_only$HMR.f0))]
+
+n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$HMR.f0))] <- n2o_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$HMR.f0))]
 
 # Where f0_selected still has NAs, replace with the linear.f0:
 ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$f0_selected))] <- ch4_fluxes_only$linear.f0[na.action(na.omit(ch4_fluxes_only$f0_selected))]
 
+ch4_fluxes_only_w_T0$f0_selected[na.action(na.omit(ch4_fluxes_only_w_T0$f0_selected))] <- ch4_fluxes_only_w_T0$linear.f0[na.action(na.omit(ch4_fluxes_only_w_T0$f0_selected))]
+
 co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$f0_selected))] <- co2_fluxes_only$linear.f0[na.action(na.omit(co2_fluxes_only$f0_selected))]
+
+co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$f0_selected))] <- co2_fluxes_only_w_T0$linear.f0[na.action(na.omit(co2_fluxes_only_w_T0$f0_selected))]
 
 n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$f0_selected))] <- n2o_fluxes_only$linear.f0[na.action(na.omit(n2o_fluxes_only$f0_selected))]
 
+n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))] <- n2o_fluxes_only_w_T0$linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))]
+
 # Combine separate DFs back into one DF for statistics
 select_fluxes_combined <- ch4_fluxes_only[,c(1,5)] # start with CH4 IDs and f0 for a base dataframe
+select_fluxes_combined_w_T0 <- ch4_fluxes_only_w_T0[,c(1,5)]
 
 colnames(select_fluxes_combined)[2] <- "f0_CH4" # rename to distinguish between GHGs
+colnames(select_fluxes_combined_w_T0)[2] <- "f0_CH4"
 
 select_fluxes_combined$f0_CO2 <- co2_fluxes_only$f0_selected # add on CO2 fluxes
+select_fluxes_combined_w_T0$f0_CO2 <- co2_fluxes_only_w_T0$f0_selected
 
 select_fluxes_combined$f0_N2O <- n2o_fluxes_only$f0_selected # add on N2O fluxes
+select_fluxes_combined_w_T0$f0_N2O <- n2o_fluxes_only_w_T0$f0_selected
 
 # Add date_short back onto DFs for plotting
 select_fluxes_combined$date_short <- ghg_ppm_filtered$date_short
+select_fluxes_combined_w_T0$date_short <- ghg_ppm_filtered$date_short
 
 # Add on 'plant'
 select_fluxes_combined$plant <- ghg_ppm_filtered$plant
+select_fluxes_combined_w_T0$plant <- ghg_ppm_filtered$plant
 
 # Add on 'treatment'
 select_fluxes_combined$treatment <- ghg_ppm_filtered$treatment
+select_fluxes_combined_w_T0$treatment <- ghg_ppm_filtered$treatment
 
 # Add on 'history'
 select_fluxes_combined$history <- ghg_ppm_filtered$history
+select_fluxes_combined_w_T0$history <- ghg_ppm_filtered$history
+
+# Change order of select_fluxes_combined_w_T0 to match the other dataframes
+select_fluxes_combined_w_T0 <- select_fluxes_combined_w_T0[match(select_fluxes_combined$ID, select_fluxes_combined_w_T0$ID), ]
 ```
 
 
@@ -904,11 +933,10 @@ ghg_ppm_filtered$date_short <- as.factor(ghg_ppm_filtered$date_short)
 ghg_ppm_filtered$plant <- as.factor(ghg_ppm_filtered$plant)
 ghg_ppm_filtered$treatment <- as.factor(ghg_ppm_filtered$treatment)
 
-  # ghg
-ghg$chamber <- as.factor(ghg$chamber)
-ghg$date_short <- as.factor(ghg$date_short)
-ghg$plant <- as.factor(ghg$plant)
-ghg$treatment <- as.factor(ghg$treatment)
+select_fluxes_combined_w_T0$chamber <- ghg_ppm_filtered$chamber
+select_fluxes_combined_w_T0$date_short <- as.factor(select_fluxes_combined_w_T0$date_short)
+select_fluxes_combined_w_T0$plant <- as.factor(select_fluxes_combined_w_T0$plant)
+select_fluxes_combined_w_T0$treatment <- as.factor(select_fluxes_combined_w_T0$treatment)
 
   # select_fluxes_combined
     # Add on chamber to be consistent with ghg_ppm_filtered and ghg:
@@ -1180,10 +1208,74 @@ kruskal_N2O_7.25
 kruskal_N2O_8.11 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "8/11")
 kruskal_N2O_8.11
 ```
+
+```{r Kruskal-Wallis on flux with T0, treatment}
+# Will use DWASS-Steel-Critchlow-Fligner test for multiple comparisons, in package NSM3
+
+# CH4
+kruskal_CH4_6.13_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CH4 ~ treatment, subset = date_short == "6/13")
+kruskal_CH4_6.13_w_T0
+
+kruskal_CH4_6.28_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CH4 ~ treatment, subset = date_short == "6/28")
+kruskal_CH4_6.28_w_T0
+
+kruskal_CH4_7.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CH4 ~ treatment, subset = date_short == "7/11")
+kruskal_CH4_7.11_w_T0
+
+kruskal_CH4_7.25_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CH4 ~ treatment, subset = date_short == "7/25")
+kruskal_CH4_7.25_w_T0
+
+  # Pairwise comparisons:
+    # Must subset 7/25:
+select_fluxes_combined_w_T0_7.25 <- select_fluxes_combined_w_T0 %>% filter(date_short == "7/25")
+
+SDCFlig_CH4_7.25_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_7.25$f0_CH4, g = select_fluxes_combined_w_T0_7.25$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CH4_7.25_w_T0
+
+kruskal_CH4_8.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CH4 ~ treatment, subset = date_short == "8/11")
+kruskal_CH4_8.11_w_T0
+
+
+# CO2
+kruskal_CO2_6.13_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "6/13")
+kruskal_CO2_6.13_w_T0
+
+kruskal_CO2_6.28_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "6/28")
+kruskal_CO2_6.28_w_T0
+
+kruskal_CO2_7.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "7/11")
+kruskal_CO2_7.11_w_T0
+
+kruskal_CO2_7.25_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "7/25")
+kruskal_CO2_7.25_w_T0
+
+kruskal_CO2_8.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "8/11")
+kruskal_CO2_8.11_w_T0
+
+# N2O
+kruskal_N2O_6.13_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_N2O ~ treatment, subset = date_short == "6/13")
+kruskal_N2O_6.13_w_T0
+
+kruskal_N2O_6.28_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_N2O ~ treatment, subset = date_short == "6/28")
+kruskal_N2O_6.28_w_T0
+
+kruskal_N2O_7.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_N2O ~ treatment, subset = date_short == "7/11")
+kruskal_N2O_7.11_w_T0
+
+kruskal_N2O_7.25_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_N2O ~ treatment, subset = date_short == "7/25")
+kruskal_N2O_7.25_w_T0
+
+kruskal_N2O_8.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_N2O ~ treatment, subset = date_short == "8/11")
+kruskal_N2O_8.11_w_T0
+```
+
+
 ```{r format dates for figures}
 ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
 
 select_fluxes_combined$date_format <- factor(select_fluxes_combined$date_short, levels = levels(select_fluxes_combined$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
+
+select_fluxes_combined_w_T0$date_format <- factor(select_fluxes_combined_w_T0$date_short, levels = levels(select_fluxes_combined_w_T0$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
 ```
 
 ## T30 ppm: No Plant, Plant, side-by-side
@@ -1308,7 +1400,127 @@ CombPlot_T30ppm_NPvP
 
 #ggsave("../figures/pub/GHG_NPvP/T30ppm_NPvP.tiff", plot=CombPlot_T30ppm_NPvP, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
+## Flux with T0: Plant vs. No Plant
+```{r CH4 flux w T0 NP vs. P}
+# Wilcox Test, nicer format, can use to verify stats on plot:
+CH4_wilcox<- compare_means(f0_CH4~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
 
+# Turn into data frame:
+CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
+
+# Export the data frame to a .csv file
+#write.csv(CH4_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/CH4_wilcox.csv", row.names = T)
+
+# Plotting:
+plot.CH4.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_CH4)) +
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+                     geom_boxplot(aes(color=plant), outlier.shape = NA) +
+                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1})), title="") +
+  scale_x_discrete(labels=c("", ""))+
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
+ 
+plot.CH4.flux.NPvP
+```
+
+```{r CO2 flux NP vs P}
+# Wilcox Test, nicer format, can use to verify stats on plot:
+CO2_wilcox<- compare_means(f0_CO2~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
+
+# Turn into data frame:
+CO2_wilcox.DF <- as.data.frame(CO2_wilcox)
+
+# Export the data frame to a .csv file
+#write.csv(CO2_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/CO2_wilcox.csv", row.names = T)
+
+# Plotting:
+plot.CO2.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_CO2)) +
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+                     geom_boxplot(aes(color=plant), outlier.shape = NA) +
+                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1})), title="") +
+  scale_x_discrete(labels=c("", ""))+
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
+ 
+plot.CO2.flux.NPvP
+```
+
+```{r N2O flux NP vs. P}
+# Wilcox Test, nicer format, can use to verify stats on plot:
+N2O_wilcox<- compare_means(f0_N2O~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
+
+# Turn into data frame:
+N2O_wilcox.DF <- as.data.frame(N2O_wilcox)
+
+# Export the data frame to a .csv file
+#write.csv(N2O_wilcox, file = "../figures/pub/tables/Wilcox_NPvP/N2O_wilcox.csv", row.names = T)
+
+# Plotting:
+plot.N2O.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_N2O)) +
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+                     geom_boxplot(aes(color=plant), outlier.shape = NA) +
+                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
+  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="bottom", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
+  scale_x_discrete(labels=c("No Plant", "Plant"))+
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
+ 
+plot.N2O.flux.NPvP
+```
+
+```{r Extract and save GHG boxplot legend}
+leg_NPvP <- get_legend(plot.N2O.T30ppm.NPvP, position = "bottom") #Extract legend as a legend Grob
+legend_plot_NPvP <- as_ggplot(leg_NPvP) #Asign the grob as a ggplot
+legend_plot_NPvP #View the plot
+
+#ggsave("../figures/pub/GHG_NPvP/legend_NPvP.tiff", plot=legend_plot_NPvP, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
+```
+
+```{r Combined GHG Boxplot}
+CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none")
+
+CombPlot_flux_NPvP
+
+#ggsave("../figures/pub/GHG_NPvP/T30ppm_NPvP.tiff", plot=CombPlot_T30ppm_NPvP, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
+```
 
 ## T30 ppm: Treatment and Kruskal boxplots
 
@@ -1474,6 +1686,178 @@ Kruskal_comb <- rbind(CH4_kruskal, CO2_kruskal, N2O_kruskal)
 # Write .csv: 
 #write.csv(Kruskal_comb, file = "../figures/pub/tables/Kruskal_Treatment/Kruskal_combined.csv", row.names = T)
 ```
+
+
+
+
+
+
+
+## Flux w T0: Treatment and Kruskal boxplots
+
+```{r CH4 flux Treatment}
+# Kruskal-Wallis test on Treatment, and multiple comparisons:
+CH4_kruskal<- compare_means(f0_CH4~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "kruskal.test")
+CH4_multipleComparisons<- compare_means(f0_CH4~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
+
+# Adjustments for plotting:
+CH4_multipleComparisons <- add_significance(CH4_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Turn into data frame:
+CH4_MultComp.DF <- as.data.frame(CH4_multipleComparisons)
+
+# Add on SDCFlig p-values:
+CH4_MultComp.DF$SDCF_p <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, SDCFlig_CH4_7.25$p.val, 1, 1, 1)
+
+# Symbols for plotting:
+CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Export the data frames to a .csv file
+#write.csv(CH4_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CH4_MultComp.csv", row.names = T)
+
+# Plotting:
+plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CH4)) +
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
+  scale_x_discrete(labels=c("", "", ""))+
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = (max(select_fluxes_combined_w_T0$f0_CH4)+200), step.group.by = "date_format", step.increase = 0.1)
+ 
+plot.CH4.flux.Trt
+```
+
+```{r CO2 T30 ppm Treatment}
+# Kruskal-Wallis test on Treatment, and multiple comparisons:
+CO2_kruskal<- compare_means(co2_ppm~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "kruskal.test")
+CO2_multipleComparisons<- compare_means(co2_ppm~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
+
+# Adjustments for plotting:
+CO2_multipleComparisons <- add_significance(CO2_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Turn into data frame:
+CO2_MultComp.DF <- as.data.frame(CO2_multipleComparisons)
+
+# Add on SDCFlig p-values:
+CO2_MultComp.DF$SDCF_p <- c(1, 1, 1, 1,1,1, SDCFlig_CO2_7.11$p.val, 1,1,1, SDCFlig_CO2_8.11$p.val)
+
+# Symbols for plotting:
+CO2_MultComp.DF <- add_significance(CO2_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# In order for plotting to work with SDCFlig, have to overwrite 'p' with SDCF_p:
+CO2_MultComp.DF$p <- CO2_MultComp.DF$SDCF_p
+
+# Export the data frames to a .csv file
+#write.csv(CO2_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CO2_MultComp.csv", row.names = T)
+
+# Plotting:
+plot.CO2.T30ppm.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=co2_ppm)) +
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
+  scale_x_discrete(labels=c("", "", ""))+
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p", y.position = max(select_fluxes_combined_w_T0$co2_ppm), step.group.by = "date_format", step.increase = 0.1)
+ 
+plot.CO2.T30ppm.Trt
+```
+
+```{r N2O T30 ppm Treatment}
+# Kruskal-Wallis test on Treatment, and multiple comparisons:
+N2O_kruskal<- compare_means(n2o_ppm~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "kruskal.test")
+N2O_multipleComparisons<- compare_means(n2o_ppm~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
+
+# Adjustments for plotting:
+N2O_multipleComparisons <- add_significance(N2O_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Turn into data frame:
+N2O_MultComp.DF <- as.data.frame(N2O_multipleComparisons)
+
+# Add on SDCFlig p-values. If Kruskal was non-significant, input 3 1s, which will be converted to ns:
+N2O_MultComp.DF$SDCF_p <- c(1,1,1, SDCFlig_N2O_6.28$p.val, 1,1,1,1,1,1,1,1,1)
+
+# Symbols for plotting:
+N2O_MultComp.DF <- add_significance(N2O_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Export the data frame to a .csv file
+#write.csv(N2O_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/N2O_MultComp.csv", row.names = T)
+
+# Plotting:
+plot.N2O.T30ppm.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=n2o_ppm)) +
+  facet_wrap(~date_format, nrow = 1, ncol = 5)+
+                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                    geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="bottom", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = expression(paste("N"[2],"O (PPM)")), title="") +
+  scale_x_discrete(labels=c("Dry", "Interim", "Wet"))+
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  stat_pvalue_manual(data = N2O_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(select_fluxes_combined_w_T0$n2o_ppm), step.group.by = "date_format", step.increase = 0.1)
+ 
+plot.N2O.T30ppm.Trt
+```
+
+```{r Extract and save GHG boxplot legend}
+leg_treat <- get_legend(plot.N2O.T30ppm.Trt, position = "bottom") #Extract legend as a legend Grob
+legend_plot_treat <- as_ggplot(leg_treat) #Asign the grob as a ggplot
+legend_plot_treat #View the plot
+
+#ggsave("../figures/pub/GHG_Treatment/legend_treatment.tiff", plot=legend_plot_treat, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
+```
+
+
+```{r Combined GHG Boxplot}
+CombPlot_T30ppm_treat <- ggarrange(plot.CH4.T30ppm.Trt, plot.CO2.T30ppm.Trt, plot.N2O.T30ppm.Trt, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none")
+
+CombPlot_T30ppm_treat
+
+#ggsave("../figures/pub/GHG_Treatment/T30_treatment.tiff", plot=CombPlot_T30ppm_treat, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
+```
+
+```{r Kruskal-Wallis table}
+# Rbind the 3 Kruskal-Wallis tables:
+Kruskal_comb <- rbind(CH4_kruskal, CO2_kruskal, N2O_kruskal)
+
+# Write .csv: 
+#write.csv(Kruskal_comb, file = "../figures/pub/tables/Kruskal_Treatment/Kruskal_combined.csv", row.names = T)
+```
+
 
 
 
