@@ -826,16 +826,31 @@ n2o_flux_input_w_T0$V <- as.numeric(n2o_flux_input_w_T0$V)
 n2o_flux_input_w_T0$A <- as.numeric(n2o_flux_input_w_T0$A)
 ```
 
+```{r flux input DFs with 2 point flux}
+# Ambient to T30 is the reviewer recommended approach:
+# Filter dataframes to only have time = 0 and time = 0.5
+ch4_flux_input_3point <- ch4_flux_input_w_T0 %>%
+  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
+
+co2_flux_input_3point <- co2_flux_input_w_T0 %>%
+  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
+
+n2o_flux_input_3point <- n2o_flux_input_w_T0 %>%
+  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
+```
 
 ```{r GHG flux calculation}
 ch4_flux.results <- gasfluxes(ch4_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 ch4_flux.results_w_T0 <- gasfluxes(ch4_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
+ch4_flux.results_3pt <- gasfluxes(ch4_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
 
 co2_flux.results <- gasfluxes(co2_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 co2_flux.results_w_T0 <- gasfluxes(co2_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
+co2_flux.results_3pt <- gasfluxes(co2_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
 
 n2o_flux.results <- gasfluxes(n2o_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 n2o_flux.results_w_T0 <- gasfluxes(n2o_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
+n2o_flux.results_3pt <- gasfluxes(n2o_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
 ```
 
 ```{r GHG flux results wrangling}
@@ -845,80 +860,108 @@ n2o_flux.results_w_T0 <- gasfluxes(n2o_flux_input_w_T0, method = c("linear","rob
 # New DF with all three f0s:
 ch4_fluxes_only <- ch4_flux.results[,c(1:2, 11, 17)]
 ch4_fluxes_only_w_T0 <- ch4_flux.results_w_T0[,c(1:2, 11, 17)]
+ch4_fluxes_only_3pt <- ch4_flux.results_3pt[,c(1:2, 11, 17)]
 
 co2_fluxes_only <- co2_flux.results[,c(1:2, 11, 17)]
 co2_fluxes_only_w_T0 <- co2_flux.results_w_T0[,c(1:2, 11, 17)]
+co2_fluxes_only_3pt <- co2_flux.results_3pt[,c(1:2, 11, 17)]
 
 n2o_fluxes_only <- n2o_flux.results[,c(1:2, 11, 17)]
 n2o_fluxes_only_w_T0 <- n2o_flux.results_w_T0[,c(1:2, 11, 17)]
+n2o_fluxes_only_3pt <- n2o_flux.results_3pt[,c(1:2, 11, 17)]
 
 # New column for final flux selection:
 ch4_fluxes_only$f0_selected <- ch4_fluxes_only$HMR.f0
 ch4_fluxes_only_w_T0$f0_selected <- ch4_fluxes_only_w_T0$HMR.f0
+ch4_fluxes_only_3pt$f0_selected <- ch4_fluxes_only_3pt$HMR.f0
 
 co2_fluxes_only$f0_selected <- co2_fluxes_only$HMR.f0
 co2_fluxes_only_w_T0$f0_selected <- co2_fluxes_only_w_T0$HMR.f0
+co2_fluxes_only_3pt$f0_selected <- co2_fluxes_only_3pt$HMR.f0
 
 n2o_fluxes_only$f0_selected <- n2o_flux.results$HMR.f0
 n2o_fluxes_only_w_T0$f0_selected <- n2o_flux.results_w_T0$HMR.f0
+n2o_fluxes_only_3pt$f0_selected <- n2o_flux.results_3pt$HMR.f0
 
 # Where HMR = NA, replace with the robust linear value:
 ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$HMR.f0))] <- ch4_fluxes_only$robust.linear.f0[na.action(na.omit(ch4_fluxes_only$HMR.f0))]
 
 ch4_fluxes_only_w_T0$f0_selected[na.action(na.omit(ch4_fluxes_only_w_T0$HMR.f0))] <- ch4_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(ch4_fluxes_only_w_T0$HMR.f0))]
 
+ch4_fluxes_only_3pt$f0_selected[na.action(na.omit(ch4_fluxes_only_3pt$HMR.f0))] <- ch4_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(ch4_fluxes_only_3pt$HMR.f0))]
+
 co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$HMR.f0))] <- co2_fluxes_only$robust.linear.f0[na.action(na.omit(co2_fluxes_only$HMR.f0))]
 
 co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$HMR.f0))] <- co2_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(co2_fluxes_only_w_T0$HMR.f0))]
 
+co2_fluxes_only_3pt$f0_selected[na.action(na.omit(co2_fluxes_only_3pt$HMR.f0))] <- co2_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(co2_fluxes_only_3pt$HMR.f0))]
+
 n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$HMR.f0))] <- n2o_fluxes_only$robust.linear.f0[na.action(na.omit(n2o_fluxes_only$HMR.f0))]
 
 n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$HMR.f0))] <- n2o_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$HMR.f0))]
+
+n2o_fluxes_only_3pt$f0_selected[na.action(na.omit(n2o_fluxes_only_3pt$HMR.f0))] <- n2o_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(n2o_fluxes_only_3pt$HMR.f0))]
 
 # Where f0_selected still has NAs, replace with the linear.f0:
 ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$f0_selected))] <- ch4_fluxes_only$linear.f0[na.action(na.omit(ch4_fluxes_only$f0_selected))]
 
 ch4_fluxes_only_w_T0$f0_selected[na.action(na.omit(ch4_fluxes_only_w_T0$f0_selected))] <- ch4_fluxes_only_w_T0$linear.f0[na.action(na.omit(ch4_fluxes_only_w_T0$f0_selected))]
 
+ch4_fluxes_only_3pt$f0_selected[na.action(na.omit(ch4_fluxes_only_3pt$f0_selected))] <- ch4_fluxes_only_3pt$linear.f0[na.action(na.omit(ch4_fluxes_only_3pt$f0_selected))]
+
 co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$f0_selected))] <- co2_fluxes_only$linear.f0[na.action(na.omit(co2_fluxes_only$f0_selected))]
 
 co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$f0_selected))] <- co2_fluxes_only_w_T0$linear.f0[na.action(na.omit(co2_fluxes_only_w_T0$f0_selected))]
+
+co2_fluxes_only_3pt$f0_selected[na.action(na.omit(co2_fluxes_only_3pt$f0_selected))] <- co2_fluxes_only_3pt$linear.f0[na.action(na.omit(co2_fluxes_only_3pt$f0_selected))]
 
 n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$f0_selected))] <- n2o_fluxes_only$linear.f0[na.action(na.omit(n2o_fluxes_only$f0_selected))]
 
 n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))] <- n2o_fluxes_only_w_T0$linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))]
 
+n2o_fluxes_only_3pt$f0_selected[na.action(na.omit(n2o_fluxes_only_3pt$f0_selected))] <- n2o_fluxes_only_3pt$linear.f0[na.action(na.omit(n2o_fluxes_only_3pt$f0_selected))]
+
 # Combine separate DFs back into one DF for statistics
 select_fluxes_combined <- ch4_fluxes_only[,c(1,5)] # start with CH4 IDs and f0 for a base dataframe
 select_fluxes_combined_w_T0 <- ch4_fluxes_only_w_T0[,c(1,5)]
+select_fluxes_combined_3pt <- ch4_fluxes_only_3pt[,c(1,5)]
 
 colnames(select_fluxes_combined)[2] <- "f0_CH4" # rename to distinguish between GHGs
 colnames(select_fluxes_combined_w_T0)[2] <- "f0_CH4"
+colnames(select_fluxes_combined_3pt)[2] <- "f0_CH4"
 
 select_fluxes_combined$f0_CO2 <- co2_fluxes_only$f0_selected # add on CO2 fluxes
 select_fluxes_combined_w_T0$f0_CO2 <- co2_fluxes_only_w_T0$f0_selected
+select_fluxes_combined_3pt$f0_CO2 <- co2_fluxes_only_3pt$f0_selected
 
 select_fluxes_combined$f0_N2O <- n2o_fluxes_only$f0_selected # add on N2O fluxes
 select_fluxes_combined_w_T0$f0_N2O <- n2o_fluxes_only_w_T0$f0_selected
+select_fluxes_combined_3pt$f0_N2O <- n2o_fluxes_only_3pt$f0_selected
+
+# Change order of select_fluxes_combined_w_T0 to match the other dataframes
+select_fluxes_combined_w_T0 <- select_fluxes_combined_w_T0[match(select_fluxes_combined$ID, select_fluxes_combined_w_T0$ID), ]
+select_fluxes_combined_3pt <- select_fluxes_combined_3pt[match(select_fluxes_combined$ID, select_fluxes_combined_3pt$ID), ]
+# CHECK ROW ORDERS NOW
 
 # Add date_short back onto DFs for plotting
 select_fluxes_combined$date_short <- ghg_ppm_filtered$date_short
 select_fluxes_combined_w_T0$date_short <- ghg_ppm_filtered$date_short
+select_fluxes_combined_3pt$date_short <- ghg_ppm_filtered$date_short
 
 # Add on 'plant'
 select_fluxes_combined$plant <- ghg_ppm_filtered$plant
 select_fluxes_combined_w_T0$plant <- ghg_ppm_filtered$plant
+select_fluxes_combined_3pt$plant <- ghg_ppm_filtered$plant
 
 # Add on 'treatment'
 select_fluxes_combined$treatment <- ghg_ppm_filtered$treatment
 select_fluxes_combined_w_T0$treatment <- ghg_ppm_filtered$treatment
+select_fluxes_combined_3pt$treatment <- ghg_ppm_filtered$treatment
 
 # Add on 'history'
 select_fluxes_combined$history <- ghg_ppm_filtered$history
 select_fluxes_combined_w_T0$history <- ghg_ppm_filtered$history
-
-# Change order of select_fluxes_combined_w_T0 to match the other dataframes
-select_fluxes_combined_w_T0 <- select_fluxes_combined_w_T0[match(select_fluxes_combined$ID, select_fluxes_combined_w_T0$ID), ]
+select_fluxes_combined_3pt$history <- ghg_ppm_filtered$history
 ```
 
 
@@ -1219,8 +1262,22 @@ kruskal_CH4_6.13_w_T0
 kruskal_CH4_6.28_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CH4 ~ treatment, subset = date_short == "6/28")
 kruskal_CH4_6.28_w_T0
 
+  # Pairwise comparisons:
+    # Must subset 6/28:
+select_fluxes_combined_w_T0_6.28 <- select_fluxes_combined_w_T0 %>% filter(date_short == "7/25")
+
+SDCFlig_CH4_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_6.28$f0_CH4, g = select_fluxes_combined_w_T0_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CH4_6.28_w_T0
+
 kruskal_CH4_7.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CH4 ~ treatment, subset = date_short == "7/11")
 kruskal_CH4_7.11_w_T0
+
+  # Pairwise comparisons:
+    # Must subset 7/11:
+select_fluxes_combined_w_T0_7.11 <- select_fluxes_combined_w_T0 %>% filter(date_short == "7/11")
+
+SDCFlig_CH4_7.11_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_7.11$f0_CH4, g = select_fluxes_combined_w_T0_7.11$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CH4_7.11_w_T0
 
 kruskal_CH4_7.25_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CH4 ~ treatment, subset = date_short == "7/25")
 kruskal_CH4_7.25_w_T0
@@ -1243,11 +1300,19 @@ kruskal_CO2_6.13_w_T0
 kruskal_CO2_6.28_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "6/28")
 kruskal_CO2_6.28_w_T0
 
+  # Pairwise comparisons:
+SDCFlig_CO2_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0$f0_CO2, g = select_fluxes_combined_w_T0$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CO2_6.28_w_T0
+
 kruskal_CO2_7.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "7/11")
 kruskal_CO2_7.11_w_T0
 
 kruskal_CO2_7.25_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "7/25")
 kruskal_CO2_7.25_w_T0
+
+  # Pairwise comparisons:
+SDCFlig_CO2_7.25_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0$f0_CO2, g = select_fluxes_combined_w_T0$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CO2_7.25_w_T0
 
 kruskal_CO2_8.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "8/11")
 kruskal_CO2_8.11_w_T0
@@ -1256,8 +1321,18 @@ kruskal_CO2_8.11_w_T0
 kruskal_N2O_6.13_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_N2O ~ treatment, subset = date_short == "6/13")
 kruskal_N2O_6.13_w_T0
 
+  # Pairwise comparisons:
+    # Must subset 6/13:
+select_fluxes_combined_w_T0_6.13 <- select_fluxes_combined_w_T0 %>% filter(date_short == "6/13")
+
+SDCFlig_N2O_6.13_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_6.13$f0_N2O, g = select_fluxes_combined_w_T0_6.13$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_N2O_6.13_w_T0
+
 kruskal_N2O_6.28_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_N2O ~ treatment, subset = date_short == "6/28")
 kruskal_N2O_6.28_w_T0
+
+SDCFlig_N2O_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_6.28$f0_N2O, g = select_fluxes_combined_w_T0_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_N2O_6.28_w_T0
 
 kruskal_N2O_7.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_N2O ~ treatment, subset = date_short == "7/11")
 kruskal_N2O_7.11_w_T0
@@ -1515,7 +1590,7 @@ legend_plot_NPvP #View the plot
 ```
 
 ```{r Combined GHG Boxplot}
-CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none")
+CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", align = "hv")
 
 CombPlot_flux_NPvP
 
@@ -1707,7 +1782,7 @@ CH4_multipleComparisons <- add_significance(CH4_multipleComparisons, p.col = "p.
 CH4_MultComp.DF <- as.data.frame(CH4_multipleComparisons)
 
 # Add on SDCFlig p-values:
-CH4_MultComp.DF$SDCF_p <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, SDCFlig_CH4_7.25$p.val, 1, 1, 1)
+CH4_MultComp.DF$SDCF_p <- c(1, 1, 1, SDCFlig_CH4_6.28_w_T0$p.val, SDCFlig_CH4_7.11_w_T0$p.val, SDCFlig_CH4_7.25_w_T0$p.val, 1, 1, 1)
 
 # Symbols for plotting:
 CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
@@ -1731,19 +1806,19 @@ plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
           axis.title.y=element_text(margin=margin(r=10)),
           axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("CH"[4]," (PPM)")), title="") +
+          labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = (max(select_fluxes_combined_w_T0$f0_CH4)+200), step.group.by = "date_format", step.increase = 0.1)
+  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(select_fluxes_combined_w_T0$f0_CH4), step.group.by = "date_format", step.increase = 0.1)
  
 plot.CH4.flux.Trt
 ```
 
 ```{r CO2 T30 ppm Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
-CO2_kruskal<- compare_means(co2_ppm~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "kruskal.test")
-CO2_multipleComparisons<- compare_means(co2_ppm~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
+CO2_kruskal<- compare_means(f0_CO2~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "kruskal.test")
+CO2_multipleComparisons<- compare_means(f0_CO2~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
 
 # Adjustments for plotting:
 CO2_multipleComparisons <- add_significance(CO2_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
@@ -1752,19 +1827,16 @@ CO2_multipleComparisons <- add_significance(CO2_multipleComparisons, p.col = "p.
 CO2_MultComp.DF <- as.data.frame(CO2_multipleComparisons)
 
 # Add on SDCFlig p-values:
-CO2_MultComp.DF$SDCF_p <- c(1, 1, 1, 1,1,1, SDCFlig_CO2_7.11$p.val, 1,1,1, SDCFlig_CO2_8.11$p.val)
+CO2_MultComp.DF$SDCF_p <- c(1, 1, 1, SDCFlig_CO2_6.28_w_T0$p.val, 1,1,1, SDCFlig_CO2_7.25_w_T0$p.val, 1, 1, 1)
 
 # Symbols for plotting:
 CO2_MultComp.DF <- add_significance(CO2_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
-
-# In order for plotting to work with SDCFlig, have to overwrite 'p' with SDCF_p:
-CO2_MultComp.DF$p <- CO2_MultComp.DF$SDCF_p
 
 # Export the data frames to a .csv file
 #write.csv(CO2_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CO2_MultComp.csv", row.names = T)
 
 # Plotting:
-plot.CO2.T30ppm.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=co2_ppm)) +
+plot.CO2.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CO2)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
@@ -1779,19 +1851,19 @@ plot.CO2.T30ppm.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=co
           axis.title.y=element_text(margin=margin(r=10)),
           axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("CO"[2]," (PPM)")), title="") +
+          labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p", y.position = max(select_fluxes_combined_w_T0$co2_ppm), step.group.by = "date_format", step.increase = 0.1)
+  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p", y.position = max(select_fluxes_combined_w_T0$f0_CO2), step.group.by = "date_format", step.increase = 0.1)
  
-plot.CO2.T30ppm.Trt
+plot.CO2.flux.Trt
 ```
 
 ```{r N2O T30 ppm Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
-N2O_kruskal<- compare_means(n2o_ppm~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "kruskal.test")
-N2O_multipleComparisons<- compare_means(n2o_ppm~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
+N2O_kruskal<- compare_means(f0_N2O~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "kruskal.test")
+N2O_multipleComparisons<- compare_means(f0_N2O~treatment, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", p.adjust.method = "fdr")
 
 # Adjustments for plotting:
 N2O_multipleComparisons <- add_significance(N2O_multipleComparisons, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
@@ -1799,17 +1871,20 @@ N2O_multipleComparisons <- add_significance(N2O_multipleComparisons, p.col = "p.
 # Turn into data frame:
 N2O_MultComp.DF <- as.data.frame(N2O_multipleComparisons)
 
-# Add on SDCFlig p-values. If Kruskal was non-significant, input 3 1s, which will be converted to ns:
-N2O_MultComp.DF$SDCF_p <- c(1,1,1, SDCFlig_N2O_6.28$p.val, 1,1,1,1,1,1,1,1,1)
+# Add on SDCFlig p-values:
+N2O_MultComp.DF$SDCF_p <- c(SDCFlig_N2O_6.13_w_T0$p.val, 1,1,1, 1,1,1, 1,1,1, 1, 1, 1)
 
 # Symbols for plotting:
 N2O_MultComp.DF <- add_significance(N2O_MultComp.DF, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
 
-# Export the data frame to a .csv file
+# Export the data frames to a .csv file
 #write.csv(N2O_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/N2O_MultComp.csv", row.names = T)
 
+# Weird 'hide.ns' behavior patch:
+N2O_MultComp.DF$p[4] <- 1.0
+
 # Plotting:
-plot.N2O.T30ppm.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=n2o_ppm)) +
+plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N2O)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
@@ -1824,13 +1899,13 @@ plot.N2O.T30ppm.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=n2
           axis.title.y=element_text(margin=margin(r=10)),
           axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="bottom", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("N"[2],"O (PPM)")), title="") +
+          labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("Dry", "Interim", "Wet"))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_pvalue_manual(data = N2O_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = max(select_fluxes_combined_w_T0$n2o_ppm), step.group.by = "date_format", step.increase = 0.1)
+  stat_pvalue_manual(data = N2O_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p", y.position = max(select_fluxes_combined_w_T0$f0_N2O), step.group.by = "date_format", step.increase = 0.1)
  
-plot.N2O.T30ppm.Trt
+plot.N2O.flux.Trt
 ```
 
 ```{r Extract and save GHG boxplot legend}
@@ -1843,9 +1918,9 @@ legend_plot_treat #View the plot
 
 
 ```{r Combined GHG Boxplot}
-CombPlot_T30ppm_treat <- ggarrange(plot.CH4.T30ppm.Trt, plot.CO2.T30ppm.Trt, plot.N2O.T30ppm.Trt, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none")
+CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", align = "hv")
 
-CombPlot_T30ppm_treat
+CombPlot_flux_treat
 
 #ggsave("../figures/pub/GHG_Treatment/T30_treatment.tiff", plot=CombPlot_T30ppm_treat, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
