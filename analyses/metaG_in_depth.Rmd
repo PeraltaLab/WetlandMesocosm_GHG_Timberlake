@@ -288,7 +288,7 @@ for(i in rownames(FeOxidation)){
 SO4_red_combined <- merge(Assim_SO4_red, Dissim_SO4_red, by=c("Genome", "Sample", "KO.K00958"))
 ```
 
-```{r Import metadata and greenhouse gas data}
+```{r Import metadata and soil data}
 #Design file:
 design <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/design.csv")
 design2 <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/tmg_design.csv")
@@ -303,9 +303,6 @@ design2 <- design2[!(design2$source %in% "s"),] # Consider using start samples l
 
 #Bin genome IDs:
 Bin_genome_IDs <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Bins/Bin_Genome_IDs.csv")
-
-#Greenhouse gas data:
-GHG <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv")
 
 # Import soil physicochemical data:
 soil <- read.csv("../data/Design_and_soil.csv",  header=T)
@@ -334,7 +331,6 @@ SFO.by_time_plant_treatment <- soil.finishONLY %>%
 
 ```{r Sample IDs to rownames}
 #For metagenomic data, make sample IDs rownames in a new data frame, to be further subsetted to numeric only data:
-
 denitNumerical <- denit
 rownames(denitNumerical) <- denitNumerical$Sample
 
@@ -785,6 +781,23 @@ FeOxidationBC_finish <- vegdist(FeOxidationRA_finish, method = 'bray')
 ```
 
 ## GHGs (new flux analysis from SoilPhys_GHGs_16S.Rmd)
+```{r read in meta data}
+#Read in design file
+meta <- read.csv("../data/tmg_design.csv")
+
+#Remove mock, field, and box samples. 
+rownames(meta) <- meta$sample
+meta <- meta[!(rownames(meta) %in% "MOCK"),]
+meta <- meta[!(rownames(meta) %in% "TL1"),]
+meta <- meta[!(rownames(meta) %in% "TL2"),]
+meta <- meta[!(rownames(meta) %in% "TL3"),]
+meta <- meta[!(rownames(meta) %in% "TL4"),]
+meta <- meta[!(rownames(meta) %in% "TL5"),]
+meta <- meta[!(rownames(meta) %in% "TL6"),]
+meta <- meta[!(meta$source %in% "b"),]
+meta <- meta[!(meta$source %in% "s"),]
+```
+
 ```{r GHG T1 concentration analysis}
 # Version of ghg with labels for T1 through T4 analysis:
 ghg2 <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv", header=TRUE)
@@ -811,23 +824,9 @@ ghg_ppm <- ghg_ppm %>%
 ghg_ppm$date_short <- ghg_ppm$date
 # remove "/2016" from date_short:
 ghg_ppm$date_short <- str_remove(ghg_ppm$date_short, "/2016")
-
-# Separate data frames for "No Plant" and "Plant", for plotting:
-ghg_ppm.noplant <- ghg_ppm %>%
-  filter(plant=="N")
-
-ghg_ppm.plant <- ghg_ppm %>%
-  filter(plant=="P")
-```
-
-```{r filter only timepoint 1}
-ghg_ppm_filtered <- ghg_ppm %>%
-  dplyr::filter(timepoint == "T1")
 ```
 
 ```{r Calculate T0s from WRC static chamber monitoring}
-# will attempt to use results from monthly WRC static chamber to calculate average T0. Then calculate a 2 point flux with T30 from TMG mesocosms.
-
 # read in compiled T0 data:
 WRC_T0s <- read.csv("../data/WRC_T0s_for_TMG_ambient_calculation.csv")
 
@@ -877,7 +876,6 @@ T0_averages_combined$time <- 0
 # Add month column:
 T0_averages_combined$month <- c("July", "June", "August")
 ```
-
 
 ```{r GHG flux wrangling}
 # Format a dataframe for 'gasfluxes' package:
@@ -973,48 +971,32 @@ for (i in (nrow(ghg_flux_w_T0) - 1):1) {
   # 24.45 is the volume (liters) of a mole (gram molecular weight) of a gas or vapor when the pressure is at 1 atmosphere (760 torr or 760 mm Hg) and at 25°C
 
 # CH4 mg/m3
-ghg_flux$C_ch4 <- ((ghg_flux$ch4_ppm * 16.04)/24.45) # C is the package 'gasfluxes' abbreviation for concentration. 16.04 g/mol = molar mass of CH4
+ # C is the package 'gasfluxes' abbreviation for concentration. 16.04 g/mol = molar mass of CH4
 ghg_flux_w_T0$C_ch4 <- ((ghg_flux_w_T0$ch4_ppm * 16.04)/24.45)
 
 # CO2 mg/m3
-ghg_flux$C_co2 <- ((ghg_flux$co2_ppm * 44.01)/24.45) # molar mass of CO2 = 44.01 g/mol
+ # molar mass of CO2 = 44.01 g/mol
 ghg_flux_w_T0$C_co2 <- ((ghg_flux_w_T0$co2_ppm * 44.01)/24.45)
 
 # N2O mg/m3
-ghg_flux$C_n2o <-  ((ghg_flux$n2o_ppm * 44.013)/24.45) # molar mass of N2O = 44.013 g/mol
+ # molar mass of N2O = 44.013 g/mol
 ghg_flux_w_T0$C_n2o <-  ((ghg_flux_w_T0$n2o_ppm * 44.013)/24.45)
 
 # Split off data frames for each greenhouse gas:
-ch4_flux_input <- ghg_flux[,9:13]
 ch4_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 14)]
-
-co2_flux_input <- ghg_flux[,c(9:12, 14)]
 co2_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 15)]
-
-n2o_flux_input <- ghg_flux[,c(9:12, 15)]
 n2o_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 16)]
 
 # Rename C_ghg columns to 'C':
-colnames(ch4_flux_input)[5] <- "C"
 colnames(ch4_flux_input_w_T0)[5] <- "C"
-
-colnames(co2_flux_input)[5] <- "C"
 colnames(co2_flux_input_w_T0)[5] <- "C"
-
-colnames(n2o_flux_input)[5] <- "C"
 colnames(n2o_flux_input_w_T0)[5] <- "C"
 
 # Must omit NAs before using gasfluxes():
-ch4_flux_input <- na.omit(ch4_flux_input)
 ch4_flux_input_w_T0 <- na.omit(ch4_flux_input_w_T0)
-
-co2_flux_input <- na.omit(co2_flux_input)
 co2_flux_input_w_T0 <- na.omit(co2_flux_input_w_T0)
 
 # n2o_flux_input has negative values, will need to be converted to NAs, then all NAs omitted
-n2o_flux_input$C[n2o_flux_input$C<0] <- NA
-n2o_flux_input <- na.omit(n2o_flux_input)
-
 n2o_flux_input_w_T0$C[n2o_flux_input_w_T0$C<0] <- NA
 n2o_flux_input_w_T0 <- na.omit(n2o_flux_input_w_T0)
 ```
@@ -1030,31 +1012,10 @@ n2o_flux_input_w_T0$V <- as.numeric(n2o_flux_input_w_T0$V)
 n2o_flux_input_w_T0$A <- as.numeric(n2o_flux_input_w_T0$A)
 ```
 
-```{r flux input DFs with 3 point flux}
-# Ambient to T30 is the reviewer recommended approach:
-# Filter dataframes to only have time = 0, time = 0.5, and time = 1.0
-ch4_flux_input_3point <- ch4_flux_input_w_T0 %>%
-  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
-
-co2_flux_input_3point <- co2_flux_input_w_T0 %>%
-  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
-
-n2o_flux_input_3point <- n2o_flux_input_w_T0 %>%
-  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
-```
-
 ```{r GHG flux calculation}
-ch4_flux.results <- gasfluxes(ch4_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 ch4_flux.results_w_T0 <- gasfluxes(ch4_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
-ch4_flux.results_3pt <- gasfluxes(ch4_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
-
-co2_flux.results <- gasfluxes(co2_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 co2_flux.results_w_T0 <- gasfluxes(co2_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
-co2_flux.results_3pt <- gasfluxes(co2_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
-
-n2o_flux.results <- gasfluxes(n2o_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 n2o_flux.results_w_T0 <- gasfluxes(n2o_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
-n2o_flux.results_3pt <- gasfluxes(n2o_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
 ```
 
 ```{r GHG flux results wrangling}
@@ -1062,68 +1023,28 @@ n2o_flux.results_3pt <- gasfluxes(n2o_flux_input_3point, method = c("linear","ro
 # If HMR is not available, use robust linear
 # If robust linear is not available use linear
 # New DF with all three f0s:
-ch4_fluxes_only <- ch4_flux.results[,c(1:2, 11, 17)]
 ch4_fluxes_only_w_T0 <- ch4_flux.results_w_T0[,c(1:2, 11, 17)]
-ch4_fluxes_only_3pt <- ch4_flux.results_3pt[,c(1:2, 11, 17)]
-
-co2_fluxes_only <- co2_flux.results[,c(1:2, 11, 17)]
 co2_fluxes_only_w_T0 <- co2_flux.results_w_T0[,c(1:2, 11, 17)]
-co2_fluxes_only_3pt <- co2_flux.results_3pt[,c(1:2, 11, 17)]
-
-n2o_fluxes_only <- n2o_flux.results[,c(1:2, 11, 17)]
 n2o_fluxes_only_w_T0 <- n2o_flux.results_w_T0[,c(1:2, 11, 17)]
-n2o_fluxes_only_3pt <- n2o_flux.results_3pt[,c(1:2, 11, 17)]
 
 # New column for final flux selection:
-ch4_fluxes_only$f0_selected <- ch4_fluxes_only$HMR.f0
 ch4_fluxes_only_w_T0$f0_selected <- ch4_fluxes_only_w_T0$HMR.f0
-ch4_fluxes_only_3pt$f0_selected <- ch4_fluxes_only_3pt$HMR.f0
-
-co2_fluxes_only$f0_selected <- co2_fluxes_only$HMR.f0
 co2_fluxes_only_w_T0$f0_selected <- co2_fluxes_only_w_T0$HMR.f0
-co2_fluxes_only_3pt$f0_selected <- co2_fluxes_only_3pt$HMR.f0
-
-n2o_fluxes_only$f0_selected <- n2o_flux.results$HMR.f0
 n2o_fluxes_only_w_T0$f0_selected <- n2o_flux.results_w_T0$HMR.f0
-n2o_fluxes_only_3pt$f0_selected <- n2o_flux.results_3pt$HMR.f0
 
 # Where HMR = NA, replace with the robust linear value:
-ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$HMR.f0))] <- ch4_fluxes_only$robust.linear.f0[na.action(na.omit(ch4_fluxes_only$HMR.f0))]
-
 ch4_fluxes_only_w_T0$f0_selected[na.action(na.omit(ch4_fluxes_only_w_T0$HMR.f0))] <- ch4_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(ch4_fluxes_only_w_T0$HMR.f0))]
-
-ch4_fluxes_only_3pt$f0_selected[na.action(na.omit(ch4_fluxes_only_3pt$HMR.f0))] <- ch4_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(ch4_fluxes_only_3pt$HMR.f0))]
-
-co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$HMR.f0))] <- co2_fluxes_only$robust.linear.f0[na.action(na.omit(co2_fluxes_only$HMR.f0))]
 
 co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$HMR.f0))] <- co2_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(co2_fluxes_only_w_T0$HMR.f0))]
 
-co2_fluxes_only_3pt$f0_selected[na.action(na.omit(co2_fluxes_only_3pt$HMR.f0))] <- co2_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(co2_fluxes_only_3pt$HMR.f0))]
-
-n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$HMR.f0))] <- n2o_fluxes_only$robust.linear.f0[na.action(na.omit(n2o_fluxes_only$HMR.f0))]
-
 n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$HMR.f0))] <- n2o_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$HMR.f0))]
 
-n2o_fluxes_only_3pt$f0_selected[na.action(na.omit(n2o_fluxes_only_3pt$HMR.f0))] <- n2o_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(n2o_fluxes_only_3pt$HMR.f0))]
-
 # Where f0_selected still has NAs, replace with the linear.f0:
-ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$f0_selected))] <- ch4_fluxes_only$linear.f0[na.action(na.omit(ch4_fluxes_only$f0_selected))]
-
 ch4_fluxes_only_w_T0$f0_selected[na.action(na.omit(ch4_fluxes_only_w_T0$f0_selected))] <- ch4_fluxes_only_w_T0$linear.f0[na.action(na.omit(ch4_fluxes_only_w_T0$f0_selected))]
-
-ch4_fluxes_only_3pt$f0_selected[na.action(na.omit(ch4_fluxes_only_3pt$f0_selected))] <- ch4_fluxes_only_3pt$linear.f0[na.action(na.omit(ch4_fluxes_only_3pt$f0_selected))]
-
-co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$f0_selected))] <- co2_fluxes_only$linear.f0[na.action(na.omit(co2_fluxes_only$f0_selected))]
 
 co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$f0_selected))] <- co2_fluxes_only_w_T0$linear.f0[na.action(na.omit(co2_fluxes_only_w_T0$f0_selected))]
 
-co2_fluxes_only_3pt$f0_selected[na.action(na.omit(co2_fluxes_only_3pt$f0_selected))] <- co2_fluxes_only_3pt$linear.f0[na.action(na.omit(co2_fluxes_only_3pt$f0_selected))]
-
-n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$f0_selected))] <- n2o_fluxes_only$linear.f0[na.action(na.omit(n2o_fluxes_only$f0_selected))]
-
 n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))] <- n2o_fluxes_only_w_T0$linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))]
-
-n2o_fluxes_only_3pt$f0_selected[na.action(na.omit(n2o_fluxes_only_3pt$f0_selected))] <- n2o_fluxes_only_3pt$linear.f0[na.action(na.omit(n2o_fluxes_only_3pt$f0_selected))]
 
 # Combine separate DFs back into one DF for statistics
 select_fluxes_combined <- ch4_fluxes_only[,c(1,5)] # start with CH4 IDs and f0 for a base dataframe
