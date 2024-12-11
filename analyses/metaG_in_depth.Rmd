@@ -1046,113 +1046,97 @@ co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$f0_selec
 
 n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))] <- n2o_fluxes_only_w_T0$linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))]
 
-# Combine separate DFs back into one DF for statistics
-select_fluxes_combined <- ch4_fluxes_only[,c(1,5)] # start with CH4 IDs and f0 for a base dataframe
-select_fluxes_combined_w_T0 <- ch4_fluxes_only_w_T0[,c(1,5)]
-select_fluxes_combined_3pt <- ch4_fluxes_only_3pt[,c(1,5)]
+# Combine separate DFs back into one DF for statistics.
+select_fluxes_combined_w_T0 <- ch4_fluxes_only_w_T0[,c(1,5)] # Start with CH4 IDs and f0 for a base dataframe.
 
-colnames(select_fluxes_combined)[2] <- "f0_CH4" # rename to distinguish between GHGs
-colnames(select_fluxes_combined_w_T0)[2] <- "f0_CH4"
-colnames(select_fluxes_combined_3pt)[2] <- "f0_CH4"
+colnames(select_fluxes_combined_w_T0)[2] <- "f0_CH4" # rename to distinguish between GHGs
 
-select_fluxes_combined$f0_CO2 <- co2_fluxes_only$f0_selected # add on CO2 fluxes
-select_fluxes_combined_w_T0$f0_CO2 <- co2_fluxes_only_w_T0$f0_selected
-select_fluxes_combined_3pt$f0_CO2 <- co2_fluxes_only_3pt$f0_selected
+select_fluxes_combined_w_T0$f0_CO2 <- co2_fluxes_only_w_T0$f0_selected # add on CO2 fluxes
 
-select_fluxes_combined$f0_N2O <- n2o_fluxes_only$f0_selected # add on N2O fluxes
-select_fluxes_combined_w_T0$f0_N2O <- n2o_fluxes_only_w_T0$f0_selected
-select_fluxes_combined_3pt$f0_N2O <- n2o_fluxes_only_3pt$f0_selected
+select_fluxes_combined_w_T0$f0_N2O <- n2o_fluxes_only_w_T0$f0_selected # add on N2O fluxes
+
+# Character vector with correct sample ID order:
+Order_GHG_flux <-   c("6/13/2016 1N", "6/13/2016 1P", "6/13/2016 2N", "6/13/2016 2P", "6/13/2016 3N", "6/13/2016 3P", "6/13/2016 4N", "6/13/2016 4P", "6/13/2016 5N", "6/13/2016 5P", "6/13/2016 6N", "6/13/2016 6P", "6/13/2016 7N", "6/13/2016 7P", "6/13/2016 8N", "6/13/2016 8P", "6/13/2016 9N", "6/13/2016 9P", "6/13/2016 10N", "6/13/2016 10P", "6/13/2016 11N", "6/13/2016 11P", "6/13/2016 12N", "6/13/2016 12P", "6/13/2016 13N", "6/13/2016 13P", "6/13/2016 14N", "6/13/2016 14P", "6/13/2016 15N", "6/13/2016 15P", "6/13/2016 16N", "6/13/2016 16P", "6/13/2016 17N", "6/13/2016 17P", "6/13/2016 18N", "6/13/2016 18P", "6/28/2016 1N", "6/28/2016 1P", "6/28/2016 2N", "6/28/2016 2P", "6/28/2016 3N", "6/28/2016 3P", "6/28/2016 4N", "6/28/2016 4P", "6/28/2016 5N", "6/28/2016 5P", "6/28/2016 6N", "6/28/2016 6P", "6/28/2016 7N", "6/28/2016 7P", "6/28/2016 8N", "6/28/2016 8P", "6/28/2016 9N", "6/28/2016 9P", "6/28/2016 10N", "6/28/2016 10P", "6/28/2016 11N", "6/28/2016 11P", "6/28/2016 12N", "6/28/2016 12P", "6/28/2016 13N", "6/28/2016 13P", "6/28/2016 14N", "6/28/2016 14P", "6/28/2016 15N", "6/28/2016 15P", "6/28/2016 16N", "6/28/2016 16P", "6/28/2016 17N", "6/28/2016 17P", "6/28/2016 18N", "6/28/2016 18P", "7/11/2016 1N", "7/11/2016 1P", "7/11/2016 2N", "7/11/2016 2P", "7/11/2016 3N", "7/11/2016 3P", "7/11/2016 4N", "7/11/2016 4P", "7/11/2016 5N", "7/11/2016 5P", "7/11/2016 6N", "7/11/2016 6P", "7/11/2016 7N", "7/11/2016 7P", "7/11/2016 8N", "7/11/2016 8P", "7/11/2016 9N", "7/11/2016 9P", "7/11/2016 10N", "7/11/2016 10P", "7/11/2016 11N", "7/11/2016 11P", "7/11/2016 12N", "7/11/2016 12P", "7/11/2016 13N", "7/11/2016 13P", "7/11/2016 14N", "7/11/2016 14P", "7/11/2016 15N", "7/11/2016 15P", "7/11/2016 16N", "7/11/2016 16P", "7/11/2016 17N", "7/11/2016 17P", "7/11/2016 18N", "7/11/2016 18P", "7/25/2016 1N", "7/25/2016 1P", "7/25/2016 2N", "7/25/2016 2P", "7/25/2016 3N", "7/25/2016 3P", "7/25/2016 4N", "7/25/2016 4P", "7/25/2016 5N", "7/25/2016 5P", "7/25/2016 6N", "7/25/2016 6P", "7/25/2016 7N", "7/25/2016 7P", "7/25/2016 8N", "7/25/2016 8P", "7/25/2016 9N", "7/25/2016 9P", "7/25/2016 10N", "7/25/2016 10P", "7/25/2016 11N", "7/25/2016 11P", "7/25/2016 12N", "7/25/2016 12P", "7/25/2016 13N", "7/25/2016 13P", "7/25/2016 14N", "7/25/2016 14P", "7/25/2016 15N", "7/25/2016 15P", "7/25/2016 16N", "7/25/2016 16P", "7/25/2016 17N", "7/25/2016 17P", "7/25/2016 18N", "7/25/2016 18P", "8/11/2016 1N", "8/11/2016 1P", "8/11/2016 2N", "8/11/2016 2P", "8/11/2016 3N", "8/11/2016 3P", "8/11/2016 4N", "8/11/2016 4P", "8/11/2016 5N", "8/11/2016 5P", "8/11/2016 6N", "8/11/2016 6P", "8/11/2016 7N", "8/11/2016 7P", "8/11/2016 8N", "8/11/2016 8P", "8/11/2016 9N", "8/11/2016 9P", "8/11/2016 10N", "8/11/2016 10P", "8/11/2016 11N", "8/11/2016 11P", "8/11/2016 12N", "8/11/2016 12P", "8/11/2016 13N", "8/11/2016 13P", "8/11/2016 14N", "8/11/2016 14P", "8/11/2016 15N", "8/11/2016 15P", "8/11/2016 16N", "8/11/2016 16P", "8/11/2016 17N", "8/11/2016 17P", "8/11/2016 18N", "8/11/2016 18P")
+
 
 # Change order of select_fluxes_combined_w_T0 to match the other dataframes
-select_fluxes_combined_w_T0 <- select_fluxes_combined_w_T0[match(select_fluxes_combined$ID, select_fluxes_combined_w_T0$ID), ]
-select_fluxes_combined_3pt <- select_fluxes_combined_3pt[match(select_fluxes_combined$ID, select_fluxes_combined_3pt$ID), ]
+select_fluxes_combined_w_T0 <- select_fluxes_combined_w_T0[match(Order_GHG_flux, select_fluxes_combined_w_T0$ID), ]
+
 # CHECK ROW ORDERS NOW
 
+
+# DF that contains meta info and same row number as select_fluxes_combined_w_T0
+ghg_ppm_filtered <- ghg_ppm %>%
+  dplyr::filter(timepoint == "T1")
+
 # Add date_short back onto DFs for plotting
-select_fluxes_combined$date_short <- ghg_ppm_filtered$date_short
 select_fluxes_combined_w_T0$date_short <- ghg_ppm_filtered$date_short
-select_fluxes_combined_3pt$date_short <- ghg_ppm_filtered$date_short
 
 # Add on 'plant'
-select_fluxes_combined$plant <- ghg_ppm_filtered$plant
 select_fluxes_combined_w_T0$plant <- ghg_ppm_filtered$plant
-select_fluxes_combined_3pt$plant <- ghg_ppm_filtered$plant
 
 # Add on 'treatment'
-select_fluxes_combined$treatment <- ghg_ppm_filtered$treatment
 select_fluxes_combined_w_T0$treatment <- ghg_ppm_filtered$treatment
-select_fluxes_combined_3pt$treatment <- ghg_ppm_filtered$treatment
 
 # Add on 'history'
-select_fluxes_combined$history <- ghg_ppm_filtered$history
 select_fluxes_combined_w_T0$history <- ghg_ppm_filtered$history
-select_fluxes_combined_3pt$history <- ghg_ppm_filtered$history
 ```
 
 ## GHG wrangling (previous T30 analysis)
 
 Wrangling greenhouse gas (GHG) data:
 ```{r wrangling GHG data}
-# Fix 'c2o' typo:
-colnames(GHG)[18] <- "co2_ppm"
+# For compatibility and to make a new DF for changes:
+GHG_less_columns <- select_fluxes_combined_w_T0
 
-#Create a new GHG data frame with less columns:
-#GHG_less_columns <- cbind(GHG[,1:4], GHG[24:32])
-GHG_less_columns <- cbind(GHG[,1:4], GHG[17:19])
-
-# Select only T1 rows, and not July 24 (night sampling):
-#GHG_less_columns <- GHG_less_columns %>% drop_na()
-GHG_less_columns <- GHG_less_columns %>%
-  dplyr::filter(timepoint == "T1" & date !='7/24/2016')
-
-#Change column name "chamber" to "box" to match with design2:
-colnames(GHG_less_columns)[2] <- "box"
-
-#Convert GHG_less_columns$plant to lowercase to match with design2$plant:
+# Convert GHG_less_columns$plant to lowercase to match with design2$plant:
 GHG_less_columns$plant <- tolower(GHG_less_columns$plant)
 
+# Add on box:
+GHG_less_columns$box <- ghg_ppm_filtered$chamber
+
 #Subset GHG_less_columns for 'start' time point (6/13/2016) and 'finish' time point (8/11/2016):
-GHG_start <- dplyr::filter(GHG_less_columns, date == "6/13/2016")
-GHG_finish <- dplyr::filter(GHG_less_columns, date == "8/11/2016")
+GHG_start <- dplyr::filter(GHG_less_columns, date_short == "6/13")
+GHG_finish <- dplyr::filter(GHG_less_columns, date_short == "8/11")
 
 #Add design2 into GHG 'start' and 'finish':
-GHG_start <- left_join(GHG_start, design2, by = c("box", "plant"))
-GHG_finish <- left_join(GHG_finish, design2, by = c("box", "plant"))
+GHG_start <- left_join(GHG_start, design2, by = c("plant", "treatment", "history", "box"))
+GHG_finish <- left_join(GHG_finish, design2, by = c("plant", "treatment", "history", "box"))
 
 #Subset GHG_finish and GHG_start to only have metaG sample numbers:
-GHG_start_metaG <- rbind(GHG_start[5:6,], GHG_start[11:12,], GHG_start[15:24,], GHG_start[31:32,], make.row.names = FALSE)
-GHG_finish_metaG <- rbind(GHG_finish[5:6,], GHG_finish[11:12,], GHG_finish[15:24,], GHG_finish[31:32,], make.row.names = FALSE)
+GHG_start_metaG <- rbind(GHG_start[5:6,], GHG_start[11:12,], GHG_start[15:24,], GHG_start[31:32,])
+GHG_finish_metaG <- rbind(GHG_finish[5:6,], GHG_finish[11:12,], GHG_finish[15:24,], GHG_finish[31:32,])
 
-#To align "pre" metaG samples with a single, initial GHG value (from the start GHG measurements on 6/28/206), average together GHG samples in the same box number, then transpose and set row name to corresponding metaG Sample ID:
-GHG_start_03 <- data.frame(colMeans(GHG_start_metaG[1:2, 5:7]))
+#To align "pre" metaG samples with a single, initial GHG value (from the start GHG measurements on 6/28/2016), average together GHG samples in the same box number, then transpose and set row name to corresponding metaG Sample ID:
+GHG_start_03 <- data.frame(colMeans(GHG_start_metaG[1:2, 2:4]))
 GHG_start_03 <- as.data.frame(t(GHG_start_03))
 row.names(GHG_start_03) <- "03Pre"
 
-GHG_start_06 <- data.frame(colMeans(GHG_start_metaG[3:4, 5:7]))
+GHG_start_06 <- data.frame(colMeans(GHG_start_metaG[3:4, 2:4]))
 GHG_start_06 <- as.data.frame(t(GHG_start_06))
 row.names(GHG_start_06) <- "06Pre"
 
-GHG_start_08 <- data.frame(colMeans(GHG_start_metaG[5:6, 5:7]))
+GHG_start_08 <- data.frame(colMeans(GHG_start_metaG[5:6, 2:4]))
 GHG_start_08 <- as.data.frame(t(GHG_start_08))
 row.names(GHG_start_08) <- "08Pre"
 
-GHG_start_09 <- data.frame(colMeans(GHG_start_metaG[7:8, 5:7]))
+GHG_start_09 <- data.frame(colMeans(GHG_start_metaG[7:8, 2:4]))
 GHG_start_09 <- as.data.frame(t(GHG_start_09))
 row.names(GHG_start_09) <- "09Pre"
 
-GHG_start_10 <- data.frame(colMeans(GHG_start_metaG[9:10, 5:7]))
+GHG_start_10 <- data.frame(colMeans(GHG_start_metaG[9:10, 2:4]))
 GHG_start_10 <- as.data.frame(t(GHG_start_10))
 row.names(GHG_start_10) <- "10Pre"
 
-GHG_start_11 <- data.frame(colMeans(GHG_start_metaG[11:12, 5:7]))
+GHG_start_11 <- data.frame(colMeans(GHG_start_metaG[11:12, 2:4]))
 GHG_start_11 <- as.data.frame(t(GHG_start_11))
 row.names(GHG_start_11) <- "11Pre"
 
-GHG_start_12 <- data.frame(colMeans(GHG_start_metaG[13:14, 5:7]))
+GHG_start_12 <- data.frame(colMeans(GHG_start_metaG[13:14, 2:4]))
 GHG_start_12 <- as.data.frame(t(GHG_start_12))
 row.names(GHG_start_12) <- "12Pre"
 
-GHG_start_16 <- data.frame(colMeans(GHG_start_metaG[15:16, 5:7]))
+GHG_start_16 <- data.frame(colMeans(GHG_start_metaG[15:16, 2:4]))
 GHG_start_16 <- as.data.frame(t(GHG_start_16))
 row.names(GHG_start_16) <- "16Pre"
 
@@ -1160,15 +1144,17 @@ row.names(GHG_start_16) <- "16Pre"
 GHG_start_metaG_avg <- rbind(GHG_start_03, GHG_start_06, GHG_start_08, GHG_start_09, GHG_start_10, GHG_start_11, GHG_start_12, GHG_start_16)
 
 #Set the row names of GHG data to the metaG sample names, so that stats functions can compare the GHG and metaG data sets:
+GHG_finish_metaG <- as.data.frame(GHG_finish_metaG) # must be a DF for row.names to work
+
 row.names(GHG_finish_metaG) <- c("03NFC", "03PFC", "06NFC", "06PFC", "08NFC", "08PFC", "09NFC","09PFC", "10NFC","10PFC", "11NFC", "11PFC", "12NFC", "12PFC", "16NFC", "16PFC")
 
-#Combine GHG_start_metaG_avg and GHG_finish_metaG[,5:7] to have all 24 samples:
-GHG_metaG <- rbind(GHG_start_metaG_avg, GHG_finish_metaG[,5:7])
+#Combine GHG_start_metaG_avg and GHG_finish_metaG[,2:4] to have all 24 samples:
+GHG_metaG <- rbind(GHG_start_metaG_avg, GHG_finish_metaG[,2:4])
 GHG_metaG <- GHG_metaG[match(sample_order, rownames(GHG_metaG)), ]
 
 #Clean up GHG_finish_metaG for envfitting:
 GHG_finish_envfit <- GHG_finish_metaG %>%
-  dplyr::select(-c(date, timepoint, source, ttreat, hhistory))
+  dplyr::select(-c(date_short, time, source, ttreat, hhistory, ID))
 ```
 
 ```{r Combined GHG and Soil FINISH data frames for envfit}
