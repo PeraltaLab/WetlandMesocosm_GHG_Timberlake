@@ -47,8 +47,8 @@ require("NSM3")
 ```{r Phyloseq install and load}
 # If phyloseq not installed, un-comment and run:
 #if (!require("BiocManager", quietly = TRUE))
-   # install.packages("BiocManager")
-#BiocManager::install(version = "3.18")
+    #install.packages("BiocManager")
+#BiocManager::install(version = "3.20")
 
 #BiocManager::install("phyloseq")
 
@@ -258,9 +258,12 @@ dplyr::select(chamber, time, treatment, moisture.percent, pH, nh4.mg.l, no2.no3.
 c<-cor(soil.finish[, -c(1:3,7)]) #design fields and no3 because many missing values
 c<-cor(soil.finish[, -c(1:3,7,9,12,14,17)]) # %N Mg Fe CEC
 
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_otu_DF <- as.data.frame(otu.2.rel.dist.pcoa$points)
+
 # envfit:
 meta.env <- soil.finish[, -c(1:3,7,9,12,14,17)]
-fit<-envfit(otu.2.rel.dist.pcoa$points, meta.env, perm=1000,na.rm=T, set.seed(42))
+fit<-envfit(pcoa_otu_DF, meta.env, perm=1000,na.rm=T, set.seed(42))
 A <-as.list(fit$vectors)
 vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.25) #Scale vector by correlation
 p<- as.data.frame(A$pvals)
@@ -271,7 +274,7 @@ vec <-  subset(vec, A$pvals<=0.05)
 vec$parm<-rownames(vec)
 colnames(vec)
 rownames(vec)
-vec$parm<-c("pH", "%C", "Sulfur", "Manganese") # Check that these readable labels match the originals
+vec$parm<-c("pH", "%C", "S", "Mn") # Check that these readable labels match the originals
 
 # To use open and closed shapes, must create a combined category for History and Plant:
 history_plant_combined <- c(paste(pcoa.history, pcoa.plant, sep = "_"))
@@ -291,9 +294,9 @@ plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_p
   scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
   scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant") +
   xlab("PCoA 1 (25%)") + ylab("PCoA 2 (11%)") + 
-  geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
+  geom_segment(data=vec, aes(x=0,xend=V1,y=0,yend=V2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
   #Label soil vectors 
-  geom_text(data=vec,aes(x=Dim1-0.014,y=Dim2+0.011,label=parm),size=5, inherit.aes=F)+
+  geom_text(data=vec,aes(x=V1-0.014,y=V2+0.011,label=parm),size=5, inherit.aes=F)+
   ggtitle("") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
@@ -310,8 +313,6 @@ plot16S_PCoA
 #ggsave("../figures/pub/16S_PCoA.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
 
 #ggsave("../figures/pub/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=300, limitsize=TRUE)
-
-#ggsave("../figures/pub/16SrRNA_timberlake_end_vectors.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
 ```
 # Indicator species
 
@@ -455,7 +456,7 @@ soil_nofield$plant <- revalue(soil_nofield$plant, c("N" = "No Plant", "P" = "Pla
 # Make soil_nofield$time uppercase, first letter only:
 soil_nofield$time <- str_to_title(soil_nofield$time)
 
-write.csv(soil_nofield, file="../figures/soil.csv")
+#write.csv(soil_nofield, file="../figures/soil.csv")
 
 #Subset Start and Finish for plotting:
 soil_nofield.Start <- subset(soil_nofield, time == "Start")
@@ -2005,7 +2006,6 @@ plot.N2O.flux <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N2O))
           axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
-  scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))
  
@@ -2023,7 +2023,7 @@ legend_plot_Flux #View the plot
 
 
 ```{r Combined GHG Boxplot}
-CombPlot_flux <- ggarrange(plot.CH4.flux, plot.CO2.flux, plot.N2O.flux, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", align = "hv")
+CombPlot_flux <- ggarrange(plot.CH4.flux, plot.CO2.flux, plot.N2O.flux, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "top", align = "hv")
 
 CombPlot_flux
 
