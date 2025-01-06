@@ -1082,7 +1082,7 @@ select_fluxes_combined_w_T0$treatment <- ghg_ppm_filtered$treatment
 select_fluxes_combined_w_T0$history <- ghg_ppm_filtered$history
 ```
 
-## GHG wrangling (previous T30 analysis)
+## GHG wrangling
 
 Wrangling greenhouse gas (GHG) data:
 ```{r wrangling GHG data}

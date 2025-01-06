@@ -479,6 +479,7 @@ theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
           panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = "IRIS Percent", title="") +
+  scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))
 
@@ -512,10 +513,30 @@ iris_tubes.Combined
 
 #ggsave("../figures/pub/iris_tubes.tiff", plot=iris_tubes.Combined, device="tiff", path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE, bg="white")
 
-#ggsave("../figures/pub/iris_tubes.jpg", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
+#ggsave("../figures/pub/iris_tubes.png", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=600, limitsize=TRUE ,bg="white")
 
 #ggsave("../figures/pub/iris_tubes.pdf", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
 ```
+
+```{r IRIS stats}
+# For FeS paper
+# Test parametric assumptions:
+# Outliers:
+Outliers_IRIS <- soil_nofield %>%
+  identify_outliers(redox.percent.paint.removed)
+Outliers_IRIS
+  # There are no extreme outliers
+
+# Normality:
+soil_nofield %>%
+  shapiro_test(redox.percent.paint.removed)
+  # Not normally distributed
+
+  # QQ plot:
+ggqqplot(soil_nofield, "redox.percent.paint.removed", facet.by = "time")
+```
+
+
 
 ```{r soil moisture boxplot}
 soil_moisture <- ggplot(soil_nofield, aes(x=treatment, y=moisture.percent, fill=plant)) + 
@@ -1004,7 +1025,7 @@ Extreme_Outliers_ch4_ppm <- Outliers_ch4_ppm %>%
 # Create unique key for filtering:
 Extreme_Outliers_ch4_ppm$chamber_date <-paste(Extreme_Outliers_ch4_ppm$chamber, Extreme_Outliers_ch4_ppm$date_short)
 
-# New CH4 dataframe with extreme outliers dropped:
+# New CH4 data frame with extreme outliers dropped:
 ch4_ppm_no_outliers <- ghg_ppm_filtered
 ch4_ppm_no_outliers$chamber_date <- paste(ch4_ppm_no_outliers$chamber, ch4_ppm_no_outliers$date_short) 
 
