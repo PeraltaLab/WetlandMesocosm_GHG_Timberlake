@@ -620,6 +620,7 @@ ghg_ppm$date <- as.factor(ghg_ppm$date)
 # Change design$box to design$chamber in order to join with ghg$chamber
 colnames(meta)[2] <- "chamber"
 
+# Add on meta data
 ghg_ppm <- ghg_ppm %>%
   left_join(meta[,-c(3, 4, 7, 8, 9)], by="chamber")
 
@@ -636,13 +637,8 @@ ghg_ppm.plant <- ghg_ppm %>%
   filter(plant=="P")
 ```
 
-```{r filter only timepoint 1}
-ghg_ppm_filtered <- ghg_ppm %>%
-  dplyr::filter(timepoint == "T1")
-```
-
 ```{r Calculate T0s from WRC static chamber monitoring}
-# will attempt to use results from monthly WRC static chamber to calculate average T0. Then calculate a 2 point flux with T30 from TMG mesocosms.
+# will attempt to use results from monthly WRC static chamber to calculate average T0. Then calculate fluxes from TMG mesocosms.
 
 # read in compiled T0 data:
 WRC_T0s <- read.csv("../data/WRC_T0s_for_TMG_ambient_calculation.csv")
@@ -694,9 +690,8 @@ T0_averages_combined$time <- 0
 T0_averages_combined$month <- c("July", "June", "August")
 ```
 
-
 ```{r GHG flux wrangling}
-# Format a dataframe for 'gasfluxes' package:
+# Format a data frame for 'gasfluxes' package:
 ghg_flux <- ghg2[,c(1:2, 12, 15:19)]
 
 # Remove 7/24/2016 from data frame, as per Gina's advice
@@ -715,7 +710,7 @@ ghg_flux$A <- ghg_flux$Area..m2.
 # Convert time in minutes to time in hours:
 ghg_flux$time <- (ghg_flux$time_min * (1/60))
 
-# Bind T0s from WRC:
+# Data frame to bind T0s from WRC:
 ghg_flux_w_T0 <- ghg_flux
 
 # Add in month column that takes date strings and matches them to "July", "June", "August":
@@ -789,48 +784,37 @@ for (i in (nrow(ghg_flux_w_T0) - 1):1) {
   # 24.45 is the volume (liters) of a mole (gram molecular weight) of a gas or vapor when the pressure is at 1 atmosphere (760 torr or 760 mm Hg) and at 25°C
 
 # CH4 mg/m3
-ghg_flux$C_ch4 <- ((ghg_flux$ch4_ppm * 16.04)/24.45) # C is the package 'gasfluxes' abbreviation for concentration. 16.04 g/mol = molar mass of CH4
+# C is the package 'gasfluxes' abbreviation for concentration. 16.04 g/mol = molar mass of CH4
 ghg_flux_w_T0$C_ch4 <- ((ghg_flux_w_T0$ch4_ppm * 16.04)/24.45)
 
 # CO2 mg/m3
-ghg_flux$C_co2 <- ((ghg_flux$co2_ppm * 44.01)/24.45) # molar mass of CO2 = 44.01 g/mol
+# molar mass of CO2 = 44.01 g/mol
 ghg_flux_w_T0$C_co2 <- ((ghg_flux_w_T0$co2_ppm * 44.01)/24.45)
 
 # N2O mg/m3
-ghg_flux$C_n2o <-  ((ghg_flux$n2o_ppm * 44.013)/24.45) # molar mass of N2O = 44.013 g/mol
+# molar mass of N2O = 44.013 g/mol
 ghg_flux_w_T0$C_n2o <-  ((ghg_flux_w_T0$n2o_ppm * 44.013)/24.45)
 
 # Split off data frames for each greenhouse gas:
-ch4_flux_input <- ghg_flux[,9:13]
 ch4_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 14)]
 
-co2_flux_input <- ghg_flux[,c(9:12, 14)]
 co2_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 15)]
 
-n2o_flux_input <- ghg_flux[,c(9:12, 15)]
 n2o_flux_input_w_T0 <- ghg_flux_w_T0[,c(9:12, 16)]
 
 # Rename C_ghg columns to 'C':
-colnames(ch4_flux_input)[5] <- "C"
 colnames(ch4_flux_input_w_T0)[5] <- "C"
 
-colnames(co2_flux_input)[5] <- "C"
 colnames(co2_flux_input_w_T0)[5] <- "C"
 
-colnames(n2o_flux_input)[5] <- "C"
 colnames(n2o_flux_input_w_T0)[5] <- "C"
 
 # Must omit NAs before using gasfluxes():
-ch4_flux_input <- na.omit(ch4_flux_input)
 ch4_flux_input_w_T0 <- na.omit(ch4_flux_input_w_T0)
 
-co2_flux_input <- na.omit(co2_flux_input)
 co2_flux_input_w_T0 <- na.omit(co2_flux_input_w_T0)
 
 # n2o_flux_input has negative values, will need to be converted to NAs, then all NAs omitted
-n2o_flux_input$C[n2o_flux_input$C<0] <- NA
-n2o_flux_input <- na.omit(n2o_flux_input)
-
 n2o_flux_input_w_T0$C[n2o_flux_input_w_T0$C<0] <- NA
 n2o_flux_input_w_T0 <- na.omit(n2o_flux_input_w_T0)
 ```
@@ -846,144 +830,78 @@ n2o_flux_input_w_T0$V <- as.numeric(n2o_flux_input_w_T0$V)
 n2o_flux_input_w_T0$A <- as.numeric(n2o_flux_input_w_T0$A)
 ```
 
-```{r flux input DFs with 3 point flux}
-# Ambient to T30 is the reviewer recommended approach:
-# Filter dataframes to only have time = 0, time = 0.5, and time = 1.0
-ch4_flux_input_3point <- ch4_flux_input_w_T0 %>%
-  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
-
-co2_flux_input_3point <- co2_flux_input_w_T0 %>%
-  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
-
-n2o_flux_input_3point <- n2o_flux_input_w_T0 %>%
-  dplyr::filter(time == 0.0 | time == 0.5 | time == 1.0)
-```
-
 ```{r GHG flux calculation}
-ch4_flux.results <- gasfluxes(ch4_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 ch4_flux.results_w_T0 <- gasfluxes(ch4_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
-ch4_flux.results_3pt <- gasfluxes(ch4_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
-
-co2_flux.results <- gasfluxes(co2_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 co2_flux.results_w_T0 <- gasfluxes(co2_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
-co2_flux.results_3pt <- gasfluxes(co2_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
-
-n2o_flux.results <- gasfluxes(n2o_flux_input, method = c("linear","robust linear", "HMR"), plot = T)
 n2o_flux.results_w_T0 <- gasfluxes(n2o_flux_input_w_T0, method = c("linear","robust linear", "HMR"), plot = T)
-n2o_flux.results_3pt <- gasfluxes(n2o_flux_input_3point, method = c("linear","robust linear", "HMR"), plot = T)
 ```
 
 ```{r GHG flux results wrangling}
 # If HMR is available, use HMR
 # If HMR is not available, use robust linear
 # If robust linear is not available use linear
+
 # New DF with all three f0s:
-ch4_fluxes_only <- ch4_flux.results[,c(1:2, 11, 17)]
 ch4_fluxes_only_w_T0 <- ch4_flux.results_w_T0[,c(1:2, 11, 17)]
-ch4_fluxes_only_3pt <- ch4_flux.results_3pt[,c(1:2, 11, 17)]
-
-co2_fluxes_only <- co2_flux.results[,c(1:2, 11, 17)]
 co2_fluxes_only_w_T0 <- co2_flux.results_w_T0[,c(1:2, 11, 17)]
-co2_fluxes_only_3pt <- co2_flux.results_3pt[,c(1:2, 11, 17)]
-
-n2o_fluxes_only <- n2o_flux.results[,c(1:2, 11, 17)]
 n2o_fluxes_only_w_T0 <- n2o_flux.results_w_T0[,c(1:2, 11, 17)]
-n2o_fluxes_only_3pt <- n2o_flux.results_3pt[,c(1:2, 11, 17)]
 
 # New column for final flux selection:
-ch4_fluxes_only$f0_selected <- ch4_fluxes_only$HMR.f0
 ch4_fluxes_only_w_T0$f0_selected <- ch4_fluxes_only_w_T0$HMR.f0
-ch4_fluxes_only_3pt$f0_selected <- ch4_fluxes_only_3pt$HMR.f0
-
-co2_fluxes_only$f0_selected <- co2_fluxes_only$HMR.f0
 co2_fluxes_only_w_T0$f0_selected <- co2_fluxes_only_w_T0$HMR.f0
-co2_fluxes_only_3pt$f0_selected <- co2_fluxes_only_3pt$HMR.f0
-
-n2o_fluxes_only$f0_selected <- n2o_flux.results$HMR.f0
 n2o_fluxes_only_w_T0$f0_selected <- n2o_flux.results_w_T0$HMR.f0
-n2o_fluxes_only_3pt$f0_selected <- n2o_flux.results_3pt$HMR.f0
 
 # Where HMR = NA, replace with the robust linear value:
-ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$HMR.f0))] <- ch4_fluxes_only$robust.linear.f0[na.action(na.omit(ch4_fluxes_only$HMR.f0))]
-
 ch4_fluxes_only_w_T0$f0_selected[na.action(na.omit(ch4_fluxes_only_w_T0$HMR.f0))] <- ch4_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(ch4_fluxes_only_w_T0$HMR.f0))]
-
-ch4_fluxes_only_3pt$f0_selected[na.action(na.omit(ch4_fluxes_only_3pt$HMR.f0))] <- ch4_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(ch4_fluxes_only_3pt$HMR.f0))]
-
-co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$HMR.f0))] <- co2_fluxes_only$robust.linear.f0[na.action(na.omit(co2_fluxes_only$HMR.f0))]
 
 co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$HMR.f0))] <- co2_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(co2_fluxes_only_w_T0$HMR.f0))]
 
-co2_fluxes_only_3pt$f0_selected[na.action(na.omit(co2_fluxes_only_3pt$HMR.f0))] <- co2_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(co2_fluxes_only_3pt$HMR.f0))]
-
-n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$HMR.f0))] <- n2o_fluxes_only$robust.linear.f0[na.action(na.omit(n2o_fluxes_only$HMR.f0))]
-
 n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$HMR.f0))] <- n2o_fluxes_only_w_T0$robust.linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$HMR.f0))]
 
-n2o_fluxes_only_3pt$f0_selected[na.action(na.omit(n2o_fluxes_only_3pt$HMR.f0))] <- n2o_fluxes_only_3pt$robust.linear.f0[na.action(na.omit(n2o_fluxes_only_3pt$HMR.f0))]
-
 # Where f0_selected still has NAs, replace with the linear.f0:
-ch4_fluxes_only$f0_selected[na.action(na.omit(ch4_fluxes_only$f0_selected))] <- ch4_fluxes_only$linear.f0[na.action(na.omit(ch4_fluxes_only$f0_selected))]
-
 ch4_fluxes_only_w_T0$f0_selected[na.action(na.omit(ch4_fluxes_only_w_T0$f0_selected))] <- ch4_fluxes_only_w_T0$linear.f0[na.action(na.omit(ch4_fluxes_only_w_T0$f0_selected))]
-
-ch4_fluxes_only_3pt$f0_selected[na.action(na.omit(ch4_fluxes_only_3pt$f0_selected))] <- ch4_fluxes_only_3pt$linear.f0[na.action(na.omit(ch4_fluxes_only_3pt$f0_selected))]
-
-co2_fluxes_only$f0_selected[na.action(na.omit(co2_fluxes_only$f0_selected))] <- co2_fluxes_only$linear.f0[na.action(na.omit(co2_fluxes_only$f0_selected))]
 
 co2_fluxes_only_w_T0$f0_selected[na.action(na.omit(co2_fluxes_only_w_T0$f0_selected))] <- co2_fluxes_only_w_T0$linear.f0[na.action(na.omit(co2_fluxes_only_w_T0$f0_selected))]
 
-co2_fluxes_only_3pt$f0_selected[na.action(na.omit(co2_fluxes_only_3pt$f0_selected))] <- co2_fluxes_only_3pt$linear.f0[na.action(na.omit(co2_fluxes_only_3pt$f0_selected))]
-
-n2o_fluxes_only$f0_selected[na.action(na.omit(n2o_fluxes_only$f0_selected))] <- n2o_fluxes_only$linear.f0[na.action(na.omit(n2o_fluxes_only$f0_selected))]
-
 n2o_fluxes_only_w_T0$f0_selected[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))] <- n2o_fluxes_only_w_T0$linear.f0[na.action(na.omit(n2o_fluxes_only_w_T0$f0_selected))]
 
-n2o_fluxes_only_3pt$f0_selected[na.action(na.omit(n2o_fluxes_only_3pt$f0_selected))] <- n2o_fluxes_only_3pt$linear.f0[na.action(na.omit(n2o_fluxes_only_3pt$f0_selected))]
-
 # Combine separate DFs back into one DF for statistics
-select_fluxes_combined <- ch4_fluxes_only[,c(1,5)] # start with CH4 IDs and f0 for a base dataframe
+# start with CH4 IDs and f0 for a base dataframe
 select_fluxes_combined_w_T0 <- ch4_fluxes_only_w_T0[,c(1,5)]
-select_fluxes_combined_3pt <- ch4_fluxes_only_3pt[,c(1,5)]
 
-colnames(select_fluxes_combined)[2] <- "f0_CH4" # rename to distinguish between GHGs
+# rename to distinguish between GHGs
 colnames(select_fluxes_combined_w_T0)[2] <- "f0_CH4"
-colnames(select_fluxes_combined_3pt)[2] <- "f0_CH4"
 
-select_fluxes_combined$f0_CO2 <- co2_fluxes_only$f0_selected # add on CO2 fluxes
+# add on CO2 fluxes
 select_fluxes_combined_w_T0$f0_CO2 <- co2_fluxes_only_w_T0$f0_selected
-select_fluxes_combined_3pt$f0_CO2 <- co2_fluxes_only_3pt$f0_selected
 
-select_fluxes_combined$f0_N2O <- n2o_fluxes_only$f0_selected # add on N2O fluxes
+# add on N2O fluxes
 select_fluxes_combined_w_T0$f0_N2O <- n2o_fluxes_only_w_T0$f0_selected
-select_fluxes_combined_3pt$f0_N2O <- n2o_fluxes_only_3pt$f0_selected
+
+# Character vector with correct sample ID order:
+Order_GHG_flux <-   c("6/13/2016 1N", "6/13/2016 1P", "6/13/2016 2N", "6/13/2016 2P", "6/13/2016 3N", "6/13/2016 3P", "6/13/2016 4N", "6/13/2016 4P", "6/13/2016 5N", "6/13/2016 5P", "6/13/2016 6N", "6/13/2016 6P", "6/13/2016 7N", "6/13/2016 7P", "6/13/2016 8N", "6/13/2016 8P", "6/13/2016 9N", "6/13/2016 9P", "6/13/2016 10N", "6/13/2016 10P", "6/13/2016 11N", "6/13/2016 11P", "6/13/2016 12N", "6/13/2016 12P", "6/13/2016 13N", "6/13/2016 13P", "6/13/2016 14N", "6/13/2016 14P", "6/13/2016 15N", "6/13/2016 15P", "6/13/2016 16N", "6/13/2016 16P", "6/13/2016 17N", "6/13/2016 17P", "6/13/2016 18N", "6/13/2016 18P", "6/28/2016 1N", "6/28/2016 1P", "6/28/2016 2N", "6/28/2016 2P", "6/28/2016 3N", "6/28/2016 3P", "6/28/2016 4N", "6/28/2016 4P", "6/28/2016 5N", "6/28/2016 5P", "6/28/2016 6N", "6/28/2016 6P", "6/28/2016 7N", "6/28/2016 7P", "6/28/2016 8N", "6/28/2016 8P", "6/28/2016 9N", "6/28/2016 9P", "6/28/2016 10N", "6/28/2016 10P", "6/28/2016 11N", "6/28/2016 11P", "6/28/2016 12N", "6/28/2016 12P", "6/28/2016 13N", "6/28/2016 13P", "6/28/2016 14N", "6/28/2016 14P", "6/28/2016 15N", "6/28/2016 15P", "6/28/2016 16N", "6/28/2016 16P", "6/28/2016 17N", "6/28/2016 17P", "6/28/2016 18N", "6/28/2016 18P", "7/11/2016 1N", "7/11/2016 1P", "7/11/2016 2N", "7/11/2016 2P", "7/11/2016 3N", "7/11/2016 3P", "7/11/2016 4N", "7/11/2016 4P", "7/11/2016 5N", "7/11/2016 5P", "7/11/2016 6N", "7/11/2016 6P", "7/11/2016 7N", "7/11/2016 7P", "7/11/2016 8N", "7/11/2016 8P", "7/11/2016 9N", "7/11/2016 9P", "7/11/2016 10N", "7/11/2016 10P", "7/11/2016 11N", "7/11/2016 11P", "7/11/2016 12N", "7/11/2016 12P", "7/11/2016 13N", "7/11/2016 13P", "7/11/2016 14N", "7/11/2016 14P", "7/11/2016 15N", "7/11/2016 15P", "7/11/2016 16N", "7/11/2016 16P", "7/11/2016 17N", "7/11/2016 17P", "7/11/2016 18N", "7/11/2016 18P", "7/25/2016 1N", "7/25/2016 1P", "7/25/2016 2N", "7/25/2016 2P", "7/25/2016 3N", "7/25/2016 3P", "7/25/2016 4N", "7/25/2016 4P", "7/25/2016 5N", "7/25/2016 5P", "7/25/2016 6N", "7/25/2016 6P", "7/25/2016 7N", "7/25/2016 7P", "7/25/2016 8N", "7/25/2016 8P", "7/25/2016 9N", "7/25/2016 9P", "7/25/2016 10N", "7/25/2016 10P", "7/25/2016 11N", "7/25/2016 11P", "7/25/2016 12N", "7/25/2016 12P", "7/25/2016 13N", "7/25/2016 13P", "7/25/2016 14N", "7/25/2016 14P", "7/25/2016 15N", "7/25/2016 15P", "7/25/2016 16N", "7/25/2016 16P", "7/25/2016 17N", "7/25/2016 17P", "7/25/2016 18N", "7/25/2016 18P", "8/11/2016 1N", "8/11/2016 1P", "8/11/2016 2N", "8/11/2016 2P", "8/11/2016 3N", "8/11/2016 3P", "8/11/2016 4N", "8/11/2016 4P", "8/11/2016 5N", "8/11/2016 5P", "8/11/2016 6N", "8/11/2016 6P", "8/11/2016 7N", "8/11/2016 7P", "8/11/2016 8N", "8/11/2016 8P", "8/11/2016 9N", "8/11/2016 9P", "8/11/2016 10N", "8/11/2016 10P", "8/11/2016 11N", "8/11/2016 11P", "8/11/2016 12N", "8/11/2016 12P", "8/11/2016 13N", "8/11/2016 13P", "8/11/2016 14N", "8/11/2016 14P", "8/11/2016 15N", "8/11/2016 15P", "8/11/2016 16N", "8/11/2016 16P", "8/11/2016 17N", "8/11/2016 17P", "8/11/2016 18N", "8/11/2016 18P")
 
 # Change order of select_fluxes_combined_w_T0 to match the other dataframes
-select_fluxes_combined_w_T0 <- select_fluxes_combined_w_T0[match(select_fluxes_combined$ID, select_fluxes_combined_w_T0$ID), ]
-select_fluxes_combined_3pt <- select_fluxes_combined_3pt[match(select_fluxes_combined$ID, select_fluxes_combined_3pt$ID), ]
+select_fluxes_combined_w_T0 <- select_fluxes_combined_w_T0[match(Order_GHG_flux, select_fluxes_combined_w_T0$ID), ]
+
 # CHECK ROW ORDERS NOW
 
+# DF that contains meta info and same row number as select_fluxes_combined_w_T0
+ghg_ppm_filtered <- ghg_ppm %>%
+  dplyr::filter(timepoint == "T1")
+
 # Add date_short back onto DFs for plotting
-select_fluxes_combined$date_short <- ghg_ppm_filtered$date_short
 select_fluxes_combined_w_T0$date_short <- ghg_ppm_filtered$date_short
-select_fluxes_combined_3pt$date_short <- ghg_ppm_filtered$date_short
 
 # Add on 'plant'
-select_fluxes_combined$plant <- ghg_ppm_filtered$plant
 select_fluxes_combined_w_T0$plant <- ghg_ppm_filtered$plant
-select_fluxes_combined_3pt$plant <- ghg_ppm_filtered$plant
 
 # Add on 'treatment'
-select_fluxes_combined$treatment <- ghg_ppm_filtered$treatment
 select_fluxes_combined_w_T0$treatment <- ghg_ppm_filtered$treatment
-select_fluxes_combined_3pt$treatment <- ghg_ppm_filtered$treatment
 
 # Add on 'history'
-select_fluxes_combined$history <- ghg_ppm_filtered$history
 select_fluxes_combined_w_T0$history <- ghg_ppm_filtered$history
-select_fluxes_combined_3pt$history <- ghg_ppm_filtered$history
 ```
-
 
 ```{r ANOVAS prep}
 # https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
@@ -992,284 +910,64 @@ select_fluxes_combined_3pt$history <- ghg_ppm_filtered$history
 
   # ghg_ppm_filtered:
 ghg_ppm_filtered$chamber <- as.factor(ghg_ppm_filtered$chamber)
-ghg_ppm_filtered$date_short <- as.factor(ghg_ppm_filtered$date_short)
-ghg_ppm_filtered$plant <- as.factor(ghg_ppm_filtered$plant)
-ghg_ppm_filtered$treatment <- as.factor(ghg_ppm_filtered$treatment)
 
 select_fluxes_combined_w_T0$chamber <- ghg_ppm_filtered$chamber
 select_fluxes_combined_w_T0$date_short <- as.factor(select_fluxes_combined_w_T0$date_short)
 select_fluxes_combined_w_T0$plant <- as.factor(select_fluxes_combined_w_T0$plant)
 select_fluxes_combined_w_T0$treatment <- as.factor(select_fluxes_combined_w_T0$treatment)
-
-  # select_fluxes_combined
-    # Add on chamber to be consistent with ghg_ppm_filtered and ghg:
-select_fluxes_combined$chamber <- ghg_ppm_filtered$chamber
-
-    # setting other factors, as above
-select_fluxes_combined$date_short <- as.factor(select_fluxes_combined$date_short)
-select_fluxes_combined$plant <- as.factor(select_fluxes_combined$plant)
-select_fluxes_combined$treatment <- as.factor(select_fluxes_combined$treatment)
 ```
 
 ```{r ANOVA assumption testing: outliers}
-# CH4 PPM
-Outliers_ch4_ppm <- ghg_ppm_filtered %>%
+# CH4
+Outliers_f0_CH4_w_T0 <- select_fluxes_combined_w_T0 %>%
   group_by(date_short) %>%
-  identify_outliers(ch4_ppm)
-  # There are extreme outliers. Could run with and without outliers.
+  identify_outliers(f0_CH4)
+Outliers_f0_CH4_w_T0
+  # There are extreme outliers.
 
-# Filter extreme outliers only:
-Extreme_Outliers_ch4_ppm <- Outliers_ch4_ppm %>%
-  dplyr::filter(is.extreme == TRUE)
-
-# Create unique key for filtering:
-Extreme_Outliers_ch4_ppm$chamber_date <-paste(Extreme_Outliers_ch4_ppm$chamber, Extreme_Outliers_ch4_ppm$date_short)
-
-# New CH4 data frame with extreme outliers dropped:
-ch4_ppm_no_outliers <- ghg_ppm_filtered
-ch4_ppm_no_outliers$chamber_date <- paste(ch4_ppm_no_outliers$chamber, ch4_ppm_no_outliers$date_short) 
-
-# If values appear in Extreme_Outliers, drop them from 'no_outliers' dataframe:
-ch4_ppm_no_outliers <- ch4_ppm_no_outliers[!(ch4_ppm_no_outliers$chamber_date %in% Extreme_Outliers_ch4_ppm$chamber_date),]
-
-# Test for extreme outliers again:
-ch4_ppm_no_outliers %>%
+# CO2
+Outliers_f0_CO2_w_T0 <- select_fluxes_combined_w_T0 %>%
   group_by(date_short) %>%
-  identify_outliers(ch4_ppm)
-  # still extreme outliers, but different ones now
+  identify_outliers(f0_CO2)
+Outliers_f0_CO2_w_T0
+  # There are extreme outliers.
+
+# N2O
+Outliers_f0_N2O_w_T0 <- select_fluxes_combined_w_T0 %>%
+  group_by(date_short) %>%
+  identify_outliers(f0_N2O)
+Outliers_f0_N2O_w_T0
+  # There are extreme outliers.
 ```
   
 ```{r ANOVA assumption testing: normality}
-# CH4 PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  shapiro_test(ch4_ppm)
-  # Not normally distributed
-
-  # QQ plot:
-ggqqplot(ghg_ppm_filtered, "ch4_ppm", facet.by = "date_short")
-
-
-  # outliers dropped:
-ch4_ppm_no_outliers %>%
-  group_by(date_short) %>%
-  shapiro_test(ch4_ppm)
-  # Not normally distributed
-
-ggqqplot(ch4_ppm_no_outliers, "ch4_ppm", facet.by = "date_short")
-  # seems to be an improvement, but not good enough
-
-# CO2 PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  shapiro_test(co2_ppm)
-  # Not normally distributed
-
-  # QQ plot:
-ggqqplot(ghg_ppm_filtered, "co2_ppm", facet.by = "date_short")
-
-# N2O PPM
-ghg_ppm_filtered %>%
-  group_by(date_short) %>%
-  shapiro_test(n2o_ppm)
-  # Not normally distributed
-
-  # QQ plot:
-ggqqplot(ghg_ppm_filtered, "n2o_ppm", facet.by = "date_short")
-```
-
-```{r one-way repeated measures ANOVA}
-# CH4:
-res.aov.CH4 <- anova_test(data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber, within = date_short)
-get_anova_table(res.aov.CH4)
-
-# CO2
-res.aov.CO2 <- anova_test(data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber, within = date_short)
-get_anova_table(res.aov.CO2) # Sig. different within time points
-
-# Pair-wise comparisons (PWC):
-pwc_CO2 <- ghg_ppm_filtered %>%
-  pairwise_t_test(
-    co2_ppm ~ date_short, paired = TRUE,
-    p.adjust.method = "fdr"
-    )
-pwc_CO2
-
-# N2O:
-res.aov.N2O <- anova_test(data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber, within = date_short)
-get_anova_table(res.aov.N2O)
-```
-
-```{r Mixed ANOVA}
-# CH4: 
-    # PPM with date, TREATMENT:
-MixANOVA_CH4_ppm_treatment <- anova_test(
-  data = ghg_ppm_filtered, dv = ch4_ppm, wid = chamber,
-  between = treatment,
-  within = date_short)
-get_anova_table(MixANOVA_CH4_ppm_treatment)
-
-# CO2:
-    # PPM with date, TREATMENT:
-MixANOVA_CO2_ppm_treatment <- anova_test(
-  data = ghg_ppm_filtered, dv = co2_ppm, wid = chamber,
-  between = treatment,
-  within = date_short)
-get_anova_table(MixANOVA_CO2_ppm_treatment)
-  # Do a Tukey on treatment:
-    # Tukey on treatment
-tukey_AOV_CH4_treatment <- tukey_hsd(ghg_ppm_filtered, co2_ppm ~ treatment)
-tukey_AOV_CH4_treatment
-
-# N2O:
-    # PPM with date, TREATMENT:
-MixANOVA_N2O_ppm_treatment <- anova_test(
-  data = ghg_ppm_filtered, dv = n2o_ppm, wid = chamber,
-  between = treatment,
-  within = date_short)
-get_anova_table(MixANOVA_N2O_ppm_treatment)
-```
-
-```{r Wilcoxon Rank Sum for Plant No Plant}
 # CH4
-wilcox_CH4_6.13 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "6/13")
-wilcox_CH4_6.13
+select_fluxes_combined_w_T0 %>%
+  group_by(date_short) %>%
+  shapiro_test(f0_CH4)
+  # Not normally distributed
 
-wilcox_CH4_6.28 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "6/28")
-wilcox_CH4_6.28
+  # QQ plot:
+ggqqplot(select_fluxes_combined_w_T0, "f0_CH4", facet.by = "date_short")
 
-wilcox_CH4_7.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "7/11")
-wilcox_CH4_7.11
-
-wilcox_CH4_7.25 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "7/25")
-wilcox_CH4_7.25
-
-wilcox_CH4_8.11 <- wilcox.test(data = ghg_ppm_filtered, ch4_ppm ~ plant, paired = T, subset = date_short == "8/11")
-wilcox_CH4_8.11
 
 # CO2
-wilcox_CO2_6.13 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "6/13")
-wilcox_CO2_6.13
+select_fluxes_combined_w_T0 %>%
+  group_by(date_short) %>%
+  shapiro_test(f0_CO2)
+  # Not normally distributed
 
-wilcox_CO2_6.28 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "6/28")
-wilcox_CO2_6.28
-
-wilcox_CO2_7.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "7/11")
-wilcox_CO2_7.11
-
-wilcox_CO2_7.25 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "7/25")
-wilcox_CO2_7.25
-
-wilcox_CO2_8.11 <- wilcox.test(data = ghg_ppm_filtered, co2_ppm ~ plant, paired = T, subset = date_short == "8/11")
-wilcox_CO2_8.11
+  # QQ plot:
+ggqqplot(select_fluxes_combined_w_T0, "f0_CO2", facet.by = "date_short")
 
 # N2O
-wilcox_N2O_6.13 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "6/13")
-wilcox_N2O_6.13
+select_fluxes_combined_w_T0 %>%
+  group_by(date_short) %>%
+  shapiro_test(f0_N2O)
+  # Not normally distributed
 
-wilcox_N2O_6.28 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "6/28")
-wilcox_N2O_6.28
-
-wilcox_N2O_7.11 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "7/11")
-wilcox_N2O_7.11
-
-wilcox_N2O_7.25 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "7/25")
-wilcox_N2O_7.25
-
-wilcox_N2O_8.11 <- wilcox.test(data = ghg_ppm_filtered, n2o_ppm ~ plant, paired = T, subset = date_short == "8/11")
-wilcox_N2O_8.11
-```
-
-```{r Kruskal-Wallis Rank Sum Test on treatment}
-# Will use DWASS-Steel-Critchlow-Fligner test for multiple comparisons, in package NSM3
-
-# CH4
-kruskal_CH4_6.13 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "6/13")
-kruskal_CH4_6.13
-
-kruskal_CH4_6.28 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "6/28")
-kruskal_CH4_6.28
-
-  # Pairwise comparisons:
-    # Must subset 6/28:
-ghg_ppm_filtered_6.28 <- ghg_ppm_filtered %>% filter(date_short == "6/28")
-
-SDCFlig_CH4_6.28 <- pSDCFlig(x = ghg_ppm_filtered_6.28$ch4_ppm, g = ghg_ppm_filtered_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CH4_6.28
-
-kruskal_CH4_7.11 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "7/11")
-kruskal_CH4_7.11
-
-  # Pairwise comparisons:
-    # Must subset 7/11:
-ghg_ppm_filtered_7.11 <- ghg_ppm_filtered %>% filter(date_short == "7/11")
-
-SDCFlig_CH4_7.11 <- pSDCFlig(x = ghg_ppm_filtered_7.11$ch4_ppm, g = ghg_ppm_filtered_7.11$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CH4_7.11
-
-kruskal_CH4_7.25 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "7/25")
-kruskal_CH4_7.25
-
-  # Pairwise comparisons:
-    # Must subset 7/25:
-ghg_ppm_filtered_7.25 <- ghg_ppm_filtered %>% filter(date_short == "7/25")
-
-SDCFlig_CH4_7.25 <- pSDCFlig(x = ghg_ppm_filtered_7.25$ch4_ppm, g = ghg_ppm_filtered_7.25$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CH4_7.25
-
-kruskal_CH4_8.11 <- kruskal.test(data = ghg_ppm_filtered, ch4_ppm ~ treatment, subset = date_short == "8/11")
-kruskal_CH4_8.11
-
-  # Pairwise comparisons:
-    # Must subset 8/11:
-ghg_ppm_filtered_8.11 <- ghg_ppm_filtered %>% filter(date_short == "8/11")
-
-SDCFlig_CH4_8.11 <- pSDCFlig(x = ghg_ppm_filtered_8.11$ch4_ppm, g = ghg_ppm_filtered_8.11$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CH4_8.11
-
-# CO2
-kruskal_CO2_6.13 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "6/13")
-kruskal_CO2_6.13
-
-kruskal_CO2_6.28 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "6/28")
-kruskal_CO2_6.28
-
-kruskal_CO2_7.11 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "7/11")
-kruskal_CO2_7.11
-
-  # Pairwise comparisons:
-SDCFlig_CO2_7.11 <- pSDCFlig(x = ghg_ppm_filtered_7.11$co2_ppm, g = ghg_ppm_filtered_7.11$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CO2_7.11
-
-kruskal_CO2_7.25 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "7/25")
-kruskal_CO2_7.25
-
-kruskal_CO2_8.11 <- kruskal.test(data = ghg_ppm_filtered, co2_ppm ~ treatment, subset = date_short == "8/11")
-kruskal_CO2_8.11
-
-  # Pairwise comparisons:
-SDCFlig_CO2_8.11 <- pSDCFlig(x = ghg_ppm_filtered_8.11$co2_ppm, g = ghg_ppm_filtered_8.11$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_CO2_8.11
-
-# N2O
-kruskal_N2O_6.13 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "6/13")
-kruskal_N2O_6.13
-
-kruskal_N2O_6.28 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "6/28")
-kruskal_N2O_6.28
-
-  # Pairwise comparisons:
-SDCFlig_N2O_6.28 <- pSDCFlig(x = ghg_ppm_filtered_6.28$n2o_ppm, g = ghg_ppm_filtered_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_N2O_6.28
-
-kruskal_N2O_7.11 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "7/11")
-kruskal_N2O_7.11
-
-kruskal_N2O_7.25 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "7/25")
-kruskal_N2O_7.25
-
-kruskal_N2O_8.11 <- kruskal.test(data = ghg_ppm_filtered, n2o_ppm ~ treatment, subset = date_short == "8/11")
-kruskal_N2O_8.11
+  # QQ plot:
+ggqqplot(select_fluxes_combined_w_T0, "f0_N2O", facet.by = "date_short")
 ```
 
 ```{r Kruskal-Wallis on flux with T0, treatment}
@@ -1366,10 +1064,6 @@ kruskal_N2O_8.11_w_T0
 
 
 ```{r format dates for figures}
-ghg_ppm_filtered$date_format <- factor(ghg_ppm_filtered$date_short, levels = levels(ghg_ppm_filtered$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
-
-select_fluxes_combined$date_format <- factor(select_fluxes_combined$date_short, levels = levels(select_fluxes_combined$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
-
 select_fluxes_combined_w_T0$date_format <- factor(select_fluxes_combined_w_T0$date_short, levels = levels(select_fluxes_combined_w_T0$date_short), labels = c("13-Jun", "28-Jun", "11-Jul", "25-Jul","11-Aug"))
 ```
 

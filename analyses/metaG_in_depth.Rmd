@@ -1064,7 +1064,6 @@ select_fluxes_combined_w_T0 <- select_fluxes_combined_w_T0[match(Order_GHG_flux,
 
 # CHECK ROW ORDERS NOW
 
-
 # DF that contains meta info and same row number as select_fluxes_combined_w_T0
 ghg_ppm_filtered <- ghg_ppm %>%
   dplyr::filter(timepoint == "T1")
