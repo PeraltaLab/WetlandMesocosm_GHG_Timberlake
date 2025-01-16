@@ -1,0 +1,80 @@
+---
+title: "Bins_Heatmaps"
+author: "CF"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Setup
+
+```{r setup, include=FALSE}
+#use to set global options for chunks e.g., echo and warning options will be applied to all chunks:
+knitr::opts_chunk$set(echo = TRUE)
+
+# Clear environment:
+rm(list=ls())
+
+# Set working directory:
+setwd("~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
+
+# Code dependencies:
+
+```
+
+# Load files
+```{r}
+# DSR and mtr (FeR) hits:
+FeR_DSR_hits <- read.csv("../data/metaG/Bins/FeR_DSR_bins.csv", header = T)
+
+# Design information:
+Bin_Design <- read.csv("../data/metaG/Bins/Bin_Design.csv")
+```
+
+# Wrangling
+```{r}
+# Transpose hits table
+FeR_DSR_hits_t <- t(FeR_DSR_hits)
+
+# Column names as gene names:
+colnames(FeR_DSR_hits_t) <- FeR_DSR_hits_t[3,]
+
+# Simplify:
+FeR_DSR_hits_num <- FeR_DSR_hits_t[4:17,]
+
+# Numeric matrix
+FeR_DSR_hits_num <- apply(FeR_DSR_hits_num, c(1,2), as.numeric)
+
+# Reorder Bin_Design
+# Extract numeric part from "Bin.ID" and convert to numeric
+Bin_Design$NumericBinID <- as.numeric(sub("_.*", "", Bin_Design$Bin.ID))
+
+# Sort the data frame by the numeric part of "Bin.ID"
+Bin_Design <- Bin_Design[order(Bin_Design$NumericBinID), ]
+
+# Optionally, remove the temporary NumericBinID column
+Bin_Design$NumericBinID <- NULL
+
+# Make the rowmames of FeR_DSR_hits_num the GTDBTK Lineage of Bin_Design
+rownames(FeR_DSR_hits_num) <- Bin_Design$GTDBTK_Lineage
+```
+
+# Heatmap
+```{r}
+heatmap1 <- heatmap(FeR_DSR_hits_num, Colv = NA, scale = "none", margins = c(14,14))
+```
+
+```{r saving heatmap}
+# Reset graphical parameters to default
+op <- par(no.readonly = TRUE)
+on.exit(par(op))
+
+# Open a Tiff device
+tiff("../figures/Fe_S_manuscript/heatmap.tiff", width = 5000, height = 1800, res = 600)
+
+# Create your heatmap
+heatmap(FeR_DSR_hits_num, Colv = NA, scale = "none")
+
+# Close the device
+dev.off()
+```
+ 
