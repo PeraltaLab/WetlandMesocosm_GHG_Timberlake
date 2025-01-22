@@ -1,0 +1,70 @@
+Function ID,Function Name,Gene,Module,3300036865_5_scaffold_set,3300036867_3_scaffold_set,3300036870_7_scaffold_set,3300036872_8_scaffold_set,3300036873_3_scaffold_set,3300036875_5_scaffold_set,3300036898_4_scaffold_set,3300036898_5_scaffold_set,3300036989_2_scaffold_set,3300036989_4_scaffold_set,3300036990_3_scaffold_set,3300036991_3_scaffold_set,3300036991_4_scaffold_set,3300036993_3_scaffold_set
+KO:K00193,"acetyl-CoA decarbonylase/synthase, CODH/ACS complex subunit beta [EC:2.3.1.169] (cdhC)",cdhC,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00194,"acetyl-CoA decarbonylase/synthase, CODH/ACS complex subunit delta [EC:2.1.1.245] (cdhD, acsD)","cdhD, acsD",Methanogenesis,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+KO:K00197,"acetyl-CoA decarbonylase/synthase, CODH/ACS complex subunit gamma [EC:2.1.1.245] (cdhE, acsC)","cdhE, acsC",Methanogenesis,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+KO:K00200,"formylmethanofuran dehydrogenase subunit A [EC:1.2.7.12] (fwdA, fmdA)","fwdA, fmdA",Methanogenesis,1,0,0,0,0,0,0,0,1,0,0,0,0,0
+KO:K00201,"formylmethanofuran dehydrogenase subunit B [EC:1.2.7.12] (fwdB, fmdB)","fwdB, fmdB",Methanogenesis,1,1,0,0,0,0,0,0,1,0,0,0,0,0
+KO:K00202,"formylmethanofuran dehydrogenase subunit C [EC:1.2.7.12] (fwdC, fmdC)","fwdC, fmdC",Methanogenesis,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00203,"formylmethanofuran dehydrogenase subunit D [EC:1.2.7.12] (fwdD, fmdD)","fwdD, fmdD",Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00204,4Fe-4S ferredoxin (fwdH),fwdH,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00205,"4Fe-4S ferredoxin (fwdF, fmdF)","fwdF, fmdF",Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00319,methylenetetrahydromethanopterin dehydrogenase [EC:1.5.98.1] (mtd),mtd,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00320,"5,10-methylenetetrahydromethanopterin reductase [EC:1.5.98.2] (mer)",mer,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00394,"adenylylsulfate reductase, subunit A [EC:1.8.99.2] (aprA)",aprA,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+KO:K00395,"adenylylsulfate reductase, subunit B [EC:1.8.99.2] (aprB)",aprB,Dissimilatory Sulfate Reduction,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00399,methyl-coenzyme M reductase alpha subunit [EC:2.8.4.1] (mcrA),mcrA,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00401,methyl-coenzyme M reductase beta subunit [EC:2.8.4.1] (mcrB),mcrB,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00402,methyl-coenzyme M reductase gamma subunit [EC:2.8.4.1] (mcrG),mcrG,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00577,tetrahydromethanopterin S-methyltransferase subunit A [EC:7.2.1.4] (mtrA),mtrA,Methanogenesis,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+KO:K00578,tetrahydromethanopterin S-methyltransferase subunit B [EC:7.2.1.4] (mtrB),mtrB,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00579,tetrahydromethanopterin S-methyltransferase subunit C [EC:7.2.1.4] (mtrC),mtrC,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00580,tetrahydromethanopterin S-methyltransferase subunit D [EC:7.2.1.4] (mtrD),mtrD,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00581,tetrahydromethanopterin S-methyltransferase subunit E [EC:7.2.1.4] (mtrE),mtrE,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00582,tetrahydromethanopterin S-methyltransferase subunit F [EC:7.2.1.4] (mtrF),mtrF,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00583,tetrahydromethanopterin S-methyltransferase subunit G [EC:7.2.1.4] (mtrG),mtrG,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00584,tetrahydromethanopterin S-methyltransferase subunit H [EC:7.2.1.4] (mtrH),mtrH,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00625,phosphate acetyltransferase [EC:2.3.1.8] (pta),pta,Methanogenesis,0,0,0,0,1,0,0,1,1,0,0,1,2,0
+KO:K00672,formylmethanofuran--tetrahydromethanopterin N-formyltransferase [EC:2.3.1.101] (ftr),ftr,Methanogenesis,1,0,0,0,0,0,0,0,1,0,0,0,0,0
+KO:K00925,acetate kinase [EC:2.7.2.1] (ackA),ackA,Methanogenesis,0,0,0,0,0,0,1,1,2,0,1,1,1,1
+KO:K00958,"sulfate adenylyltransferase [EC:2.7.7.4] (sat, met3)","sat, met3",Dissimilatory Sulfate Reduction,1,0,0,0,0,2,1,0,1,1,0,1,1,0
+KO:K01499,methenyltetrahydromethanopterin cyclohydrolase [EC:3.5.4.27] (mch),mch,Methanogenesis,1,1,0,0,0,0,0,0,0,0,0,0,1,0
+KO:K01895,"acetyl-CoA synthetase [EC:6.2.1.1] (ACSS1_2, acs)",acs,Methanogenesis,3,2,0,1,1,2,1,1,2,3,1,1,1,2
+KO:K03388,heterodisulfide reductase subunit A2 [EC:1.8.7.3 1.8.98.4 1.8.98.5 1.8.98.6] (hdrA2),hdrA2,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K03389,heterodisulfide reductase subunit B2 [EC:1.8.7.3 1.8.98.4 1.8.98.5 1.8.98.6] (hdrB2),hdrB2,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K03390,heterodisulfide reductase subunit C2 [EC:1.8.7.3 1.8.98.4 1.8.98.5 1.8.98.6] (hdrC2),hdrC2,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K04480,methanol---5-hydroxybenzimidazolylcobamide Co-methyltransferase [EC:2.1.1.90] (mtaB),mtaB,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K10944,methane/ammonia monooxygenase subunit A [EC:1.14.18.3 1.14.99.39] (pmoA-amoA),pmoA-amoA,Methane Oxidation,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+KO:K10945,methane/ammonia monooxygenase subunit B (pmoB-amoB),pmoB-amoB,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K10946,methane/ammonia monooxygenase subunit C (pmoC-amoC),pmoC-amoC,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K11180,dissimilatory sulfite reductase alpha subunit [EC:1.8.1.22] (dsrA),dsrA,Dissimilatory Sulfate Reduction,1,1,0,1,0,0,0,0,0,0,0,0,0,0
+KO:K11181,dissimilatory sulfite reductase beta subunit [EC:1.8.1.22] (dsrB),dsrB,Dissimilatory Sulfate Reduction,1,1,0,1,0,0,0,0,0,0,0,0,0,0
+KO:K11260,4Fe-4S ferredoxin (fwdG),fwdG,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K11261,"formylmethanofuran dehydrogenase subunit E [EC:1.2.7.12] (fwdE, fmdE)","fwdE, fmdE",Methanogenesis,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+KO:K13788,phosphate acetyltransferase [EC:2.3.1.8] (pta),pta,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K13942,"5,10-methenyltetrahydromethanopterin hydrogenase [EC:1.12.98.2] (hmd)",hmd,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K14028,"methanol dehydrogenase (cytochrome c) subunit 1 [EC:1.1.2.7] (mdh1, mxaF)","mdh1, mxaF",Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K14029,"methanol dehydrogenase (cytochrome c) subunit 2 [EC:1.1.2.7] (mdh2, mxaI)","mdh2, mxaI",Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K14080,[methyl-Co(III) methanol/glycine betaine-specific corrinoid protein]:coenzyme M methyltransferase [EC:2.1.1.246 2.1.1.377] (mtaA),mtaA,Methanogenesis,0,0,0,3,0,0,0,0,0,0,0,0,0,0
+KO:K14081,methanol corrinoid protein (mtaC),mtaC,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K14082,[methyl-Co(III) methylamine-specific corrinoid protein]:coenzyme M methyltransferase [EC:2.1.1.247] (mtbA),mtbA,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K14083,trimethylamine---corrinoid protein Co-methyltransferase [EC:2.1.1.250] (mttB),mttB,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K14084,trimethylamine corrinoid protein (mttC),mttC,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16157,methane monooxygenase component A alpha chain [EC:1.14.13.25] (mmoX),mmoX,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16158,methane monooxygenase component A beta chain [EC:1.14.13.25] (mmoY),mmoY,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16159,methane monooxygenase component A gamma chain [EC:1.14.13.25] (mmoZ),mmoZ,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16160,methane monooxygenase regulatory protein B (mmoB),mmoB,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16161,methane monooxygenase component C [EC:1.14.13.25] (mmoC),mmoC,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16162,methane monooxygenase component D (mmoD),mmoD,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16176,methylamine---corrinoid protein Co-methyltransferase [EC:2.1.1.248] (mtmB),mtmB,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16177,monomethylamine corrinoid protein (mtmC),mtmC,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16178,dimethylamine---corrinoid protein Co-methyltransferase [EC:2.1.1.249] (mtbB),mtbB,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K16179,dimethylamine corrinoid protein (mtbC),mtbC,Methanogenesis,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K23995,lanthanide-dependent methanol dehydrogenase [EC:1.1.2.10] (xoxF),xoxF,Methane Oxidation,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27187,[DsrC]-trisulfide reductase subunit M [EC:1.8.5.10] (dsrM),dsrM,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27188,[DsrC]-trisulfide reductase subunit K [EC:1.8.5.10] (dsrK),dsrK,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27189,[DsrC]-trisulfide reductase subunit J (dsrJ),dsrJ,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27190,[DsrC]-trisulfide reductase subunit O (dsrO),dsrO,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27191,[DsrC]-trisulfide reductase subunit P (dsrP),dsrP,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27196,dissimilatory sulfite reductase flavoprotein subunit (dsrL),dsrL,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+TIGR03507,"decaheme c-type cytochrome, OmcA/MtrC family",MtrC,Iron Reduction,1,1,0,0,0,0,0,0,0,0,0,0,0,0
+TIGR03509,"decaheme-associated outer membrane protein, MtrB/PioB family",MtrB,Iron Reduction,0,1,0,0,0,0,0,1,0,0,0,0,0,0

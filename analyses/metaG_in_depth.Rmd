@@ -1288,6 +1288,25 @@ summary(start.FeReduction.dbplsr)
 finish.FeReduction.dbplsr <- dbplsr(GHG_finish_metaG$f0_CH4 ~ as.matrix(FeReductionBC_finish), ncomp = 15, method = "GCV")
 summary(finish.FeReduction.dbplsr)
 #plot(finish.FeReduction.dbplsr)
+
+# CH4 ~ methanogenesis:
+start.meth.dbplsr <- dbplsr(GHG_start_metaG_avg$f0_CH4 ~ as.matrix(methBC_start), ncomp = 7, method = "GCV")
+summary(start.meth.dbplsr)
+#plot(start.meth.dbplsr)
+
+finish.meth.dbplsr <- dbplsr(GHG_finish_metaG$f0_CH4 ~ as.matrix(methBC_finish), ncomp = 15, method = "GCV")
+summary(finish.meth.dbplsr)
+#plot(finish.meth.dbplsr)
+
+
+# CH4 ~ methane oxidation:
+start.CH4_ox.dbplsr <- dbplsr(GHG_start_metaG_avg$f0_CH4 ~ as.matrix(CH4_oxBC_start), ncomp = 7, method = "GCV")
+summary(start.CH4_ox.dbplsr)
+#plot(start.CH4_ox.dbplsr)
+
+finish.CH4_ox.dbplsr <- dbplsr(GHG_finish_metaG$f0_CH4 ~ as.matrix(CH4_oxBC_finish), ncomp = 15, method = "GCV")
+summary(finish.CH4_ox.dbplsr)
+#plot(finish.CH4_ox.dbplsr)
 ```
 
 ```{r DBPLSR barplots}
@@ -1295,13 +1314,9 @@ summary(finish.FeReduction.dbplsr)
 dbplsr_comp2 <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/dbplsr_comp2.csv")
 
 
-# Methane:
-dbplsr_meth_modules <- dplyr::filter(dbplsr_comp2, dbplsr_comp2$GHG == "CH4", .preserve = T)
-dbplsr_meth_modules <- dbplsr_meth_modules[-c(3,4),] #remove soil and 16S
-
-methane.dbplsr.plot <- ggplot(data = dbplsr_meth_modules, aes(x=Timepoint, y=Comp2_adjR2, fill = Dist_matrix)) +
+methane.dbplsr.plot <- ggplot(data = dbplsr_comp2, aes(x=Timepoint, y=Comp2_adjR2, fill = Dist_matrix)) +
   geom_bar(stat = "identity", position = position_dodge())+
-  scale_fill_manual(values=c("#009E73","#D55E00","#0072B2"), name = "Functional Genes")+
+  scale_fill_manual(values=c("#0072B2","#D55E00","#009E73"), name = "KEGG Module")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1309,7 +1324,7 @@ methane.dbplsr.plot <- ggplot(data = dbplsr_meth_modules, aes(x=Timepoint, y=Com
   theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
           axis.text=element_text(size=14),  
           axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
+          panel.border = element_rect(colour = "black",linewidth=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "Timepoint", y = "% Variance Explained: Methane", title="") +
   theme(rect=element_rect(fill="transparent"))+
@@ -1317,31 +1332,7 @@ methane.dbplsr.plot <- ggplot(data = dbplsr_meth_modules, aes(x=Timepoint, y=Com
 
 methane.dbplsr.plot
 
-#ggsave("../figures/Thesis/methane_dbplsr_plot.png", plot=methane.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=300, limitsize=TRUE, bg = "white")
-
-# CO2:
-dbplsr_CO2_modules <- dplyr::filter(dbplsr_comp2, dbplsr_comp2$GHG == "CO2", .preserve = T)
-dbplsr_CO2_modules <- dbplsr_CO2_modules[-c(5,6),] #remove soil and 16S
-
-CO2.dbplsr.plot <- ggplot(data = dbplsr_CO2_modules, aes(x=Timepoint, y=Comp2_adjR2, fill = Dist_matrix)) +
-  geom_bar(stat = "identity", position = position_dodge())+
-  scale_fill_manual(values=c("#F0E442","#56B4E9","#CC79A7"), name = "Functional Genes")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "Timepoint", y = "% Variance Explained: Carbon Dioxide", title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
-
-CO2.dbplsr.plot
-
-#ggsave("../figures/Thesis/CO2_dbplsr_plot.png", plot=CO2.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=300, limitsize=TRUE, bg = "white")
+#ggsave("../figures/Fe_S_manuscript/methane_dbplsr_plot.png", plot=methane.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=600, limitsize=TRUE, bg = "white")
 ```
 
 

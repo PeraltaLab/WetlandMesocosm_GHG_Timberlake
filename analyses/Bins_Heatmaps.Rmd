@@ -26,23 +26,33 @@ setwd("~/GitHub/WetlandMesocosm_GHG_Timberlake/analyses")
 # DSR and mtr (FeR) hits:
 FeR_DSR_hits <- read.csv("../data/metaG/Bins/FeR_DSR_bins.csv", header = T)
 
+# DRR, FeR, Methanogen, and Methane Oxidation hits:
+multi_hits <- read.csv("../data/metaG/Bins/FeR_DSR_Meth_CH4ox.csv", header = T)
+
 # Design information:
 Bin_Design <- read.csv("../data/metaG/Bins/Bin_Design.csv")
 ```
 
 # Wrangling
 ```{r}
+# Reorder the rows of multi_hits based on the alphabetical order of the Module column
+multi_hits <- multi_hits[order(multi_hits$Module), ]
+
 # Transpose hits table
 FeR_DSR_hits_t <- t(FeR_DSR_hits)
+multi_hits_t <- t(multi_hits)
 
 # Column names as gene names:
 colnames(FeR_DSR_hits_t) <- FeR_DSR_hits_t[3,]
+colnames(multi_hits_t) <- multi_hits_t[3,]
 
 # Simplify:
 FeR_DSR_hits_num <- FeR_DSR_hits_t[4:17,]
+multi_hits_num <- multi_hits_t[5:18,]
 
 # Numeric matrix
 FeR_DSR_hits_num <- apply(FeR_DSR_hits_num, c(1,2), as.numeric)
+multi_hits_num <- apply(multi_hits_num, c(1,2), as.numeric)
 
 # Reorder Bin_Design
 # Extract numeric part from "Bin.ID" and convert to numeric
@@ -56,11 +66,25 @@ Bin_Design$NumericBinID <- NULL
 
 # Make the rowmames of FeR_DSR_hits_num the GTDBTK Lineage of Bin_Design
 rownames(FeR_DSR_hits_num) <- Bin_Design$GTDBTK_Lineage
+rownames(multi_hits_num) <- Bin_Design$GTDBTK_Lineage
+
+# Make a multi_hits_num data frame that excludes genes with no hits
+# Function to remove columns with only zeroes
+remove_zero_columns <- function(mat) {
+  mat[, colSums(mat != 0) > 0]
+}
+
+# Apply the function to the matrix
+cleaned_matrix <- remove_zero_columns(multi_hits_num)
 ```
 
 # Heatmap
 ```{r}
 heatmap1 <- heatmap(FeR_DSR_hits_num, Colv = NA, scale = "none", margins = c(14,14))
+
+heatmap2 <- heatmap(multi_hits_num, Colv = NA, scale = "none", margins = c(4,.000001))
+
+heatmap3 <- heatmap(cleaned_matrix, Colv = NA, scale = "none", margins = c(5, 10))
 ```
 
 ```{r saving heatmap}
@@ -77,4 +101,24 @@ heatmap(FeR_DSR_hits_num, Colv = NA, scale = "none")
 # Close the device
 dev.off()
 ```
- 
+
+```{r saving heatmap multi_hits no zero columns}
+# Reset graphical parameters to default
+op <- par(no.readonly = TRUE)
+on.exit(par(op))
+
+# Calculate dimensions based on the matrix size
+num_rows <- nrow(cleaned_matrix)
+num_cols <- ncol(cleaned_matrix)
+width <- num_cols * 250  # Adjust the multiplier as needed
+height <- num_rows * 150  # Adjust the multiplier as needed
+
+# Open a TIFF device with adjusted dimensions
+tiff("../figures/Fe_S_manuscript/heatmap_multi_noZcols.tiff", width = width, height = height, res = 600)
+
+# Create your heatmap
+heatmap(cleaned_matrix, Colv = NA, scale = "none")
+
+# Close the device
+dev.off()
+``` 
