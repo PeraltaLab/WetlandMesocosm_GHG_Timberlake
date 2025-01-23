@@ -1342,61 +1342,61 @@ Permutational multivariate analysis of variance (PERMANOVA):
 
 ```{r PERMANOVA with History}
 #PERMANOVA with History:
-adonis_denit_H = adonis2(denitRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42)
+adonis_denit_H = adonis2(denitRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = denitRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_denit_H
 
-adonis_meth_H = adonis2(methRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42)
+adonis_meth_H = adonis2(methRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = methRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_meth_H
 
-adonis_carb_metab_H = adonis2(carb_metabRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42)
+adonis_carb_metab_H = adonis2(carb_metabRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = carb_metabRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_carb_metab_H
 
-adonis_cytoCox_H = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42)
+adonis_cytoCox_H = adonis2(cytoCoxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = cytoCoxRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_cytoCox_H
 
-adonis_SO4_S_Assim_H = adonis2(SO4_S_AssimRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_S_AssimRA_design, perm=10000, set.seed=42)
+adonis_SO4_S_Assim_H = adonis2(SO4_S_AssimRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_S_AssimRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_SO4_S_Assim_H
 
-adonis_Assim_SO4_red_H = adonis2(Assim_SO4_redRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Assim_SO4_redRA_design, perm=10000, set.seed=42)
+adonis_Assim_SO4_red_H = adonis2(Assim_SO4_redRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Assim_SO4_redRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_Assim_SO4_red_H
 
-adonis_Dissim_SO4_red_H = adonis2(Dissim_SO4_redRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Dissim_SO4_redRA_design, perm=10000, set.seed=42)
+adonis_Dissim_SO4_red_H = adonis2(Dissim_SO4_redRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Dissim_SO4_redRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_Dissim_SO4_red_H
 
-adonis_ThioSOX_H = adonis2(ThioSOXRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = ThioSOXRA_design, perm=10000, set.seed=42)
+adonis_ThioSOX_H = adonis2(ThioSOXRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = ThioSOXRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_ThioSOX_H
 
-adonis_DNRA_H = adonis2(DNRARA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = DNRARA_design, perm=10000, set.seed=42)
+adonis_DNRA_H = adonis2(DNRARA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = DNRARA_design, perm=10000, set.seed=42, by = "terms")
 adonis_DNRA_H
 
-adonis_ANRA_H = adonis2(ANRARA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = ANRARA_design, perm=10000, set.seed=42)
+adonis_ANRA_H = adonis2(ANRARA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = ANRARA_design, perm=10000, set.seed=42, by = "terms")
 adonis_ANRA_H
 
-adonis_Nitrific_H = adonis2(NitrificRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = NitrificRA_design, perm=10000, set.seed=42)
+adonis_Nitrific_H = adonis2(NitrificRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = NitrificRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_Nitrific_H
 
-adonis_COMAMMOX_H = adonis2(COMAMMOXRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = COMAMMOXRA_design, perm=10000, set.seed=42)
+adonis_COMAMMOX_H = adonis2(COMAMMOXRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = COMAMMOXRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_COMAMMOX_H
 
-adonis_Nfix_H = adonis2(NfixRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = NfixRA_design, perm=10000, set.seed=42)
+adonis_Nfix_H = adonis2(NfixRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = NfixRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_Nfix_H
 
-adonis_CH4_ox_H = adonis2(CH4_oxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = CH4_oxRA_design, perm=10000, set.seed=42)
+adonis_CH4_ox_H = adonis2(CH4_oxRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = CH4_oxRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_CH4_ox_H
 
-adonis_mtrBC_TIGR_H = adonis2(mtrBC_TIGRRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = mtrBC_TIGRRA_design, perm=10000, set.seed=42)
+adonis_mtrBC_TIGR_H = adonis2(mtrBC_TIGRRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = mtrBC_TIGRRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_mtrBC_TIGR_H
 
-adonis_FeGenie_H = adonis2(FeGenieRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeGenieRA_design, perm=10000, set.seed=42)
+adonis_FeGenie_H = adonis2(FeGenieRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeGenieRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_FeGenie_H
 
-adonis_SO4_red_combined_H = adonis2(SO4_red_combinedRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_red_combinedRA_design, perm=10000, set.seed=42)
+adonis_SO4_red_combined_H = adonis2(SO4_red_combinedRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_red_combinedRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_SO4_red_combined_H
 
-adonis_FeReduction_H = adonis2(FeReductionRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeReductionRA_design, perm=10000, set.seed=42)
+adonis_FeReduction_H = adonis2(FeReductionRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeReductionRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_FeReduction_H
 
-adonis_FeOxidation_H = adonis2(FeOxidationRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeOxidationRA_design, perm=10000, set.seed=42)
+adonis_FeOxidation_H = adonis2(FeOxidationRA_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeOxidationRA_design, perm=10000, set.seed=42, by = "terms")
 adonis_FeOxidation_H
 ```
 

@@ -192,7 +192,7 @@ all.equal(rownames(otu.2.rel), rownames(meta))
 metaotu <- cbind(meta, otu.2.rel)
 
 # PERMANOVA:
-metaotu.ad <- adonis2(metaotu[,-c(1:9)] ~ plant * history + plant * treatment, method = "bray", data = metaotu, perm=10000, set.seed=42)
+metaotu.ad <- adonis2(metaotu[,-c(1:9)] ~ plant * history + plant * treatment, method = "bray", data = metaotu, perm=10000, set.seed=42, by = "terms")
 metaotu.ad 
 ```
 # PCoA
