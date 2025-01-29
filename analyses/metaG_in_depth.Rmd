@@ -2243,6 +2243,13 @@ plot3d <- ggplot(df3d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 
 plot3d
 ```
+```{r temporary for AP&Ardon proposal}
+MetaG_pcoa_2panel_SSF <- ggarrange(plot2b, plot2c, labels = c("A", "B"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
+
+MetaG_pcoa_2panel_SSF
+
+ggsave("~/Desktop/PeraltaLab/TMG/TwoPanel_C_relatedPCoAs.png", plot = MetaG_pcoa_2panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 7, limitsize = TRUE, dpi = 600, bg = "white")
+```
 
 
 Create 4-panel figure of the 4 PCoA plots above:
