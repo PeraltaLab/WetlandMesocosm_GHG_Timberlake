@@ -42,6 +42,7 @@ require("multcompView")
 require("gasfluxes")
 require("rstatix")
 require("NSM3")
+require("glue")
 ```
 
 ```{r Phyloseq install and load}
@@ -1957,60 +1958,96 @@ pcoa.plant_noI <- ordered(pcoa.plant_noI, levels=c("n", "p"))
 pcoa.plant_noI <-revalue(pcoa.plant_noI, c("n"="No Plant","p"="Plant"))
 
 # Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
-pcoa_otu_DF <- as.data.frame(otu.2.rel.dist.pcoa$points)
+pcoa_otu_DF_noI <- as.data.frame(otu.2.rel.dist.pcoa_noI$points)
 
 # envfit:
-meta.env <- soil.finish[, -c(1:3,7,9,12,14,17)]
-fit<-envfit(pcoa_otu_DF, meta.env, perm=1000,na.rm=T, set.seed(42))
-A <-as.list(fit$vectors)
-vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.25) #Scale vector by correlation
-p<- as.data.frame(A$pvals)
+fit_noI<-envfit(pcoa_otu_DF_noI, meta.env_GHG, perm=10000, na.rm=T, set.seed(42))
+A_noI <-as.list(fit_noI$vectors)
+vec_noI<-as.data.frame(fit_noI$vectors$arrows*sqrt(fit_noI$vectors$r)*0.25) #Scale vector by correlation
+p_noI<- as.data.frame(A_noI$pvals)
 
-vec <- cbind(vec, p) 
-vec <-  subset(vec, A$pvals<=0.05)
+vec_noI <- cbind(vec_noI, p_noI) 
+vec_noI <-  subset(vec_noI, A_noI$pvals<=0.05)
 
-vec$parm<-rownames(vec)
-colnames(vec)
-rownames(vec)
-vec$parm<-c("pH", "%C", "S", "Mn") # Check that these readable labels match the originals
+vec_noI$parm<-rownames(vec_noI)
+colnames(vec_noI)
+rownames(vec_noI)
+vec_noI$parm<-c("%C", "%N", "Mg", "Ca", expression(paste("CH"[4])), expression(paste("CO"[2])), "Cu", "CEC") # Check that these readable labels match the originals
 
 # To use open and closed shapes, must create a combined category for History and Plant:
-history_plant_combined <- c(paste(pcoa.history, pcoa.plant, sep = "_"))
+history_plant_combined_noI <- c(paste(pcoa.history_noI, pcoa.plant_noI, sep = "_"))
 
 #Make new PCoA data frame, then append experimental factors (plant, treatment, history) as new columns:
-pcoa.cent.dataframe.trts <- as.data.frame(pcoa.cent.dataframe)
-pcoa.cent.dataframe.trts$history <- as.factor(pcoa.history)
-pcoa.cent.dataframe.trts$trt <- as.factor(pcoa.trt)
-pcoa.cent.dataframe.trts$plant <- as.factor(pcoa.plant)
-pcoa.cent.dataframe.trts$history_plant <- as.factor(history_plant_combined)
+pcoa.cent.dataframe.trts_noI <- as.data.frame(pcoa.cent.dataframe_noI)
+pcoa.cent.dataframe.trts_noI$history <- as.factor(pcoa.history_noI)
+pcoa.cent.dataframe.trts_noI$trt <- as.factor(pcoa.trt_noI)
+pcoa.cent.dataframe.trts_noI$plant <- as.factor(pcoa.plant_noI)
+pcoa.cent.dataframe.trts_noI$history_plant <- as.factor(history_plant_combined_noI)
+pcoa.cent.dataframe.trts_noI$centroid_or_sample <- "centroid"
 
-#Plotting:
-plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +   
-  geom_point(aes(shape = history_plant, color=pcoa.trt), size=5, stroke=2) +  
+# Add in points to data frame:
+pcoa_noI.points_ForPlot <- pcoa.points_noI
+colnames(pcoa_noI.points_ForPlot) <- c("V1", "V2", "group")
+
+# Add design columns onto pcoa_noI.points_ForPlot
+#pcoa_noI.points_ForPlot <- cbind(pcoa_noI.points_ForPlot, soil.finish_noI$history, soil.finish_noI$treatment, soil.finish_noI$plant)
+#colnames(pcoa_noI.points_ForPlot)[4:6] <- c("history", "treatment", "plant")
+
+# Add labels to match ...cent.dataframe.trts
+pcoa_noI.points_ForPlot$trt <- soil.finish_noI$treatment %>% str_replace_all(c("W" = "Wet", "D" = "Dry"))
+pcoa_noI.points_ForPlot$plant <- soil.finish_noI$plant %>% str_replace_all(c("P" = "Plant", "N" = "No Plant"))
+pcoa_noI.points_ForPlot$history <- soil.finish_noI$history %>% str_replace_all(c("D" = "Dry", "W" = "Wet"))
+pcoa_noI.points_ForPlot$history_plant <- c(paste(pcoa_noI.points_ForPlot$history, pcoa_noI.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_noI.points_ForPlot <- pcoa_noI.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_noI.points_ForPlot$V1e <- numeric(16)
+pcoa_noI.points_ForPlot$V2e <- numeric(16)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_noI.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+OTUs_noI_centroids_points_merged <- rbind(pcoa.cent.dataframe.trts_noI, pcoa_noI.points_ForPlot)
+```
+
+```{r plotting fix}
+# Add a column with nudges for nudge_x and nudge_y:
+vec_noI$X_nudge <- c(0.025, -0.02, -0.015, -0.015, -0.02, 0, 0.015, -0.02)
+vec_noI$Y_nudge <- c(0, 0.005, 0, 0, 0, 0.01, 0, 0)
+
+
+#Plot using ggplot2
+df1a <- as.data.frame(OTUs_noI_centroids_points_merged)
+
+plot16S_PCoA_noI <- ggplot(df1a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
-  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant") +
-  xlab("PCoA 1 (25%)") + ylab("PCoA 2 (11%)") + 
-  geom_segment(data=vec, aes(x=0,xend=V1,y=0,yend=V2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
-  #Label soil vectors 
-  geom_text(data=vec,aes(x=V1-0.014,y=V2+0.011,label=parm),size=5, inherit.aes=F)+
-  ggtitle("") + 
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(0, 15, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1a_noI}%)")) + ylab(glue("PCoA 2 ({explainvar2a_noI}%)")) + 
+  geom_segment(data=vec_noI, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+  geom_text(data=vec_noI, aes(x=V1, y=V2), label=vec_noI$parm, nudge_x = vec_noI$X_nudge, nudge_y = vec_noI$Y_nudge, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=18), 
-          axis.text.x = element_text(size=18),  axis.text.y = element_text(size=18),
-          panel.border = element_rect(colour = "black", size=1.25)) +
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
   theme(axis.ticks.length=unit(0.3,"cm")) + 
-  theme(plot.title=element_text(size=18)) +
-  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
-  guides(fill = guide_legend(override.aes=list(shape=21)))
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14), legend.position = "right")+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("")
 
-plot16S_PCoA
+plot16S_PCoA_noI
 
 #ggsave("../figures/pub/16S_PCoA.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
 
-#ggsave("../figures/pub/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=300, limitsize=TRUE)
+ggsave("~/Desktop/PeraltaLab/TMG/PCoA_16S_noInterim.png", plot=plot16S_PCoA_noI, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=600, limitsize=TRUE)
+```
 
 
 ## GHG summary

@@ -1627,7 +1627,8 @@ plot.CH4.flux <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CH4))
           labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
+  theme(plot.background = element_rect(color=NA))+
+  scale_y_continuous(limits = c(-16, 50))
  
 plot.CH4.flux
 ```
@@ -1699,6 +1700,7 @@ CombPlot_flux
 
 #ggsave("../figures/Fe_S_manuscript/GHG_flux/Flux.png", plot=CombPlot_flux, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
+
 ## Figure for AP and Ardon proposal Feb 2025
 ```{r wrangling 6.13 and 8.11}
 # subset for 8.11, no interim treatment
