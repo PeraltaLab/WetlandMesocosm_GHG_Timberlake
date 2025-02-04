@@ -461,6 +461,8 @@ soil_nofield$time <- str_to_title(soil_nofield$time)
 soil_nofield$treatment <- as.factor(soil_nofield$treatment)
 soil_nofield$plant <- as.factor(soil_nofield$plant)
 
+soil_nofield$IRIS_percent <- soil_nofield$redox.percent.paint.removed*100
+
 #Subset Start and Finish for plotting:
 soil_nofield.Start <- subset(soil_nofield, time == "Start")
 soil_nofield.Finish <- subset(soil_nofield, time == "Finish")
@@ -484,39 +486,36 @@ soil_nofield %>%
 ggqqplot(soil_nofield, "redox.percent.paint.removed", facet.by = "time")
 ```
 
-```{r IRIS Kruskal and SDCFlig}
+```{r IRIS Kruskal and SDCFlig and Wilcox}
 # Kruskal start, Plant:
-kruskal_IRIS_start_P <- kruskal.test(data = soil_nofield.Start, (redox.percent.paint.removed*100) ~ treatment, subset = plant == "Plant")
-kruskal_IRIS_start_P
-
-#Subset Plant and No Plant for SDCFlig:
-soil_nofield.Start_P <- subset(soil_nofield.Start, plant == "Plant")
-soil_nofield.Start_NP <- subset(soil_nofield.Start, plant == "No Plant")
-soil_nofield.Finish_P <- subset(soil_nofield.Finish, plant == "Plant")
-soil_nofield.Finish_NP <- subset(soil_nofield.Finish, plant == "No Plant")
+kruskal_IRIS_start <- kruskal.test(data = soil_nofield.Start, IRIS_percent ~ treatment)
+kruskal_IRIS_start
 
   # Pairwise comparisons
-SDCFlig_IRIS_start_P <- pSDCFlig(x = (soil_nofield.Start_P$redox.percent.paint.removed*100), g = soil_nofield.Start_P$treatment, method = "Monte Carlo", n.mc = 10000)
-SDCFlig_IRIS_start_P # Not significant, probably because sample size is too low
+SDCFlig_IRIS_start <- pSDCFlig(x = (soil_nofield.Start$IRIS_percent), g = soil_nofield.Start$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_IRIS_start
 
 # Kruskal finish:
-kruskal_IRIS_finish <- kruskal.test(data = soil_nofield.Finish, (redox.percent.paint.removed*100) ~ treatment)
+kruskal_IRIS_finish <- kruskal.test(data = soil_nofield.Finish, IRIS_percent ~ treatment)
 kruskal_IRIS_finish
 
-# Add a small constant to avoid zeros. Remove if method = "Asymptotic" works on its own.
-#soil_nofield.Finish$redox.percent.paint.removed <- soil_nofield.Finish$redox.percent.paint.removed + 1e-6
-
   # Pairwise comparisons
-SDCFlig_IRIS_finish <- pSDCFlig(x = (soil_nofield.Finish$redox.percent.paint.removed*100), g = soil_nofield.Finish$treatment, method = "Asymptotic", n.mc = 10001)
+SDCFlig_IRIS_finish <- pSDCFlig(x = (soil_nofield.Finish$IRIS_percent), g = soil_nofield.Finish$treatment, method = "Asymptotic", n.mc = 1000)
 SDCFlig_IRIS_finish
 
 # Do a Wilcox on Plant vs. No Plant just to verify that there is no difference
+  # wilcox start
+wilcox_IRIS_start <- compare_means(IRIS_percent~plant, soil_nofield.Start, method = "wilcox.test", paired = T)
+wilcox_IRIS_start
+  # wilcox finish
+wilcox_IRIS_finish <- compare_means(IRIS_percent~plant, soil_nofield.Finish, method = "wilcox.test", paired = T)
+wilcox_IRIS_finish
 ```
 
 ```{r IRIS plotting}
 #Plotting:
 #Start:
-iris_tubes.Start <- ggplot(soil_nofield.Start, aes(x=treatment, y=(redox.percent.paint.removed*100))) +
+iris_tubes.Start <- ggplot(soil_nofield.Start, aes(x=treatment, y=IRIS_percent)) +
   geom_boxplot(outlier.shape = NA) +
   facet_grid(~plant) +
   geom_point(aes(color=factor(treatment)), size = 2, position = position_jitterdodge()) +
@@ -538,7 +537,7 @@ theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
 iris_tubes.Start
 
 #Finish:
-iris_tubes.Finish <- ggplot(soil_nofield.Finish, aes(x=treatment, y=(redox.percent.paint.removed*100))) +
+iris_tubes.Finish <- ggplot(soil_nofield.Finish, aes(x=treatment, y=IRIS_percent)) +
   geom_boxplot(outlier.shape = NA) +
   facet_grid(~plant) +
   geom_point(aes(color=factor(treatment)), size = 2, position = position_jitterdodge()) +
@@ -570,6 +569,75 @@ iris_tubes.Combined
 #ggsave("../figures/pub/iris_tubes.pdf", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
 ```
 
+```{r IRIS boxplot with stats for FeS manuscript}
+# Set levels of time so facets are ordered correctly
+soil_nofield$time <- factor(soil_nofield$time, levels = c("Start", "Finish"))
+
+# Adjust labels
+soil_nofield$time <- revalue(soil_nofield$time, c(Start = "Start (Week 0)", Finish = "Finish (Week 8)"))
+
+# Multiple comparisons data frame to get started
+IRIS_multComp_4plot <- compare_means(IRIS_percent~treatment, soil_nofield, group.by="time", method = "wilcox.test", paired = F, p.adjust.method = "fdr")
+
+# Have to manually add finish Dry vs. Interim because all zeroes = not calculable
+new_row <- data.frame(
+  time = "Finish",
+  .y. = "IRIS_percent",
+  group1 = "Dry",
+  group2 = "Interim",
+  p = 1,
+  p.adj = 1,
+  p.format = 1,
+  p.signif = "ns",
+  method = "Wilcoxon"
+)
+
+IRIS_multComp_4plot <- rbind(new_row, IRIS_multComp_4plot)
+
+# Adjustments for plotting:
+IRIS_multComp_4plot <- add_significance(IRIS_multComp_4plot, p.col = "p.adj", output.col = "p.adj.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Turn into data frame:
+IRIS_multComp_4plot <- as.data.frame(IRIS_multComp_4plot)
+
+# Add on SDCFlig p-values:
+IRIS_multComp_4plot$SDCF_p <- c(SDCFlig_IRIS_finish$p.val, SDCFlig_IRIS_start$p.val)
+IRIS_multComp_4plot$SDCF_p[1] <- 1
+
+# Symbols for plotting:
+IRIS_multComp_4plot <- add_significance(IRIS_multComp_4plot, p.col = "SDCF_p", output.col = "p.SDCF.signif", cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "ns"))
+
+# Export the data frames to a .csv file
+#write.csv(N2O_MultComp.DF_Hst, file = "../figures/pub/tables/Kruskal_history/multiple_comparisons/N2O_MultComp.csv", row.names = T)
+
+# Weird 'hide.ns' behavior patch:
+#N2O_MultComp.DF_Hst$p[2] <- 1.0
+
+# Plotting:
+plot.IRIS_stats <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
+  facet_wrap(vars(as.factor(time)), nrow = 1, ncol = 2)+
+                    geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                    geom_point(aes(color=treatment, shape=plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="top", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "", y = "IRIS percent", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))+
+  stat_pvalue_manual(data = IRIS_multComp_4plot, comparisons = list(c("Dry", "Interim"), c("Dry", "Wet"), c("Interim", "Wet")), label = "p.SDCF.signif", size = 15, vjust = 1, hide.ns = "p", y.position = max(soil_nofield$IRIS_percent), step.group.by = "time", step.increase = 0.1)
+ 
+plot.IRIS_stats
+
+#ggsave("../figures/Fe_S_manuscript/iris_stats.png", plot=plot.IRIS_stats, device=NULL, path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE ,bg="white")
+```
 
 
 
@@ -1324,8 +1392,8 @@ plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = (max(select_fluxes_combined_w_T0$f0_CH4)+20), step.group.by = "date_format", step.increase = 0.1)
-  #scale_y_continuous(limits = c(NA, 50)) # Useful zoom to exclude extreme outlier
+  coord_cartesian(ylim = c(-16, 50)) +  # Use coord_cartesian to limit y-axis range
+  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p.adj", y.position = 45, step.group.by = "date_format", step.increase = 0.02, tip.length = 0.006)
  
 plot.CH4.flux.Trt
 ```
@@ -1628,7 +1696,8 @@ plot.CH4.flux <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CH4))
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  scale_y_continuous(limits = c(-16, 50))
+  coord_cartesian(ylim = c(-16, 50)) +  # Use coord_cartesian to limit y-axis range
+  stat_pvalue_manual(data = CH4_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p.adj", y.position = 45, step.group.by = "date_format", step.increase = 0.02, tip.length = 0.006)
  
 plot.CH4.flux
 ```
@@ -1652,7 +1721,8 @@ plot.CO2.flux <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CO2))
           labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
+  theme(plot.background = element_rect(color=NA))+
+  stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p", y.position = max(select_fluxes_combined_w_T0$f0_CO2), step.group.by = "date_format", step.increase = 0.1)
  
 plot.CO2.flux
 ```
@@ -1676,7 +1746,8 @@ plot.N2O.flux <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N2O))
           labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("Dry", "Interim", "Wet"))+
   theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
+  theme(plot.background = element_rect(color=NA))+
+  stat_pvalue_manual(data = N2O_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p", y.position = max(select_fluxes_combined_w_T0$f0_N2O), step.group.by = "date_format", step.increase = 0.1)
  
 plot.N2O.flux
 ```
