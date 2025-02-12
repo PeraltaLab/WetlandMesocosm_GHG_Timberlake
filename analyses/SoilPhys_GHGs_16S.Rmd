@@ -1229,7 +1229,7 @@ select_fluxes_combined_w_T0$date_format <- factor(select_fluxes_combined_w_T0$da
 ## Flux with T0: Plant vs. No Plant
 ```{r CH4 flux w T0 NP vs. P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
-CH4_wilcox<- compare_means(f0_CH4~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
+CH4_wilcox<- compare_means(f0_CH4~plant, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", paired = T)
 
 # Turn into data frame:
 CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
@@ -1257,7 +1257,9 @@ plot.CH4.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_CH4)
   scale_x_discrete(labels=c("", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
+  coord_cartesian(ylim = c(-16, 50)) +  # Use coord_cartesian to limit y-axis range
+  #stat_compare_means(data = select_fluxes_combined_w_T0, method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
+  stat_pvalue_manual(data = CH4_wilcox.DF, comparisons = list(c("N", "P")), label = "p.signif", size = 10, hide.ns = "p", y.position = 45, step.group.by = "date_format", bracket.size = 0)
  
 plot.CH4.flux.NPvP
 ```
@@ -1332,16 +1334,8 @@ plot.N2O.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_N2O)
 plot.N2O.flux.NPvP
 ```
 
-```{r Extract and save GHG boxplot legend}
-leg_NPvP <- get_legend(plot.N2O.flux.NPvP, position = "bottom") #Extract legend as a legend Grob
-legend_plot_NPvP <- as_ggplot(leg_NPvP) #Asign the grob as a ggplot
-legend_plot_NPvP #View the plot
-
-#ggsave("../figures/pub/GHG_NPvP/legend_NPvP.tiff", plot=legend_plot_NPvP, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
-```
-
 ```{r Combined GHG Boxplot}
-CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", align = "hv")
+CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
 CombPlot_flux_NPvP
 
@@ -1491,17 +1485,8 @@ plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N
 plot.N2O.flux.Trt
 ```
 
-```{r Extract and save GHG boxplot legend}
-leg_treat <- get_legend(plot.N2O.flux.Trt, position = "bottom") #Extract legend as a legend Grob
-legend_plot_treat <- as_ggplot(leg_treat) #Asign the grob as a ggplot
-legend_plot_treat #View the plot
-
-#ggsave("../figures/pub/GHG_Treatment/legend_treatment.tiff", plot=legend_plot_treat, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
-```
-
-
 ```{r Combined GHG Boxplot}
-CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", align = "hv")
+CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
 CombPlot_flux_treat
 
