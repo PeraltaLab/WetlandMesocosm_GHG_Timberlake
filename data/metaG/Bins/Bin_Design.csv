@@ -1,0 +1,15 @@
+﻿Bin ID,History,Treatment,Plant Presence/Absence,Bin Quality,GTDBTK_Lineage
+3300036865_5,Dry,Baseline,Baseline,MQ,Burkholderiaceae; JOSHI-001
+3300036991_3,Dry,Baseline,Baseline,HQ,Rhodanobacteraceae; Dyella
+3300036991_4,Dry,Baseline,Baseline,MQ,Xanthobacteraceae
+3300036870_7,Dry,Wet,Plant,MQ,Nitrosopumilaceae; Nitrosotalea
+3300036873_3,Dry,Wet,No Plant,HQ,Kapabacteria
+3300036867_3,Wet,Baseline,Baseline,MQ,Burkholderiaceae; JOSHI-001
+3300036989_2,Wet,Baseline,Baseline,MQ,Xanthobacteraceae; Pseudorhodoplanes
+3300036989_4,Wet,Baseline,Baseline,MQ,Solirubrobacterales; 70-9; 70-9
+3300036990_3,Wet,Baseline,Baseline,MQ,Chthoniobacterales; UBA10450; UBA10450
+3300036875_5,Wet,Dry,Plant,MQ,Streptosporangiales
+3300036898_4,Wet,Dry,Plant,MQ,Ktedonobacteraceae; UBA11361
+3300036898_5,Wet,Dry,Plant,MQ,Gemmatimonadaceae
+3300036872_8,Wet,Wet,Plant,MQ,Thermodesulfovibrionales
+3300036993_3,Wet,Wet,No Plant,MQ,Chthoniobacterales; UBA10450; UBA10450

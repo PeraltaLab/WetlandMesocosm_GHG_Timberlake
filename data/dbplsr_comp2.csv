@@ -1,21 +1,7 @@
 GHG~distance_matrix,Timepoint,Comp2_adjR2,GHG,Dist_matrix
-N2O ~ Denitrification,Week 0,62,N2O,Denitrification
-N2O ~ Denitrification,Week 8,75.9,N2O,Denitrification
-CH4 ~ Methanogenesis,Week 0,67.6,CH4,Methanogenesis
-CH4 ~ Methanogenesis,Week 8,28.3,CH4,Methanogenesis
-CO2 ~ Central Carbohydrate Metabolism,Week 0,98.9,CO2,Central Carbohydrate Metabolism
-CO2 ~ Central Carbohydrate Metabolism,Week 8,77,CO2,Central Carbohydrate Metabolism
-CO2 ~ Cytochrome C Oxidase,Week 0,92.8,CO2,Cytochrome C Oxidase
-CO2 ~ Cytochrome C Oxidase,Week 8,4.39,CO2,Cytochrome C Oxidase
-N2O ~ 16S rRNA gene,Week 8,38,N2O,16S rRNA gene
-CH4 ~ 16S rRNA gene,Week 8,51.2,CH4,16S rRNA gene
-CO2 ~ 16S rRNA gene,Week 8,34.6,CO2,16S rRNA gene
-N2O ~ soil parameters,Week 8,17.9,N2O,soil parameters
-CH4 ~ soil parameters,Week 8,30,CH4,soil parameters
-CO2 ~ soil parameters,Week 8,31.6,CO2,soil parameters
-CO2 ~ Assimilatory SO42- Reduction,Week 0,82.853,CO2,Assimilatory Sulfate Reduction
-CO2 ~ Assimilatory SO42- Reduction,Week 8,28.28,CO2,Assimilatory Sulfate Reduction
-CH4 ~ Dissimilatory SO42- Reduction,Week 0,30.6,CH4,Dissimilatory Sulfate Reduction
-CH4 ~ Dissimilatory SO42- Reduction,Week 8,61.738,CH4,Dissimilatory Sulfate Reduction
-CH4 ~ Fe Reduction,Week 0,39.48,CH4,Iron Reduction
-CH4 ~ Fe Reduction,Week 8,87.15,CH4,Iron Reduction
+CH4 ~ Dissimilatory SO42- Reduction,Week 0,68.40,CH4,Dissimilatory Sulfate Reduction
+CH4 ~ Dissimilatory SO42- Reduction,Week 8,56.05,CH4,Dissimilatory Sulfate Reduction
+CH4 ~ Methanogenesis,Week 0,63.39,CH4,Methanogenesis
+CH4 ~ Methanogenesis,Week 8,32.58,CH4,Methanogenesis
+CH4 ~ Methane Oxidation,Week 0,49.57,CH4,Methane Oxidation
+CH4 ~ Methane Oxidation,Week 8,73.10,CH4,Methane Oxidation

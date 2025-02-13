@@ -23,8 +23,7 @@ Metagenome sequence files can be found at NCBI SRA [BioProject ID PRJNA641216](h
  	2. metaG_in_depth.Rmd: metagenomic analysis of Fe, S, C, and N cycling gene modules, **for manuscript in review**
  	3. SoilPhys_GHGs_16S.Rmd: 16S, edaphic, and greenhouse gas analysis, **for manuscript in review**
   	4. GHG_LME.Rmd: linear-mixed effects models of greenhouse gases, **for manuscript in review**
-  	5. WRC_GHG_Regression_T1_Flux.Rmd: regression of timepoint 1 (T1) vs. flux from a different experiment, to justify use of T1 in current experiment, **for manuscript in review**
-  	6. /Previous_Versions: collection of previous .Rmd versions, **not a part of manuscript in review**
+  	5. /Previous_Versions: collection of previous .Rmd versions, **not a part of manuscript in review**
 
 * **bin:** 
 	* *MothurTools.R*: An R script written by Mario Muscarella (Indiana University, now at University of Alaska Fairbanks) containing functions used in the analysis of community sequence data.
@@ -42,7 +41,7 @@ This work was supported by East Carolina University and an NSF GRFP to R. Bled
 
 [Dr. Regina Bledsoe](mailto:ginabbledsoe@gmail.com) [(website)](https://ginabbledsoe.wixsite.com/microbes): Principal Investigator, Former PhD Student in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
 
-[Colin Finlay](mailto:finlayc21@students.ecu.edu): PhD Student in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
+[Colin Finlay](mailto:finlayc21@students.ecu.edu): PhD Candidate in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
 
 [Dr. Mario Muscarella](mario.e.muscarella@gmail.com) [(website)](http://mmuscarella.github.io/): Assistant Professor, University of Alaska Fairbanks
 

@@ -1,0 +1,14 @@
+﻿Function ID,Function Name,Gene,3300036865_5_scaffold_set,3300036867_3_scaffold_set,3300036870_7_scaffold_set,3300036872_8_scaffold_set,3300036873_3_scaffold_set,3300036875_5_scaffold_set,3300036898_4_scaffold_set,3300036898_5_scaffold_set,3300036989_2_scaffold_set,3300036989_4_scaffold_set,3300036990_3_scaffold_set,3300036991_3_scaffold_set,3300036991_4_scaffold_set,3300036993_3_scaffold_set
+KO:K00394,"adenylylsulfate reductase, subunit A [EC:1.8.99.2] (aprA)",aprA,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+KO:K00395,"adenylylsulfate reductase, subunit B [EC:1.8.99.2] (aprB)",aprB,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K00958,"sulfate adenylyltransferase [EC:2.7.7.4] (sat, met3)","sat, met3",1,0,0,0,0,2,1,0,1,1,0,1,1,0
+KO:K11180,dissimilatory sulfite reductase alpha subunit [EC:1.8.1.22] (dsrA),dsrA,1,1,0,1,0,0,0,0,0,0,0,0,0,0
+KO:K11181,dissimilatory sulfite reductase beta subunit [EC:1.8.1.22] (dsrB),dsrB,1,1,0,1,0,0,0,0,0,0,0,0,0,0
+KO:K27187,[DsrC]-trisulfide reductase subunit M [EC:1.8.5.10] (dsrM),dsrM,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27188,[DsrC]-trisulfide reductase subunit K [EC:1.8.5.10] (dsrK),dsrK,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27189,[DsrC]-trisulfide reductase subunit J (dsrJ),dsrJ,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27190,[DsrC]-trisulfide reductase subunit O (dsrO),dsrO,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27191,[DsrC]-trisulfide reductase subunit P (dsrP),dsrP,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+KO:K27196,dissimilatory sulfite reductase flavoprotein subunit (dsrL),dsrL,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+TIGR03507,"decaheme c-type cytochrome, OmcA/MtrC family",MtrC,1,1,0,0,0,0,0,0,0,0,0,0,0,0
+TIGR03509,"decaheme-associated outer membrane protein, MtrB/PioB family",MtrB,0,1,0,0,0,0,0,1,0,0,0,0,0,0
