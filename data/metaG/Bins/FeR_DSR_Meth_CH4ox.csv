@@ -66,5 +66,5 @@ KO:K27189,[DsrC]-trisulfide reductase subunit J (dsrJ),dsrJ,Dissimilatory Sulfat
 KO:K27190,[DsrC]-trisulfide reductase subunit O (dsrO),dsrO,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 KO:K27191,[DsrC]-trisulfide reductase subunit P (dsrP),dsrP,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 KO:K27196,dissimilatory sulfite reductase flavoprotein subunit (dsrL),dsrL,Dissimilatory Sulfate Reduction,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-TIGR03507,"decaheme c-type cytochrome, OmcA/MtrC family",MtrC,Iron Reduction,1,1,0,0,0,0,0,0,0,0,0,0,0,0
-TIGR03509,"decaheme-associated outer membrane protein, MtrB/PioB family",MtrB,Iron Reduction,0,1,0,0,0,0,0,1,0,0,0,0,0,0
+TIGR03507,"decaheme c-type cytochrome, OmcA/MtrC family",mtrC,Iron Reduction,1,1,0,0,0,0,0,0,0,0,0,0,0,0
+TIGR03509,"decaheme-associated outer membrane protein, MtrB/PioB family",mtrB,Iron Reduction,0,1,0,0,0,0,0,1,0,0,0,0,0,0

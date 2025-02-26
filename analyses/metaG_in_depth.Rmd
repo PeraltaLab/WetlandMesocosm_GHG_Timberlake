@@ -1298,7 +1298,6 @@ finish.meth.dbplsr <- dbplsr(GHG_finish_metaG$f0_CH4 ~ as.matrix(methBC_finish),
 summary(finish.meth.dbplsr)
 #plot(finish.meth.dbplsr)
 
-
 # CH4 ~ methane oxidation:
 start.CH4_ox.dbplsr <- dbplsr(GHG_start_metaG_avg$f0_CH4 ~ as.matrix(CH4_oxBC_start), ncomp = 7, method = "GCV")
 summary(start.CH4_ox.dbplsr)
@@ -2248,7 +2247,7 @@ MetaG_pcoa_2panel_SSF <- ggarrange(plot2b, plot2c, labels = c("A", "B"), ncol = 
 
 MetaG_pcoa_2panel_SSF
 
-ggsave("~/Desktop/PeraltaLab/TMG/TwoPanel_C_relatedPCoAs.png", plot = MetaG_pcoa_2panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 7, limitsize = TRUE, dpi = 600, bg = "white")
+#ggsave("~/Desktop/PeraltaLab/TMG/TwoPanel_C_relatedPCoAs.png", plot = MetaG_pcoa_2panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 7, limitsize = TRUE, dpi = 600, bg = "white")
 ```
 
 
@@ -3796,6 +3795,182 @@ FeRed_SO4Red_4panel <- ggarrange(plot7a, plot7b, plot7c, plot7d, ncol = 2, nrow 
 FeRed_SO4Red_4panel
 
 #ggsave("../figures/Fe_S_manuscript/FeRed_SO4Red_4panel.png", plot = FeRed_SO4Red_4panel, device=NULL, path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
+```
+
+```{r PCOA: Methane Oxidation}
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+pcoa_CH4_ox <- cmdscale(CH4_oxBC, k=2, eig=TRUE, add=TRUE)
+
+explainvar1b_CH4_ox <- round(pcoa_CH4_ox$eig[1] / sum(pcoa_CH4_ox$eig), 3) * 100
+explainvar2b_CH4_ox <- round(pcoa_CH4_ox$eig[2] / sum(pcoa_CH4_ox$eig), 3) * 100
+
+explainvar1b_CH4_ox # 27.8
+explainvar2b_CH4_ox # 21.2
+
+pcoa_CH4_ox2.groups <- paste(CH4_oxRA_design$Treat, CH4_oxRA_design$Plant, CH4_oxRA_design$Hist, sep = "_")
+pcoa_CH4_ox2.points <- data.frame(pcoa_CH4_ox$points, group = pcoa_CH4_ox2.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa_CH4_ox2.L.centroids <- reshape2::melt(pcoa_CH4_ox2.points, id="group", measure.vars = c("X1", "X2"))
+pcoa_CH4_ox2.centroids <- acast(pcoa_CH4_ox2.L.centroids, variable ~ group, mean)
+pcoa_CH4_ox2.centroids.se <- acast(pcoa_CH4_ox2.L.centroids, variable ~ group, se)
+pcoa_CH4_ox2.centroids.sd <- acast(pcoa_CH4_ox2.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa_CH4_ox2.cent.dataframe <- cbind(t(pcoa_CH4_ox2.centroids), t(pcoa_CH4_ox2.centroids.se))
+colnames(pcoa_CH4_ox2.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+
+# No need to run again if these lists have already been declared:
+#trt_H <- c("Baseline", "Baseline", "Dry","Dry", "Dry","Dry","Wet","Wet", "Wet","Wet") 
+#plant_H <- c("Baseline", "Baseline", "No Plant","No Plant","Plant", "Plant", "No Plant","No Plant","Plant", "Plant")
+#history <- c("Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet", "Dry", "Wet")
+#trt_plant_combined <- c(paste(trt, plant, sep = "_"))
+
+pcoa_CH4_ox2.cent.dataframe.trts <- as.data.frame(pcoa_CH4_ox2.cent.dataframe) 
+pcoa_CH4_ox2.cent.dataframe.trts$trt <- as.factor(trt_H)
+pcoa_CH4_ox2.cent.dataframe.trts$plant <- as.factor(plant_H)
+pcoa_CH4_ox2.cent.dataframe.trts$history <- as.factor(history)
+pcoa_CH4_ox2.cent.dataframe.trts$history_plant<- as.factor(history_plant_combined)
+pcoa_CH4_ox2.cent.dataframe.trts$centroid_or_sample <- "centroid"
+
+# Add in points to data frame:
+pcoa_CH4_ox2.points_ForPlot <- pcoa_CH4_ox2.points
+colnames(pcoa_CH4_ox2.points_ForPlot) <- c("V1", "V2", "group")
+# Add labels to match ...cent.dataframe.trts
+pcoa_CH4_ox2.points_ForPlot$trt <- CH4_oxRA_design$Treat %>% str_replace_all(c("w" = "Wet", "_pre" = "Baseline", "d" = "Dry"))
+pcoa_CH4_ox2.points_ForPlot$plant <- CH4_oxRA_design$Plant %>% str_replace_all(c("n" = "No Plant", "y" = "Plant", "_pre" = "Baseline"))
+pcoa_CH4_ox2.points_ForPlot$history <- CH4_oxRA_design$Hist %>% str_replace_all(c("d" = "Dry", "w" = "Wet"))
+pcoa_CH4_ox2.points_ForPlot$history_plant <- c(paste(pcoa_CH4_ox2.points_ForPlot$history, pcoa_CH4_ox2.points_ForPlot$plant, sep = "_"))
+#remove "group" column
+pcoa_CH4_ox2.points_ForPlot <- pcoa_CH4_ox2.points_ForPlot[, -3]
+#add V1e and V2e as zeros:
+pcoa_CH4_ox2.points_ForPlot$V1e <- numeric(24)
+pcoa_CH4_ox2.points_ForPlot$V2e <- numeric(24)
+# Add column to distinguish sample points from centroids, and later use to set alpha in plot
+pcoa_CH4_ox2.points_ForPlot$centroid_or_sample <- "sample"
+
+#Merge:
+CH4_ox_centroids_points_merged <- rbind(pcoa_CH4_ox2.cent.dataframe.trts, pcoa_CH4_ox2.points_ForPlot)
+
+# Add points data frame
+pcoa_CH4_ox_DF <- as.data.frame(pcoa_CH4_ox$points)
+```
+
+```{r CH4_ox envfit and PCoA}
+#Run envfit with new Soil data (SSF = Soil Start & Finish):
+fit_CH4_ox_SSF <- envfit(pcoa_CH4_ox_DF, SoilGHG_StartFinish_Envfit, permutations = 10000, set.seed(42))
+fit_CH4_ox_SSF
+
+A_CH4_ox_SSF <-as.list(fit_CH4_ox_SSF$vectors)
+vec_CH4_ox_SSF <- as.data.frame(fit_CH4_ox_SSF$vectors$arrows*sqrt(fit_CH4_ox_SSF$vectors$r)*0.15)
+p_CH4_ox_SSF <- as.data.frame(A_CH4_ox_SSF$pvals)
+vec_CH4_ox_SSF <- cbind(vec_CH4_ox_SSF, p_CH4_ox_SSF)
+vec_CH4_ox_SSF <- subset(vec_CH4_ox_SSF, A_CH4_ox_SSF$pvals<=0.05)
+
+
+
+#Plot using ggplot2
+df8a <- as.data.frame(CH4_ox_centroids_points_merged)
+
+plot8a <- ggplot(df8a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+  theme_bw() +
+  scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
+  scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
+  scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
+  scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
+  xlab(glue("PCoA 1 ({explainvar1b_CH4_ox}%)")) + ylab(glue("PCoA 2 ({explainvar2b_CH4_ox}%)")) + 
+  geom_segment(data=vec_CH4_ox_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
+ geom_text(data=vec_CH4_ox_SSF, aes(x=V1, y=V2), label= vec_CH4_ox_SSF$vec_labels, size=4, nudge_x = vec_CH4_ox_SSF$X_nudge, nudge_y = vec_CH4_ox_SSF$Y_nudge, inherit.aes=F)+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=14)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
+           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+    ggtitle("Methane Oxidation")
+
+plot8a
+
+#ggsave("../figures/Thesis/Assim_sulf_red.png", plot = plot8a, path=NULL, device="png", scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
+```
+
+```{r DBPLSR barplots 2}
+# read in formatted table of dbplsr component 2 adjusted R2 results:
+dbplsr_comp2_dec <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/dbplsr_comp2_dec.csv")
+
+methane.dbplsr.Fig <- ggplot(data = dbplsr_comp2_dec, aes(x = Timepoint, y = GHG, fill = Comp2_adjR2)) +
+  geom_tile() +
+  facet_wrap(~Dist_matrix) +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_bw() +
+  # Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  # Set axis title and text properties, tick marks, and labels
+  theme(text = element_text(size = 14),
+        axis.title = element_text(size = 14, face = "bold"),
+        axis.text = element_text(size = 14),  
+        axis.title.y = element_text(margin = margin(r = 10)),
+        panel.border = element_rect(colour = "black", linewidth = 1),
+        strip.text = element_text(size = 14),
+        legend.position = "right",
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 14)) + 
+  theme(axis.ticks.length = unit(0.3, "cm")) + 
+  labs(x = "", y = "Methane Flux", title = "") +
+  theme(rect = element_rect(fill = "transparent")) +
+  theme(plot.background = element_rect(color = NA)) +
+  theme(axis.text.y = element_blank(),  # Remove y-axis text
+        axis.ticks.y = element_blank()) + # Remove y-axis ticks
+  scale_x_discrete(expand = c(0, 0))+  # Remove x-axis margin
+  scale_y_discrete(expand = c(0, 0))  # Remove y-axis margin
+
+methane.dbplsr.Fig
+
+#ggsave("../figures/Fe_S_manuscript/methane_dbplsr_plot.png", plot=methane.dbplsr.plot, device="png", path=NULL, scale=1, width=7, height=4, dpi=600, limitsize=TRUE, bg = "white")
+```
+
+```{r DBPLSR barplots 3}
+require("viridis")
+
+# read in formatted table of dbplsr component 2 adjusted R2 results:
+dbplsr_comp2_envfit <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/dbplsr_comp2_envfit.csv")
+
+methane.dbplsr.envfit <- ggplot(data = dbplsr_comp2_envfit, aes(x = Timepoint, y = Stat, fill = R2)) +
+  geom_tile() +
+  facet_wrap(~Dist_matrix) +
+  scale_fill_viridis_c(option = "viridis") +  # Use viridis color palette
+  theme_bw() +
+  # Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  # Set axis title and text properties, tick marks, and labels
+  theme(text = element_text(size = 14),
+        axis.title = element_text(size = 14, face = "bold"),
+        axis.text = element_text(size = 14),  
+        axis.title.y = element_text(margin = margin(r = 10)),
+        panel.border = element_rect(colour = "black", linewidth = 1),
+        strip.text = element_text(size = 14),
+        legend.position = "right",
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 14)) + 
+  theme(axis.ticks.length = unit(0.3, "cm")) + 
+  labs(x = "", y = "", title = "", fill = expression(R^2 ~ "(CH"[4]~" flux ~ KEGG module)")) +
+  theme(rect = element_rect(fill = "transparent")) +
+  theme(plot.background = element_rect(color = NA)) +
+ # theme(axis.text.y = element_blank(),  # Remove y-axis text
+  #      axis.ticks.y = element_blank()) + # Remove y-axis ticks
+  scale_x_discrete(expand = c(0, 0))+  # Remove x-axis margin
+  scale_y_discrete(expand = c(0, 0))  # Remove y-axis margin
+
+methane.dbplsr.envfit
+
+#ggsave("../figures/Fe_S_manuscript/methane_dbplsr_envfit_heatmap.png", plot=methane.dbplsr.envfit, device="png", path=NULL, scale=1, width=14, height=4, dpi=600, limitsize=TRUE, bg = "white")
 ```
 
 

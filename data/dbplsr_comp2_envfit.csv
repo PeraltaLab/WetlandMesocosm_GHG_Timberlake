@@ -1,0 +1,13 @@
+GHG~distance_matrix,Timepoint,R2,GHG,Dist_matrix,Stat,Pval
+CH4 ~ Dissimilatory SO42- Reduction,Week 0,0.68,CH4,Dissimilatory Sulfate Reduction,DBPLSR,NA
+CH4 ~ Dissimilatory SO42- Reduction,Week 8,0.56,CH4,Dissimilatory Sulfate Reduction,DBPLSR,NA
+CH4 ~ Dissimilatory SO42- Reduction,Week 0,0.40,CH4,Dissimilatory Sulfate Reduction,envfit,0.0032
+CH4 ~ Dissimilatory SO42- Reduction,Week 8,0.40,CH4,Dissimilatory Sulfate Reduction,envfit,0.0032
+CH4 ~ Methanogenesis,Week 0,0.63,CH4,Methanogenesis,DBPLSR,NA
+CH4 ~ Methanogenesis,Week 8,0.33,CH4,Methanogenesis,DBPLSR,NA
+CH4 ~ Methanogenesis,Week 0,0.03,CH4,Methanogenesis,envfit,0.70
+CH4 ~ Methanogenesis,Week 8,0.03,CH4,Methanogenesis,envfit,0.70
+CH4 ~ Methane Oxidation,Week 0,0.5,CH4,Methane Oxidation,DBPLSR,NA
+CH4 ~ Methane Oxidation,Week 8,0.73,CH4,Methane Oxidation,DBPLSR,NA
+CH4 ~ Methane Oxidation,Week 0,0.08,CH4,Methane Oxidation,envfit,0.40
+CH4 ~ Methane Oxidation,Week 8,0.08,CH4,Methane Oxidation,envfit,0.40

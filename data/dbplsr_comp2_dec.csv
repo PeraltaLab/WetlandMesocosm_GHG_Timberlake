@@ -1,0 +1,7 @@
+GHG~distance_matrix,Timepoint,Comp2_adjR2,GHG,Dist_matrix
+CH4 ~ Dissimilatory SO42- Reduction,Week 0,0.68,CH4,Dissimilatory Sulfate Reduction
+CH4 ~ Dissimilatory SO42- Reduction,Week 8,0.56,CH4,Dissimilatory Sulfate Reduction
+CH4 ~ Methanogenesis,Week 0,0.63,CH4,Methanogenesis
+CH4 ~ Methanogenesis,Week 8,0.33,CH4,Methanogenesis
+CH4 ~ Methane Oxidation,Week 0,0.50,CH4,Methane Oxidation
+CH4 ~ Methane Oxidation,Week 8,0.73,CH4,Methane Oxidation
