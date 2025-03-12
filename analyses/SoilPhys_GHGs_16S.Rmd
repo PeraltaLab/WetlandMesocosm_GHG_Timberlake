@@ -617,7 +617,7 @@ ghg_ppm$date_short <- str_remove(ghg_ppm$date_short, "/2016")
 ```
 
 ```{r Calculate T0s from WRC static chamber monitoring}
-# will attempt to use results from monthly WRC static chamber to calculate average T0. Then calculate fluxes from TMG mesocosms.
+# Will use results from monthly WRC static chamber to calculate average T0. Then calculate fluxes from TMG mesocosms.
 
 # read in compiled T0 data:
 WRC_T0s <- read.csv("../data/WRC_T0s_for_TMG_ambient_calculation.csv")
@@ -962,7 +962,7 @@ kruskal_CH4_6.28_w_T0
 
   # Pairwise comparisons:
     # Must subset 6/28:
-select_fluxes_combined_w_T0_6.28 <- select_fluxes_combined_w_T0 %>% filter(date_short == "7/25")
+select_fluxes_combined_w_T0_6.28 <- select_fluxes_combined_w_T0 %>% filter(date_short == "6/28")
 
 SDCFlig_CH4_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_6.28$f0_CH4, g = select_fluxes_combined_w_T0_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
 SDCFlig_CH4_6.28_w_T0
@@ -999,7 +999,7 @@ kruskal_CO2_6.28_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2
 kruskal_CO2_6.28_w_T0
 
   # Pairwise comparisons:
-SDCFlig_CO2_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0$f0_CO2, g = select_fluxes_combined_w_T0$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CO2_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_6.28$f0_CO2, g = select_fluxes_combined_w_T0_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
 SDCFlig_CO2_6.28_w_T0
 
 kruskal_CO2_7.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "7/11")
@@ -1009,7 +1009,7 @@ kruskal_CO2_7.25_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2
 kruskal_CO2_7.25_w_T0
 
   # Pairwise comparisons:
-SDCFlig_CO2_7.25_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0$f0_CO2, g = select_fluxes_combined_w_T0$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CO2_7.25_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_7.25$f0_CO2, g = select_fluxes_combined_w_T0_7.25$treatment, method = "Monte Carlo", n.mc = 10000)
 SDCFlig_CO2_7.25_w_T0
 
 kruskal_CO2_8.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "8/11")
@@ -1109,9 +1109,26 @@ select_fluxes_combined_w_T0$date_format <- factor(select_fluxes_combined_w_T0$da
 ```
 
 ## Flux with T0: Plant vs. No Plant
+```{r}
+# June 13th time point:
+CH4_wilcox_6.13 <- wilcox.test(select_fluxes_combined_w_T0_6.13$f0_CH4[select_fluxes_combined_w_T0_6.13$plant == "N"], select_fluxes_combined_w_T0_6.13$f0_CH4[select_fluxes_combined_w_T0_6.13$plant == "P"], data = select_fluxes_combined_w_T0_6.13, paired = T)
+CH4_wilcox_6.13
+
+# June 28th time point:
+
+# July 11th time point:
+
+# July 25th time point:
+
+# August 11th time point:
+  # Make subset of select_fluxes_combined:
+select_fluxes_combined_w_T0_8.11 <- select_fluxes_combined_w_T0 %>% filter(date_short == "8/11")
+```
+
+
 ```{r CH4 flux w T0 NP vs. P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
-CH4_wilcox<- compare_means(f0_CH4~plant, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", paired = T)
+CH4_wilcox<- compare_means(f0_CH4~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
 
 # Turn into data frame:
 CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
@@ -1377,7 +1394,13 @@ CombPlot_flux_treat
 #ggsave("../figures/pub/GHG_Treatment/Flux_treatment.png", plot=CombPlot_flux_treat, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
-```{r Kruskal-Wallis table}
+```{r Wilcox and Kruskal-Wallis tables}
+# Rbind the 3 Wilcox tables:
+Wilcox_comb <- rbind(CH4_wilcox.DF, CO2_wilcox.DF, N2O_wilcox.DF)
+
+# Write .csv: 
+#write.csv(Kruskal_comb, file = "../figures/pub/tables/Kruskal_Treatment/Kruskal_combined.csv", row.names = T)
+
 # Rbind the 3 Kruskal-Wallis tables:
 Kruskal_comb <- rbind(CH4_kruskal, CO2_kruskal, N2O_kruskal)
 
