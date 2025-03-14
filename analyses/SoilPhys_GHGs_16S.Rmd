@@ -1109,26 +1109,80 @@ select_fluxes_combined_w_T0$date_format <- factor(select_fluxes_combined_w_T0$da
 ```
 
 ## Flux with T0: Plant vs. No Plant
-```{r}
+```{r wilcox tests long format}
 # June 13th time point:
+  # CH4:
 CH4_wilcox_6.13 <- wilcox.test(select_fluxes_combined_w_T0_6.13$f0_CH4[select_fluxes_combined_w_T0_6.13$plant == "N"], select_fluxes_combined_w_T0_6.13$f0_CH4[select_fluxes_combined_w_T0_6.13$plant == "P"], data = select_fluxes_combined_w_T0_6.13, paired = T)
 CH4_wilcox_6.13
+ 
+ # CO2:
+CO2_wilcox_6.13 <- wilcox.test(select_fluxes_combined_w_T0_6.13$f0_CO2[select_fluxes_combined_w_T0_6.13$plant == "N"], select_fluxes_combined_w_T0_6.13$f0_CO2[select_fluxes_combined_w_T0_6.13$plant == "P"], data = select_fluxes_combined_w_T0_6.13, paired = T)
+CO2_wilcox_6.13
+
+  # N2O:
+N2O_wilcox_6.13 <- wilcox.test(select_fluxes_combined_w_T0_6.13$f0_N2O[select_fluxes_combined_w_T0_6.13$plant == "N"], select_fluxes_combined_w_T0_6.13$f0_N2O[select_fluxes_combined_w_T0_6.13$plant == "P"], data = select_fluxes_combined_w_T0_6.13, paired = T)
+N2O_wilcox_6.13
 
 # June 28th time point:
+  # CH4:
+CH4_wilcox_6.28 <- wilcox.test(select_fluxes_combined_w_T0_6.28$f0_CH4[select_fluxes_combined_w_T0_6.28$plant == "N"], select_fluxes_combined_w_T0_6.28$f0_CH4[select_fluxes_combined_w_T0_6.28$plant == "P"], data = select_fluxes_combined_w_T0_6.28, paired = T)
+CH4_wilcox_6.28
+
+  # CO2:
+CO2_wilcox_6.28 <- wilcox.test(select_fluxes_combined_w_T0_6.28$f0_CO2[select_fluxes_combined_w_T0_6.28$plant == "N"], select_fluxes_combined_w_T0_6.28$f0_CO2[select_fluxes_combined_w_T0_6.28$plant == "P"], data = select_fluxes_combined_w_T0_6.28, paired = T)
+CO2_wilcox_6.28
+
+  # N2O:
+N2O_wilcox_6.28 <- wilcox.test(select_fluxes_combined_w_T0_6.28$f0_N2O[select_fluxes_combined_w_T0_6.28$plant == "N"], select_fluxes_combined_w_T0_6.28$f0_N2O[select_fluxes_combined_w_T0_6.28$plant == "P"], data = select_fluxes_combined_w_T0_6.28, paired = T)
+N2O_wilcox_6.28
 
 # July 11th time point:
+  # CH4:
+CH4_wilcox_7.11 <- wilcox.test(select_fluxes_combined_w_T0_7.11$f0_CH4[select_fluxes_combined_w_T0_7.11$plant == "N"], select_fluxes_combined_w_T0_7.11$f0_CH4[select_fluxes_combined_w_T0_7.11$plant == "P"], data = select_fluxes_combined_w_T0_7.11, paired = T)
+CH4_wilcox_7.11
+
+  # CO2:
+CO2_wilcox_7.11 <- wilcox.test(select_fluxes_combined_w_T0_7.11$f0_CO2[select_fluxes_combined_w_T0_7.11$plant == "N"], select_fluxes_combined_w_T0_7.11$f0_CO2[select_fluxes_combined_w_T0_7.11$plant == "P"], data = select_fluxes_combined_w_T0_7.11, paired = T)
+CO2_wilcox_7.11
+
+  # N2O:
+N2O_wilcox_7.11 <- wilcox.test(select_fluxes_combined_w_T0_7.11$f0_N2O[select_fluxes_combined_w_T0_7.11$plant == "N"], select_fluxes_combined_w_T0_7.11$f0_N2O[select_fluxes_combined_w_T0_7.11$plant == "P"], data = select_fluxes_combined_w_T0_7.11, paired = T)
+N2O_wilcox_7.11
 
 # July 25th time point:
+  # CH4:
+CH4_wilcox_7.25 <- wilcox.test(select_fluxes_combined_w_T0_7.25$f0_CH4[select_fluxes_combined_w_T0_7.25$plant == "N"], select_fluxes_combined_w_T0_7.25$f0_CH4[select_fluxes_combined_w_T0_7.25$plant == "P"], data = select_fluxes_combined_w_T0_7.25, paired = T)
+CH4_wilcox_7.25
+
+  # CO2:
+CO2_wilcox_7.25 <- wilcox.test(select_fluxes_combined_w_T0_7.25$f0_CO2[select_fluxes_combined_w_T0_7.25$plant == "N"], select_fluxes_combined_w_T0_7.25$f0_CO2[select_fluxes_combined_w_T0_7.25$plant == "P"], data = select_fluxes_combined_w_T0_7.25, paired = T)
+CO2_wilcox_7.25
+
+  # N2O:
+N2O_wilcox_7.25 <- wilcox.test(select_fluxes_combined_w_T0_7.25$f0_N2O[select_fluxes_combined_w_T0_7.25$plant == "N"], select_fluxes_combined_w_T0_7.25$f0_N2O[select_fluxes_combined_w_T0_7.25$plant == "P"], data = select_fluxes_combined_w_T0_7.25, paired = T)
+N2O_wilcox_7.25
 
 # August 11th time point:
   # Make subset of select_fluxes_combined:
 select_fluxes_combined_w_T0_8.11 <- select_fluxes_combined_w_T0 %>% filter(date_short == "8/11")
+
+  # CH4:
+CH4_wilcox_8.11 <- wilcox.test(select_fluxes_combined_w_T0_8.11$f0_CH4[select_fluxes_combined_w_T0_8.11$plant == "N"], select_fluxes_combined_w_T0_8.11$f0_CH4[select_fluxes_combined_w_T0_8.11$plant == "P"], data = select_fluxes_combined_w_T0_8.11, paired = T)
+CH4_wilcox_8.11
+
+  # CO2:
+CO2_wilcox_8.11 <- wilcox.test(select_fluxes_combined_w_T0_8.11$f0_CO2[select_fluxes_combined_w_T0_8.11$plant == "N"], select_fluxes_combined_w_T0_8.11$f0_CO2[select_fluxes_combined_w_T0_8.11$plant == "P"], data = select_fluxes_combined_w_T0_8.11, paired = T)
+CO2_wilcox_8.11
+
+  # N2O:
+N2O_wilcox_8.11 <- wilcox.test(select_fluxes_combined_w_T0_8.11$f0_N2O[select_fluxes_combined_w_T0_8.11$plant == "N"], select_fluxes_combined_w_T0_8.11$f0_N2O[select_fluxes_combined_w_T0_8.11$plant == "P"], data = select_fluxes_combined_w_T0_8.11, paired = T)
+N2O_wilcox_8.11
 ```
 
 
 ```{r CH4 flux w T0 NP vs. P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
-CH4_wilcox<- compare_means(f0_CH4~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
+CH4_wilcox<- compare_means(f0_CH4~plant, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", paired = T)
 
 # Turn into data frame:
 CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
@@ -1157,15 +1211,14 @@ plot.CH4.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_CH4)
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
   coord_cartesian(ylim = c(-16, 50)) +  # Use coord_cartesian to limit y-axis range
-  #stat_compare_means(data = select_fluxes_combined_w_T0, method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
-  stat_pvalue_manual(data = CH4_wilcox.DF, comparisons = list(c("N", "P")), label = "p.signif", size = 10, hide.ns = "p", y.position = 45, step.group.by = "date_format", bracket.size = 0)
+  stat_pvalue_manual(data = CH4_wilcox.DF, comparisons = list(c("N", "P")), label = "p.signif", size = 10, hide.ns = "p", y.position = 45, step.group.by = "date_format", bracket.size = 0) # Must use manual b/c outlier zoom in
  
 plot.CH4.flux.NPvP
 ```
 
 ```{r CO2 flux NP vs P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
-CO2_wilcox<- compare_means(f0_CO2~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
+CO2_wilcox<- compare_means(f0_CO2~plant, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", paired = T)
 
 # Turn into data frame:
 CO2_wilcox.DF <- as.data.frame(CO2_wilcox)
@@ -1200,7 +1253,7 @@ plot.CO2.flux.NPvP
 
 ```{r N2O flux NP vs. P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
-N2O_wilcox<- compare_means(f0_N2O~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
+N2O_wilcox<- compare_means(f0_N2O~plant, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", paired = T)
 
 # Turn into data frame:
 N2O_wilcox.DF <- as.data.frame(N2O_wilcox)
@@ -1399,7 +1452,7 @@ CombPlot_flux_treat
 Wilcox_comb <- rbind(CH4_wilcox.DF, CO2_wilcox.DF, N2O_wilcox.DF)
 
 # Write .csv: 
-#write.csv(Kruskal_comb, file = "../figures/pub/tables/Kruskal_Treatment/Kruskal_combined.csv", row.names = T)
+#write.csv(Wilcox_comb, file = "../figures/pub/tables/Kruskal_Treatment/Wilcox_comb.csv", row.names = T)
 
 # Rbind the 3 Kruskal-Wallis tables:
 Kruskal_comb <- rbind(CH4_kruskal, CO2_kruskal, N2O_kruskal)
