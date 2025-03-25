@@ -1757,7 +1757,7 @@ rownames(soil.finish_FULL) <- soil.finish_FULL$chamber
 # remove design info and NOx column that has many NAs
 meta.env_FULL <- soil.finish_FULL[, -c(1:5)]
 
-# Add GHG fluxes from final timepoint, August 11
+# Add GHG fluxes from final time point, August 11
 meta.env_GHG <- cbind(meta.env_FULL, select_fluxes_combined_w_T0_8.11$f0_CH4, select_fluxes_combined_w_T0_8.11$f0_CO2, select_fluxes_combined_w_T0_8.11$f0_N2O)
 
 colnames(meta.env_GHG)[19:21] <- c("f0_CH4", "f0_CO2", "f0_N2O")
@@ -1882,101 +1882,37 @@ plot16S_PCoA
 
 # Distance-based partial least squares regression (dbplsr)
 
-```{r only ending samples}
-#Using end samples for GHG because microbial community analyses was on end samples
-#make df of design, soil, and ghg
-ghg.filter.soil <- ghg %>%
-  dplyr::select('date', 'chamber', 'timepoint', 'mg.CH4.N.m.2', 'mg.CO2.N.m.2', 'mg.N2O.N.m.2')%>%
-  filter(timepoint=='T1' & date == '8/11/2016') 
-
-soil.ghg <- soil %>% 
-dplyr::select('chamber', 'time', 'plant', 'treatment', 'moisture.percent', 'pH', 'nh4.mg.l', 'c.percent', 'n.percent', 'P.ppm', 'K.ppm', 'Mg.ppm', 'S.ppm', 'Fe.ppm', 'Mn.ppm', 'HM', 'redox.percent.paint.removed') %>%
-  filter(time=="finish") %>%
-  bind_cols(ghg.filter.soil)
-  
-rownames(soil.ghg) <- rownames(otu.2.rel)
-
-# Drop the two 'Chamber' columns (because Chambers are now row names)
-soil.ghg <- soil.ghg[,-c(1,19)]
-
+```{r Euclidean distance matrices}
 # Calculate euclidean distances for soil parameters only, soil parameters and GHGs, and GHGs only:
-soilonly.dist <- vegdist(x = scale(soil.ghg[, -c(1:3, 17:21)]), "euclid")
-soilghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:3,17:18)]), "euclid")
-ghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:18)]), "euclid")
+soilonly.dist <- vegdist(x = scale(meta.env_GHG[, -c(19:21)]), "euclid")
+soilghg.dist <- vegdist(x = scale(meta.env_GHG), "euclid")
+ghg.dist <- vegdist(x = scale(meta.env_GHG[, c(19:21)]), "euclid")
 ```
 
-```{r only ending samples ppm}
-#Using end samples for GHG because microbial community analyses was on end samples
-#make df of design, soil, and ghg
-  # Use ghg_ppm_filtered_8.11
-ghg_ppm_filtered_8.11_MERGE <- ghg_ppm_filtered_8.11[,c(5:7, 11:12)]
-
-soil.PPM.END.ghg <- soil %>% 
-dplyr::select('chamber', 'time', 'plant', 'treatment', 'moisture.percent', 'pH', 'nh4.mg.l', 'c.percent', 'n.percent', 'P.ppm', 'K.ppm', 'Mg.ppm', 'S.ppm', 'Fe.ppm', 'Mn.ppm', 'HM', 'redox.percent.paint.removed') %>%
-  filter(time=="finish") %>%
-  bind_cols(ghg_ppm_filtered_8.11_MERGE)
-  
-rownames(soil.PPM.END.ghg) <- rownames(otu.2.rel)
-
-# Drop the two 'Chamber' columns (because Chambers are now row names)
-soil.PPM.END.ghg <- soil.PPM.END.ghg[,-1]
-
-# Calculate euclidean distances for soil parameters only, soil parameters and GHGs, and GHGs only:
-PPM.soilonly.dist <- vegdist(x = scale(soil.PPM.END.ghg[, -c(1:3, 17:21)]), "euclid")
-PPM.soilghg.dist <- vegdist(x = scale(soil.PPM.END.ghg[, -c(1:3, 20:21)]), "euclid")
-PPM.ghg.dist <- vegdist(x = scale(soil.PPM.END.ghg[, c(17:19)]), "euclid")
-```
-
-```{r dbplsr analysis}
-#distance based partial least squares regression
+```{r DBPLSR}
+#distance-based partial least squares regression (DBPLSR)
 #Compares distance matrices. can use mixture of continuous and qualitative variables. 
-#Method good when factors are may and highly colinear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
+#Method good when factors are may and highly co-linear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
 
 # GHGs compared to Bray-Curtis Distance matrix of rarified OTUs: 
-dbplsr.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+dbplsr.ch4 <- dbplsr(f0_CH4 ~ as.matrix(otu.2.rel.dist), data=meta.env_GHG , ncomp=30, method="GCV")
 summary(dbplsr.ch4)
 
-dbplsr.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+dbplsr.co2 <- dbplsr(f0_CO2 ~ as.matrix(otu.2.rel.dist), data=meta.env_GHG , ncomp=30, method="GCV")
 summary(dbplsr.co2)
 
-dbplsr.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+dbplsr.n2o <- dbplsr(f0_N2O ~ as.matrix(otu.2.rel.dist), data=meta.env_GHG , ncomp=31, method="GCV")
 summary(dbplsr.n2o)
 
 # GHGs compared to euclidean distance matrix of soil parameters (sp): 
-dbplsr.sp.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+dbplsr.sp.ch4 <- dbplsr(f0_CH4 ~ as.matrix(soilonly.dist), data=meta.env_GHG , ncomp=35, method="GCV")
 summary(dbplsr.sp.ch4)
 
-dbplsr.sp.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+dbplsr.sp.co2 <- dbplsr(f0_CO2 ~ as.matrix(soilonly.dist), data=meta.env_GHG , ncomp=35, method="GCV")
 summary(dbplsr.sp.co2)
 
-dbplsr.sp.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+dbplsr.sp.n2o <- dbplsr(f0_N2O ~ as.matrix(soilonly.dist), data=meta.env_GHG , ncomp=35, method="GCV")
 summary(dbplsr.sp.n2o)
-```
-
-```{r dbplsr analysis ppm}
-#distance based partial least squares regression
-#Compares distance matrices. can use mixture of continuous and qualitative variables. 
-#Method good when factors are may and highly colinear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
-
-# GHGs compared to Bray-Curtis Distance matrix of rarified OTUs: 
-dbplsr.PPM.ch4 <- dbplsr(ch4_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
-summary(dbplsr.PPM.ch4)
-
-dbplsr.PPM.co2 <- dbplsr(co2_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
-summary(dbplsr.PPM.co2)
-
-dbplsr.PPM.n2o <- dbplsr(n2o_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
-summary(dbplsr.PPM.n2o)
-
-# GHGs compared to euclidean distance matrix of soil parameters (sp): 
-dbplsr.sp.PPM.ch4 <- dbplsr(ch4_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
-summary(dbplsr.sp.PPM.ch4)
-
-dbplsr.sp.PPM.co2 <- dbplsr(co2_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
-summary(dbplsr.sp.PPM.co2)
-
-dbplsr.sp.PPM.n2o <- dbplsr(n2o_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
-summary(dbplsr.sp.PPM.n2o)
 ```
 
 # Mantel test: soil and bacterial community
