@@ -1306,6 +1306,42 @@ summary(start.CH4_ox.dbplsr)
 finish.CH4_ox.dbplsr <- dbplsr(GHG_finish_metaG$f0_CH4 ~ as.matrix(CH4_oxBC_finish), ncomp = 15, method = "GCV")
 summary(finish.CH4_ox.dbplsr)
 #plot(finish.CH4_ox.dbplsr)
+
+# CO2 ~ central carbohydrate metabolism:
+start.carb_metab.dbplsr <- dbplsr(GHG_start_metaG_avg$f0_CO2 ~ as.matrix(carb_metabBC_start), ncomp = 7, method = "GCV")
+summary(start.carb_metab.dbplsr)
+#plot(start.carb_metab.dbplsr)
+
+finish.carb_metab.dbplsr <- dbplsr(GHG_finish_metaG$f0_CO2 ~ as.matrix(carb_metabBC_finish), ncomp = 15, method = "GCV")
+summary(finish.carb_metab.dbplsr)
+#plot(finish.carb_metab.dbplsr)
+
+# CO2 ~ Cytochrome C Oxidase:
+start.cytoCox.dbplsr <- dbplsr(GHG_start_metaG_avg$f0_CO2 ~ as.matrix(cytoCoxBC_start), ncomp = 7, method = "GCV")
+summary(start.cytoCox.dbplsr)
+#plot(start.cytoCox.dbplsr)
+
+finish.cytoCox.dbplsr <- dbplsr(GHG_finish_metaG$f0_CO2 ~ as.matrix(cytoCoxBC_finish), ncomp = 15, method = "GCV")
+summary(finish.cytoCox.dbplsr)
+#plot(finish.cytoCox.dbplsr)
+
+# CO2 ~ Denitrification:
+start.denit.dbplsr.co2 <- dbplsr(GHG_start_metaG_avg$f0_CO2 ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
+summary(start.denit.dbplsr.co2)
+#plot(start.denit.dbplsr.co2)
+
+finish.denit.dbplsr.co2 <- dbplsr(GHG_finish_metaG$f0_CO2 ~ as.matrix(denitBC_finish), ncomp = 15, method = "GCV")
+summary(finish.denit.dbplsr.co2)
+#plot(finish.denit.dbplsr.co2)
+
+# N2O ~ Denitrification:
+start.denit.dbplsr.n2o <- dbplsr(GHG_start_metaG_avg$f0_N2O ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
+summary(start.denit.dbplsr.n2o)
+#plot(start.denit.dbplsr.n2o)
+
+finish.denit.dbplsr.n2o <- dbplsr(GHG_finish_metaG$f0_N2O ~ as.matrix(denitBC_finish), ncomp = 15, method = "GCV")
+summary(finish.denit.dbplsr.n2o)
+#plot(finish.denit.dbplsr.n2o)
 ```
 
 ```{r DBPLSR barplots}
