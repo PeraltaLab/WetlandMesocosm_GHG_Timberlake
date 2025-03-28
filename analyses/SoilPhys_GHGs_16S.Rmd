@@ -1938,31 +1938,56 @@ bac.soil.mantel.3
 # Greenhouse gas and redox regressions
 
 ```{r wrangling}
-# Add design/meta info onto meta.env_GHG
-soil.END.ghg <- meta.env_GHG %>%
-  cbind(soil.finish_FULL[,3:5])
+# Create IRIS start and finish data frame:
+IRIS_start_Fin <- soil %>%
+  filter(time != "field") %>%
+  dplyr::select(c("chamber", "time", "history", "treatment", "plant", "redox.percent.paint.removed"))
+
+# Create GHG start and finish data frame from select_fluxes_combined:
+GHG_flux_start_fin <- select_fluxes_combined_w_T0 %>%
+  dplyr::filter(date_format == "13-Jun" | date_format == "11-Aug") %>%
+  dplyr::select(c("f0_CH4", "f0_CO2", "f0_N2O", "plant", "treatment", "history", "chamber", "date_format"))
+
+# Set levels of time so facets are ordered correctly
+IRIS_start_Fin$time <- factor(IRIS_start_Fin$time, levels = c("start", "finish"))
+
+# Adjust labels
+IRIS_start_Fin$time <- revalue(IRIS_start_Fin$time, c(start = "Start (Week 0)", finish = "Finish (Week 8)"))
+
+# reorder df
+IRIS_start_Fin <- IRIS_start_Fin %>%
+  arrange(time)
+
+# Combine the IRIS and GHG dfs:
+IRIS_GHG_start_fin <- cbind(IRIS_start_Fin, GHG_flux_start_fin)
+
+# Remove extra columns:
+IRIS_GHG_start_fin <- IRIS_GHG_start_fin[,-c(10:13)]
 
 # Change history, treatment, and plant to factors:
-soil.END.ghg$history <- as.factor(soil.END.ghg$history)
-soil.END.ghg$treatment <- as.factor(soil.END.ghg$treatment)
-soil.END.ghg$plant <- as.factor(soil.END.ghg$plant)
+IRIS_GHG_start_fin$history <- as.factor(IRIS_GHG_start_fin$history)
+IRIS_GHG_start_fin$treatment <- as.factor(IRIS_GHG_start_fin$treatment)
+IRIS_GHG_start_fin$plant <- as.factor(IRIS_GHG_start_fin$plant)
 
 # Format redox.percent.paint.removed as percent:
-soil.END.ghg$redox.percent.formatted <- soil.END.ghg$redox.percent.paint.removed * 100
+IRIS_GHG_start_fin$redox.percent.formatted <- IRIS_GHG_start_fin$redox.percent.paint.removed * 100
 ```
 
 
 ```{r CH4 redox regression}
-ch4.lm <- lm(f0_CH4 ~ redox.percent.formatted, data=soil.END.ghg)
-summary(ch4.lm)
+ch4.lm.start <- lm(f0_CH4 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
+summary(ch4.lm.start)
 
-ch4.redox.regress.plot <- ggplot(soil.END.ghg)  +
-  geom_point(aes(x=redox.percent.formatted, y=f0_CH4, color=plant, shape = plant), size=5)+ 
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_fill_manual(values=c("#E69F00","#009E73")) +
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+ch4.lm.finish <- lm(f0_CH4 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "11-Aug")
+summary(ch4.lm.finish)
+
+ch4.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_CH4)  +
+  facet_wrap(~time, nrow = 1, ncol = 2)+
+                    geom_point(aes(x=redox.percent.formatted, y=f0_CH4, color=treatment, shape=plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
   geom_smooth(aes(x=redox.percent.formatted, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
-  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_CH4, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_CH4, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
@@ -1970,7 +1995,7 @@ ch4.redox.regress.plot <- ggplot(soil.END.ghg)  +
     theme(axis.title=element_text(vjust=1,size=18),
           axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
           element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("CH"[4]," (add flux label)"))) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1}))) + 
     theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
           legend.position = "right")
 
@@ -1979,16 +2004,19 @@ ch4.redox.regress.plot
 
 
 ```{r CO2 redox regression}
-co2.lm <- lm(f0_CO2 ~ redox.percent.formatted, data=soil.END.ghg)
-summary(co2.lm)
+co2.lm.start <- lm(f0_CO2 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
+summary(co2.lm.start)
 
-co2.redox.regress.plot <- ggplot(soil.END.ghg)  +
-  geom_point(aes(x=redox.percent.formatted, y=f0_CO2, color=plant, shape = plant), size=5)+ 
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_fill_manual(values=c("#E69F00","#009E73")) +
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+co2.lm.finish <- lm(f0_CO2 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "11-Aug")
+summary(co2.lm.finish)
+
+co2.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_CO2)  +
+  facet_wrap(~time, nrow = 1, ncol = 2)+
+                    geom_point(aes(x=redox.percent.formatted, y=f0_CO2, color=treatment, shape=plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
   geom_smooth(aes(x=redox.percent.formatted, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
-  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_CO2, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_CO2, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
@@ -1996,7 +2024,7 @@ co2.redox.regress.plot <- ggplot(soil.END.ghg)  +
     theme(axis.title=element_text(vjust=1,size=18),
           axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
           element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("CO"[2]," (add flux label)"))) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1}))) + 
     theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
           legend.position = "right")
 
@@ -2006,16 +2034,19 @@ co2.redox.regress.plot
 
 
 ```{r N2O redox regression }
-n2o.lm <- lm(f0_N2O ~ redox.percent.formatted, data=soil.END.ghg)
-summary(n2o.lm)
+n2o.lm.start <- lm(f0_N2O ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
+summary(n2o.lm.start)
 
-n2o.redox.regress.plot <- ggplot(soil.END.ghg)  +
-  geom_point(aes(x=redox.percent.formatted, y=f0_N2O, color=plant, shape = plant), size=5)+ 
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_fill_manual(values=c("#E69F00","#009E73")) +
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+n2o.lm.finish <- lm(f0_N2O ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "11-Aug")
+summary(n2o.lm.finish)
+
+n2o.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_N2O)  +
+  facet_wrap(~time, nrow = 1, ncol = 2)+
+                    geom_point(aes(x=redox.percent.formatted, y=f0_N2O, color=treatment, shape=plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
   geom_smooth(aes(x=redox.percent.formatted, y=f0_N2O), formula = y ~ x, method=lm, se=T, color="black")+
-  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_N2O, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_N2O, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "bottom",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
@@ -2023,12 +2054,13 @@ n2o.redox.regress.plot <- ggplot(soil.END.ghg)  +
     theme(axis.title=element_text(vjust=1,size=18),
           axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
           element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("N"[2],"O (add flux label)"))) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "IRIS Percent Paint Removed", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1}))) + 
     theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
           legend.position = "right")
 
 n2o.redox.regress.plot
 ```
+
 
 ```{r extract legend and save}
 leg_NPvP_reg <- get_legend(.n2o.redox.regress.plot, position = "bottom") #Extract legend as a legend Grob
@@ -2040,10 +2072,10 @@ legend_plot_NPvP_reg #View the plot
 
 
 ```{r Panel together GHG ~ redox regressions}
-.GHG_redox_3panel <- ggarrange(.ch4.redox.regress.plot, .co2.redox.regress.plot, .n2o.redox.regress.plot, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "none", common.legend = T)
+GHG_redox_3panel <- ggarrange(ch4.redox.regress.plot, co2.redox.regress.plot, n2o.redox.regress.plot, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
-.GHG_redox_3panel
+GHG_redox_3panel
 
-#ggsave("../figures/pub/_redox_regres.tiff", plot=.GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=10, height=10, dpi=900, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/redox_regres.tiff", plot=GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=10, height=10, dpi=900, limitsize=TRUE, bg="white")
 ```
 
