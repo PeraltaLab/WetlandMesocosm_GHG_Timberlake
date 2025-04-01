@@ -1325,7 +1325,7 @@ plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1371,7 +1371,7 @@ plot.CO2.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1419,7 +1419,7 @@ plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1427,7 +1427,7 @@ plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N
   theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
           axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="bottom", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("Dry", "Interim", "Wet"))+
@@ -1708,7 +1708,7 @@ CombPlot_flux
 
 ## GHG summary
 
-```{r GHG ppm summary ppm}
+```{r GHG summary}
 # Treatment and plant (tp):
 ghg.flux.summary.tp <- select_fluxes_combined_w_T0 %>%
   group_by(treatment, plant)%>%
@@ -1983,7 +1983,7 @@ summary(ch4.lm.finish)
 
 ch4.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_CH4)  +
   facet_wrap(~time, nrow = 1, ncol = 2)+
-                    geom_point(aes(x=redox.percent.formatted, y=f0_CH4, color=treatment, shape=plant), size = 2, position = position_jitterdodge()) +
+                    geom_point(aes(x=redox.percent.formatted, y=f0_CH4, color=treatment, shape=plant), size = 2) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
   geom_smooth(aes(x=redox.percent.formatted, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
@@ -1992,12 +1992,13 @@ ch4.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
           axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
           element_rect(colour = "black",size=1)) + 
     theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1}))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "right")
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))
 
 ch4.redox.regress.plot
 ```
@@ -2012,7 +2013,7 @@ summary(co2.lm.finish)
 
 co2.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_CO2)  +
   facet_wrap(~time, nrow = 1, ncol = 2)+
-                    geom_point(aes(x=redox.percent.formatted, y=f0_CO2, color=treatment, shape=plant), size = 2, position = position_jitterdodge()) +
+                    geom_point(aes(x=redox.percent.formatted, y=f0_CO2, color=treatment, shape=plant), size = 2) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
   geom_smooth(aes(x=redox.percent.formatted, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
@@ -2021,12 +2022,13 @@ co2.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
           axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
           element_rect(colour = "black",size=1)) + 
     theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1}))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "right")
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))
 
 co2.redox.regress.plot
 ```
@@ -2042,7 +2044,7 @@ summary(n2o.lm.finish)
 
 n2o.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_N2O)  +
   facet_wrap(~time, nrow = 1, ncol = 2)+
-                    geom_point(aes(x=redox.percent.formatted, y=f0_N2O, color=treatment, shape=plant), size = 2, position = position_jitterdodge()) +
+                    geom_point(aes(x=redox.percent.formatted, y=f0_N2O, color=treatment, shape=plant), size = 2) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
   geom_smooth(aes(x=redox.percent.formatted, y=f0_N2O), formula = y ~ x, method=lm, se=T, color="black")+
@@ -2051,31 +2053,22 @@ n2o.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
           axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
           element_rect(colour = "black",size=1)) + 
     theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "IRIS Percent Paint Removed", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1}))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "right")
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))
 
 n2o.redox.regress.plot
 ```
-
-
-```{r extract legend and save}
-leg_NPvP_reg <- get_legend(.n2o.redox.regress.plot, position = "bottom") #Extract legend as a legend Grob
-legend_plot_NPvP_reg <- as_ggplot(leg_NPvP_reg) #Asign the grob as a ggplot
-legend_plot_NPvP_reg #View the plot
-
-#ggsave("../figures/pub/Redox_Reg_legend.tiff", plot=legend_plot_NPvP_reg, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
-```
-
 
 ```{r Panel together GHG ~ redox regressions}
 GHG_redox_3panel <- ggarrange(ch4.redox.regress.plot, co2.redox.regress.plot, n2o.redox.regress.plot, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
 GHG_redox_3panel
 
-#ggsave("../figures/pub/redox_regres.tiff", plot=GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=10, height=10, dpi=900, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/redox_regres.png", plot=GHG_redox_3panel, device="png", path=NULL, scale=1, width=10, height=12, dpi=600, limitsize=TRUE, bg="white")
 ```
 
