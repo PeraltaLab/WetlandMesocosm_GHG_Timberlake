@@ -588,7 +588,9 @@ soil_Fe
 
 # Greenhouse gases (GHGs)
 
-```{r GHG T1 concentration analysis}
+## Wrangling, flux calculation, assumption testing
+
+```{r GHG wrangling}
 # Version of ghg with labels for T1 through T4 analysis:
 ghg2 <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv", header=TRUE)
 
@@ -950,6 +952,7 @@ select_fluxes_combined_w_T0 %>%
   # QQ plot:
 ggqqplot(select_fluxes_combined_w_T0, "f0_N2O", facet.by = "date_short")
 ```
+## Flux with T0: Kruskal and SDCFlig
 
 ```{r Kruskal-Wallis on flux with T0 treatment}
 # Will use DWASS-Steel-Critchlow-Fligner test for multiple comparisons, in package NSM3
