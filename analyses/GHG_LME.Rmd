@@ -1,6 +1,6 @@
 ---
-title: "TOWeR GHG microcosm experiment - Summer 2016"
-author: "Regina B. Bledsoe, Colin G. Finlay, Ariane L. Peralta"
+title: "Greenhouse gas flux linear mixed effects models"
+author: "Colin G. Finlay"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
@@ -23,6 +23,11 @@ require("MuMIn")
 require("AICcmodavg")
 require("emmeans")
 require("lme4")
+require("gasfluxes")
+require("rstatix")
+require("ggpubr")
+require("lattice")
+require("car")
 ```
 
 
@@ -358,12 +363,8 @@ select_fluxes_combined_w_T0$treatment <- ghg_ppm_filtered$treatment
 select_fluxes_combined_w_T0$history <- ghg_ppm_filtered$history
 ```
 
-```{r ANOVAS prep}
-# https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
-
+```{r set factors}
 # Make sure factors are factors: 
-
-  # ghg_ppm_filtered:
 ghg_ppm_filtered$chamber <- as.factor(ghg_ppm_filtered$chamber)
 
 select_fluxes_combined_w_T0$chamber <- ghg_ppm_filtered$chamber
@@ -373,7 +374,7 @@ select_fluxes_combined_w_T0$treatment <- as.factor(select_fluxes_combined_w_T0$t
 select_fluxes_combined_w_T0$history <- as.factor(select_fluxes_combined_w_T0$history)
 ```
 
-```{r ANOVA assumption testing: outliers}
+```{r assumption testing: outliers}
 # CH4
 Outliers_f0_CH4_w_T0 <- select_fluxes_combined_w_T0 %>%
   group_by(date_short) %>%
@@ -396,7 +397,7 @@ Outliers_f0_N2O_w_T0
   # There are extreme outliers.
 ```
   
-```{r ANOVA assumption testing: normality}
+```{r assumption testing: normality}
 # CH4
 select_fluxes_combined_w_T0 %>%
   group_by(date_short) %>%
@@ -435,56 +436,31 @@ lmer(distance ~ age + (age|Subject) + (0+nsex|Subject) +
      (0 + nsexage|Subject), data=Orthodont)
 ```
 
-
-
-```{r CH4 PPM Do we have normaility?}
-#First check the distribution of residuals --- not so great
-ch4.lm_ppm <- lmer(ch4_ppm~ (1|date) +(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
-
-summary(ch4.lm_ppm)
-confint(ch4.lm_ppm)
-p=profile(ch4.lm_ppm)
-xyplot(p)
-densityplot(p)
-#qqPlot(resid(ch4.lm_ppm), main="QQ Plot")
-shapiro.test(resid(ch4.lm_ppm))
-
-ghg_ppm_filtered$log.ch4 <- log(ghg_ppm_filtered$ch4_ppm) # Log transforming (all GHGs) for better normality
-
-ch4.lm_ppm <- lmer(log.ch4~ (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=TRUE)
-summary(ch4.lm_ppm)
-confint(ch4.lm_ppm)
-p=profile(ch4.lm_ppm)
-xyplot(p)
-densityplot(p)
-#qqplot(y = resid(ch4.lm_ppm), main="QQ Plot")
-shapiro.test(resid(ch4.lm_ppm))
-```
-
 ```{r CH4 PPM hyposthesis testing}
-ch4.lm1 <- lmer(log.ch4 ~ (1|date) + (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm1 <- lmer(f0_CH4 ~ (1|date_short) + (1|chamber) , data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm2 <- lmer(log.ch4~treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm2 <- lmer(f0_CH4~treatment + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm3 <- lmer(log.ch4~plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm3 <- lmer(f0_CH4~plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm4 <- lmer(log.ch4~treatment * plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm4 <- lmer(f0_CH4~treatment * plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm5 <- lmer(log.ch4~ history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm5 <- lmer(f0_CH4~ history + plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-#ch4.lm6 <- lmer(log.ch4 ~ (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+#ch4.lm6 <- lmer(f0_CH4 ~ (1|chamber) , data=select_fluxes_combined_w_T0, REML=FALSE)
 
-#ch4.lm7 <- lmer(log.ch4 ~ (1|date), data=ghg_ppm_filtered, REML=FALSE)
+#ch4.lm7 <- lmer(f0_CH4 ~ (1|date_short), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm8 <- lmer(log.ch4~ plant + treatment + history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm8 <- lmer(f0_CH4~ plant + treatment + history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm9 <- lmer(log.ch4~ history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm9 <- lmer(f0_CH4~ history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm10 <- lmer(log.ch4~ plant + treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm10 <- lmer(f0_CH4~ plant + treatment + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm11 <- lmer(log.ch4~ plant * history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm11 <- lmer(f0_CH4~ plant * history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-ch4.lm12 <- lmer(log.ch4~ treatment + history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+ch4.lm12 <- lmer(f0_CH4~ treatment + history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
+
 #This is a likelihood ratio test to get Chi squared value and p-value
 ##a <- anova(ch4.lm1, ch4.lm2, ch4.lm3,ch4.lm4,ch4.lm5, ch4.lm6, ch4.lm7, ch4.lm8, ch4.lm9, ch4.lm4a, ch4.lm7a, ch4.lm8a)
 ##a
@@ -515,7 +491,7 @@ confint.merMod(ch4.lm8, oldNames = FALSE)
 p=profile(ch4.lm8)
 xyplot(p)
 densityplot(p)
-#qqPlot(resid(ch4.lm8), main="QQ Plot")
+qqPlot(resid(ch4.lm8), main="QQ Plot")
 shapiro.test(resid(ch4.lm8))
 
 #Interaction not significant so did not run post hoc
@@ -538,54 +514,30 @@ shapiro.test(resid(ch4.lm8))
   #p
 ```
 
-
-```{r co2 PPM Do we have normality?}
-#First check the distribution of residuals --- not so great
-co2.lm_ppm <- lmer(co2_ppm~(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
-summary(co2.lm_ppm, ddf="Kenward-Roger")
-confint(co2.lm_ppm)
-p=profile(co2.lm_ppm)
-xyplot(p)
-densityplot(p)
-#qqPlot(resid(co2.lm_ppm), main="QQ Plot")
-shapiro.test(resid(co2.lm_ppm))
-
-ghg_ppm_filtered$log.co2 <- log(ghg_ppm_filtered$co2_ppm)
-
-co2.lm_ppm <- lmer(log.co2~(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
-summary(co2.lm_ppm, ddf="Kenward-Roger")
-confint(co2.lm_ppm)
-p=profile(co2.lm_ppm)
-xyplot(p)
-densityplot(p)
-#qqPlot(resid(co2.lm_ppm), main="QQ Plot")
-shapiro.test(resid(co2.lm_ppm))
-```
-
 ```{r co2 PPM hypothesis testing}
-co2.lm1 <- lmer(log.co2 ~ (1|date) + (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+co2.lm1 <- lmer(f0_CO2 ~ (1|date_short) + (1|chamber) , data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm2 <- lmer(log.co2~treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm2 <- lmer(f0_CO2~treatment + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm3 <- lmer(log.co2~plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm3 <- lmer(f0_CO2~plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm4 <- lmer(log.co2~treatment * plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm4 <- lmer(f0_CO2~treatment * plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm5 <- lmer(log.co2~ history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm5 <- lmer(f0_CO2~ history + plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-#co2.lm6 <- lmer(log.co2 ~ (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+#co2.lm6 <- lmer(f0_CO2 ~ (1|chamber) , data=select_fluxes_combined_w_T0, REML=FALSE)
 
-#co2.lm7 <- lmer(log.co2 ~ (1|date), data=ghg_ppm_filtered, REML=FALSE)
+#co2.lm7 <- lmer(f0_CO2 ~ (1|date_short), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm8 <- lmer(log.co2~ treatment + history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm8 <- lmer(f0_CO2~ treatment + history + plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm9 <- lmer(log.co2~ history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm9 <- lmer(f0_CO2~ history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm10 <- lmer(log.co2~ plant+ treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm10 <- lmer(f0_CO2~ plant+ treatment + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm11 <- lmer(log.co2~ plant* history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm11 <- lmer(f0_CO2~ plant* history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-co2.lm12 <- lmer(log.co2~ treatment +history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+co2.lm12 <- lmer(f0_CO2~ treatment +history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
 #This is a likelihood ratio test to get Chi squared value and p-value
 ##a <- anova(co2.lm1, co2.lm2, co2.lm3,co2.lm4,co2.lm5, co2.lm6, co2.lm7, co2.lm8, co2.lm9, co2.lm4a, co2.lm7a, co2.lm8a)
@@ -617,9 +569,9 @@ r.squaredGLMM(co2.lm12) #h+t
 summary(co2.lm4, ddf="Kenward-Roger")
 confint.merMod(co2.lm4, oldNames = FALSE)
 p=profile(co2.lm4)
-#xyplot(p)
+xyplot(p)
 densityplot(p)
-#qqPlot(resid(co2.lm4), main="QQ Plot")
+qqPlot(resid(co2.lm4), main="QQ Plot")
 shapiro.test(resid(co2.lm4))
 
 #Post hoc Tests
@@ -631,55 +583,30 @@ pairs(emm)
 multcomp::cld(emm, Letters=letters)
 ```
 
-
-```{r n2o PPM Do we have normality?}
-#First check the distribution of residuals --- not so great
-n2o.lm_ppm <- lmer(n2o_ppm~(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
-summary(n2o.lm_ppm, ddf="Kenward-Roger")
-confint(n2o.lm_ppm)
-p=profile(n2o.lm_ppm)
-#xyplot(p)
-#densityplot(p)
-#qqPlot(resid(n2o.lm_ppm), main="QQ Plot")
-shapiro.test(resid(n2o.lm_ppm))
-
-ghg_ppm_filtered$log.n2o <- log(ghg_ppm_filtered$n2o_ppm)
-
-#ghg.n2o <- ghg[-c(45,73, 111, 139),]
-n2o.lm_ppm <- lmer(log.n2o~(1|chamber), data=ghg_ppm_filtered, REML=TRUE)
-summary(n2o.lm_ppm, ddf="Kenward-Roger")
-confint(n2o.lm_ppm)
-p=profile(n2o.lm_ppm)
-#xyplot(p)
-densityplot(p)
-#qqPlot(resid(n2o.lm_ppm), main="QQ Plot")
-shapiro.test(resid(n2o.lm_ppm))
-```
-
 ```{r n2o hypothesis testing}
-n2o.lm1 <- lmer(log.n2o ~ (1|date) + (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm1 <- lmer(f0_N2O ~ (1|date_short) + (1|chamber) , data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm2 <- lmer(log.n2o~treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm2 <- lmer(f0_N2O~treatment + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm3 <- lmer(log.n2o~plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm3 <- lmer(f0_N2O~plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm4 <- lmer(log.n2o~treatment * plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm4 <- lmer(f0_N2O~treatment * plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm5 <- lmer(log.n2o~ history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm5 <- lmer(f0_N2O~ history + plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-#n2o.lm6 <- lmer(log.n2o ~ (1|chamber) , data=ghg_ppm_filtered, REML=FALSE)
+#n2o.lm6 <- lmer(f0_N2O ~ (1|chamber) , data=select_fluxes_combined_w_T0, REML=FALSE)
 
-#n2o.lm7 <- lmer(log.n2o ~ (1|date), data=ghg_ppm_filtered, REML=FALSE)
+#n2o.lm7 <- lmer(f0_N2O ~ (1|date_short), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm8 <- lmer(log.n2o~ treatment + history + plant + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm8 <- lmer(f0_N2O~ treatment + history + plant + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm9 <- lmer(log.n2o~ history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm9 <- lmer(f0_N2O~ history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm10 <- lmer(log.n2o~ plant + treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm10 <- lmer(f0_N2O~ plant + treatment + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm11 <- lmer(log.n2o~ plant * history + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm11 <- lmer(f0_N2O~ plant * history + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
-n2o.lm12 <- lmer(log.n2o~ history + treatment + (1|date) + (1|chamber), data=ghg_ppm_filtered, REML=FALSE)
+n2o.lm12 <- lmer(f0_N2O~ history + treatment + (1|date_short) + (1|chamber), data=select_fluxes_combined_w_T0, REML=FALSE)
 
 #This is a liklihood ratio test to get Chi squared value and p-value
 ##a <- anova(n2o.lm1, n2o.lm2, n2o.lm3,n2o.lm4,n2o.lm5, n2o.lm6, n2o.lm7, n2o.lm8, n2o.lm9, n2o.lm4a, n2o.lm7a, n2o.lm8a)
@@ -711,9 +638,9 @@ r.squaredGLMM(n2o.lm12)#h+t
 summary(n2o.lm10, ddf="Kenward-Roger")
 confint.merMod(n2o.lm10, oldNames = FALSE)
 p=profile(n2o.lm10)
-#xyplot(p)
+xyplot(p)
 densityplot(p)
-#qqPlot(resid(n2o.lm10), main="QQ Plot")
+qqPlot(resid(n2o.lm10), main="QQ Plot")
 shapiro.test(resid(n2o.lm10))
 
 emm <- emmeans(co2.lm10, ~ plant + treatment , adjust = "sidak")
@@ -772,23 +699,24 @@ ch4_R2s <- as.data.frame(ch4_R2s)
 co2_R2s <- as.data.frame(co2_R2s)
 n2o_R2s <- as.data.frame(n2o_R2s)
 
-# Transpose:
-#ch4_R2s <- t(ch4_R2s)
-#co2_R2s <- t(co2_R2s)
-#n2o_R2s <- t(n2o_R2s)
-
+# Label GHGs again to confirm rbind happens correctly:
 ch4_R2s$GHG <- c("CH4", "CH4", "CH4", "CH4", "CH4", "CH4", "CH4", "CH4", "CH4", "CH4")
 co2_R2s$GHG <- c("CO2","CO2","CO2","CO2", "CO2", "CO2", "CO2", "CO2", "CO2", "CO2")
 n2o_R2s$GHG <- c("N2O","N2O","N2O","N2O","N2O","N2O","N2O","N2O","N2O","N2O")
 
-LME_R2s_comb <- rbind(ch4_R2s, co2_R2s, n2o_R2s)
+# Add Modnames to R2 data frames:
+ch4_R2s$Modnames <- c("null", "treatment", "plant", "T*P", "H+P", "P+T+H", "H", "P+T", "P*H", "T+H")
+co2_R2s$Modnames <- c("null", "treatment", "plant", "T*P", "H+P", "P+T+H", "H", "P+T", "P*H", "T+H")
+n2o_R2s$Modnames <- c("null", "treatment", "plant", "T*P", "H+P", "P+T+H", "H", "P+T", "P*H", "T+H")
+  
+# Combine R2 data frames:
+LME_R2s_comb <- rbind(ch4_R2s, co2_R2s, n2o_R2s) 
 
 # all together:
-LME_RESULTS <- cbind(LME_comb, LME_R2s_comb)
+LME_RESULTS <- full_join(LME_comb, LME_R2s_comb, by = c("Modnames", "GHG"))
 
 # write.csv:
 #write.csv(LME_RESULTS, file = "../figures/pub/tables/LME_results.csv", row.names = T)
-
 ```
 
 
