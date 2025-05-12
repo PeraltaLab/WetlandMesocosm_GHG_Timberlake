@@ -1295,7 +1295,7 @@ CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O
 
 CombPlot_flux_NPvP
 
-#ggsave("../figures/pub/GHG_NPvP/Flux_NPvP.tiff", plot=CombPlot_flux_NPvP, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/GHG_NPvP/Figure3.tiff", plot=CombPlot_flux_NPvP, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 
 #ggsave("../figures/pub/GHG_NPvP/Flux_NPvP.png", plot=CombPlot_flux_NPvP, device="png", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
@@ -1446,7 +1446,7 @@ CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.
 
 CombPlot_flux_treat
 
-#ggsave("../figures/pub/GHG_Treatment/Flux_treatment.tiff", plot=CombPlot_flux_treat, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/GHG_Treatment/Figure4.tiff", plot=CombPlot_flux_treat, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 
 #ggsave("../figures/pub/GHG_Treatment/Flux_treatment.png", plot=CombPlot_flux_treat, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
@@ -1622,7 +1622,7 @@ CombPlot_flux_hist
 #ggsave("../figures/pub/GHG_history/Flux_history.png", plot=CombPlot_flux_hist, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
-## GHG flux plots for FeS manuscript (AEM00478-25)
+## GHG flux plots for FeS manuscript
 ```{r CH4}
 plot.CH4.flux <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CH4)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
