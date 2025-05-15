@@ -2282,7 +2282,7 @@ MetaG_pcoa_4panel_SSF <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("(
 
 MetaG_pcoa_4panel_SSF
 
-#ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 300)
+ggsave("../figures/pub/Figure6.tiff", plot = MetaG_pcoa_4panel_SSF, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 600)
 
 #ggsave("../figures/pub/metaG_pcoa4panel.jpg", plot = MetaG_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
 
