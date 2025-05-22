@@ -199,6 +199,7 @@ metaotu.ad
 # PCoA
 
 ```{r Calculate distance matrix and PCoA components without field, end samples only}
+# Bray-Curtis distance matrix:
 otu.2.rel.dist<-vegdist(otu.2.rel, method="bray")
 
 # Principal Coordinates Analysis
@@ -1700,12 +1701,17 @@ CombPlot_flux
 
 #ggsave("../figures/Fe_S_manuscript/GHG_flux/Flux.png", plot=CombPlot_flux, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
-## Figure for AP and Ardon proposal Feb 2025
+
+## Figures for AP and Ardon proposal Feb 2025
 ```{r wrangling 6.13 and 8.11}
 # subset for 8.11, no interim treatment
 select_fluxes_combined_w_T0_8.11_noI <- select_fluxes_combined_w_T0 %>% subset(date_short == "8/11" & treatment != "I")
 # remove interim treatment from 6.13 df
 select_fluxes_combined_w_T0_6.13_noI <- select_fluxes_combined_w_T0_6.13 %>% subset(treatment != "I")
+
+# subset for 8.11 with interim (for March 2025 attempt at 16S PCoA recalculation):
+select_fluxes_combined_w_T0_8.11 <- select_fluxes_combined_w_T0 %>% 
+  subset(date_short == "8/11")
 
 # Named vector for new labels
 plant_labels <- c("N" = "No Plant", "P" = "Plant")
@@ -1874,6 +1880,7 @@ CombPlot_prop25
 
 #ggsave("~/Desktop/PeraltaLab/TMG/FluxFigures_20250115/StartFinish_NP_P.png", plot=CombPlot_prop25, device="png", path=NULL, scale=1, width=14, height=14, dpi=600, limitsize=TRUE, bg="white")
 ```
+
 ### PCoA without interim
 
 ```{r wrangling}
@@ -2046,9 +2053,147 @@ plot16S_PCoA_noI
 
 #ggsave("../figures/pub/16S_PCoA.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
 
-ggsave("~/Desktop/PeraltaLab/TMG/PCoA_16S_noInterim.png", plot=plot16S_PCoA_noI, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=600, limitsize=TRUE)
+#ggsave("~/Desktop/PeraltaLab/TMG/PCoA_16S_noInterim.png", plot=plot16S_PCoA_noI, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=600, limitsize=TRUE)
 ```
 
+### PCoA with interim and GHGs on envfit
+
+```{r wrangling}
+soil.finish_FULL <- soil %>% 
+dplyr::select(-c(g.soil.kcl, no2.no3.mg.l, plant.c.percent, plant.n.percent, plant.dry.mass.g, HM., CEC.))
+
+# soil finish, only finish samples:
+soil.finish_FULL <- soil.finish_FULL %>%
+  filter(time == "finish")
+
+# make chamber row names
+rownames(soil.finish_FULL) <- soil.finish_FULL$chamber
+
+# remove design info and NOx column that has many NAs
+meta.env_FULL <- soil.finish_FULL[, -c(1:5)]
+
+# Add GHG fluxes from final timepoint, August 11
+meta.env_GHG <- cbind(meta.env_FULL, select_fluxes_combined_w_T0_8.11$f0_CH4, select_fluxes_combined_w_T0_8.11$f0_CO2, select_fluxes_combined_w_T0_8.11$f0_N2O)
+
+colnames(meta.env_GHG)[19:21] <- c("f0_CH4", "f0_CO2", "f0_N2O")
+
+
+# Now ready for new PCoA calculation without interim, then envfit to meta.env_GHG
+```
+
+```{r Calculate distance matrix and PCoA components without field, end samples only}
+# Bray-Curtis distance matrix:
+otu.2.rel.dist<-vegdist(otu.2.rel, method="bray")
+
+# Principal Coordinates Analysis
+otu.2.rel.dist.pcoa <- cmdscale(otu.2.rel.dist, k=2, eig=TRUE, add=TRUE)
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1a <- round(otu.2.rel.dist.pcoa$eig[1] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
+explainvar2a <- round(otu.2.rel.dist.pcoa$eig[2] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
+sum.eiga <- sum(explainvar1a, explainvar2a)
+
+explainvar1a #25% (rounding)
+explainvar2a #11% (rounding)
+```
+
+```{r plot PCoA without field, end samples only}
+all.equal(rownames(meta), rownames(otu.2.rel))
+# Set treatments
+treat1 <- as.factor(meta$history)
+droplevels(treat1)
+treat2 <- as.factor(meta$treatment)
+droplevels(treat2)
+#levels(treat2) <- c("I","W","D")
+treat3 <- as.factor(meta$plant)
+droplevels(treat3)
+
+pcoa.groups <- paste(meta$history, meta$treatment, meta$plant, sep = "_")
+
+pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.plant <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3))  #plant
+pcoa.trt <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) #treatment
+pcoa.history <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  #history 
+
+pcoa.trt <- ordered(pcoa.trt, levels=c("D", "I", "W"))
+pcoa.trt <-revalue(pcoa.trt, c("D"="Dry", "I"="Interim","W"="Wet"))
+
+pcoa.history <- ordered(pcoa.history, levels=c("D", "I", "W"))
+pcoa.history <-revalue(pcoa.history, c("D"="Dry", "I"="Interim","W"="Wet"))
+
+pcoa.plant <- ordered(pcoa.plant, levels=c("n", "p"))
+pcoa.plant <-revalue(pcoa.plant, c("n"="No Plant","p"="Plant"))
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_otu_DF <- as.data.frame(otu.2.rel.dist.pcoa$points)
+
+# envfit:
+fit<-envfit(pcoa_otu_DF, meta.env_GHG, perm=10000, na.rm=T, set.seed(42))
+A <-as.list(fit$vectors)
+vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.25) #Scale vector by correlation
+p<- as.data.frame(A$pvals)
+
+vec <- cbind(vec, p) 
+vec <-  subset(vec, A$pvals<=0.05) # alpha = 0.05
+
+# Create label column called "parm"
+vec$parm<-rownames(vec)
+vec$parm<-c("%C", "%N", "Mg", "Ca", "pH", "S", "Mn", "Fe", "Cu", "CEC") # Check that these readable labels match the originals
+
+# Add a column with nudges for nudge_x and nudge_y:
+vec$X_nudge <- c(-0.02, -0.02, -0.02, -0.01, -0.01, 0, -0.005, 0, 0.01, -0.02)
+vec$Y_nudge <- c(0, 0, 0, 0, 0, 0.01, -0.01, 0.02, 0, 0.02)
+
+# To use open and closed shapes, must create a combined category for History and Plant:
+history_plant_combined <- c(paste(pcoa.history, pcoa.plant, sep = "_"))
+
+#Make new PCoA data frame, then append experimental factors (plant, treatment, history) as new columns:
+pcoa.cent.dataframe.trts <- as.data.frame(pcoa.cent.dataframe)
+pcoa.cent.dataframe.trts$history <- as.factor(pcoa.history)
+pcoa.cent.dataframe.trts$trt <- as.factor(pcoa.trt)
+pcoa.cent.dataframe.trts$plant <- as.factor(pcoa.plant)
+pcoa.cent.dataframe.trts$history_plant <- as.factor(history_plant_combined)
+
+#Plotting:
+plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +   
+  geom_point(aes(shape = history_plant, color=pcoa.trt), size=5, stroke=2) +  
+  theme_bw() +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant") +
+  xlab("PCoA 1 (25%)") + ylab("PCoA 2 (11%)") + 
+  geom_segment(data=vec, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+  geom_text(data=vec, aes(x=V1, y=V2), label=vec$parm, nudge_x = vec$X_nudge, nudge_y = vec$Y_nudge, size=4, inherit.aes=F)+
+  ggtitle("") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=18), 
+          axis.text.x = element_text(size=18),  axis.text.y = element_text(size=18),
+          panel.border = element_rect(colour = "black", size=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=18)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(fill = guide_legend(override.aes=list(shape=21)))
+
+plot16S_PCoA
+
+#ggsave("../figures/pub/16S_PCoA.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=9.5, height=5, dpi=600, limitsize=TRUE)
+
+#ggsave("../figures/pub/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=600, limitsize=TRUE)
+```
 
 ## GHG summary
 

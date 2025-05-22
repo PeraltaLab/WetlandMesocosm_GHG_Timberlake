@@ -299,7 +299,7 @@ design <- design[match(sample_order, design$Sample), ]
 rownames(design2) <- design2$sample
 design2 <- design2[!(rownames(design2) %in% "MOCK"),]
 design2 <- design2[!(design2$source %in% "b"),]
-design2 <- design2[!(design2$source %in% "s"),] # Consider using start samples later (16S data?)
+design2 <- design2[!(design2$source %in% "s"),]
 
 #Bin genome IDs:
 Bin_genome_IDs <- read.csv("~/GitHub/WetlandMesocosm_GHG_Timberlake/data/metaG/Bins/Bin_Genome_IDs.csv")
@@ -1306,6 +1306,42 @@ summary(start.CH4_ox.dbplsr)
 finish.CH4_ox.dbplsr <- dbplsr(GHG_finish_metaG$f0_CH4 ~ as.matrix(CH4_oxBC_finish), ncomp = 15, method = "GCV")
 summary(finish.CH4_ox.dbplsr)
 #plot(finish.CH4_ox.dbplsr)
+
+# CO2 ~ central carbohydrate metabolism:
+start.carb_metab.dbplsr <- dbplsr(GHG_start_metaG_avg$f0_CO2 ~ as.matrix(carb_metabBC_start), ncomp = 7, method = "GCV")
+summary(start.carb_metab.dbplsr)
+#plot(start.carb_metab.dbplsr)
+
+finish.carb_metab.dbplsr <- dbplsr(GHG_finish_metaG$f0_CO2 ~ as.matrix(carb_metabBC_finish), ncomp = 15, method = "GCV")
+summary(finish.carb_metab.dbplsr)
+#plot(finish.carb_metab.dbplsr)
+
+# CO2 ~ Cytochrome C Oxidase:
+start.cytoCox.dbplsr <- dbplsr(GHG_start_metaG_avg$f0_CO2 ~ as.matrix(cytoCoxBC_start), ncomp = 7, method = "GCV")
+summary(start.cytoCox.dbplsr)
+#plot(start.cytoCox.dbplsr)
+
+finish.cytoCox.dbplsr <- dbplsr(GHG_finish_metaG$f0_CO2 ~ as.matrix(cytoCoxBC_finish), ncomp = 15, method = "GCV")
+summary(finish.cytoCox.dbplsr)
+#plot(finish.cytoCox.dbplsr)
+
+# CO2 ~ Denitrification:
+start.denit.dbplsr.co2 <- dbplsr(GHG_start_metaG_avg$f0_CO2 ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
+summary(start.denit.dbplsr.co2)
+#plot(start.denit.dbplsr.co2)
+
+finish.denit.dbplsr.co2 <- dbplsr(GHG_finish_metaG$f0_CO2 ~ as.matrix(denitBC_finish), ncomp = 15, method = "GCV")
+summary(finish.denit.dbplsr.co2)
+#plot(finish.denit.dbplsr.co2)
+
+# N2O ~ Denitrification:
+start.denit.dbplsr.n2o <- dbplsr(GHG_start_metaG_avg$f0_N2O ~ as.matrix(denitBC_start), ncomp = 7, method = "GCV")
+summary(start.denit.dbplsr.n2o)
+#plot(start.denit.dbplsr.n2o)
+
+finish.denit.dbplsr.n2o <- dbplsr(GHG_finish_metaG$f0_N2O ~ as.matrix(denitBC_finish), ncomp = 15, method = "GCV")
+summary(finish.denit.dbplsr.n2o)
+#plot(finish.denit.dbplsr.n2o)
 ```
 
 ```{r DBPLSR barplots}
@@ -1473,7 +1509,7 @@ A_denit_SSF <-as.list(fit_denit_SSF$vectors)
 vec_denit_SSF <- as.data.frame(fit_denit_SSF$vectors$arrows*sqrt(fit_denit_SSF$vectors$r)*0.15)
 p_denit_SSF <- as.data.frame(A_denit_SSF$pvals)
 vec_denit_SSF <- cbind(vec_denit_SSF, p_denit_SSF)
-vec_denit_SSF <- subset(vec_denit_SSF, A_denit_SSF$pvals<=0.05)
+vec_denit_SSF <- subset(vec_denit_SSF, A_denit_SSF$pvals<=0.1) # alpha = 0.1 for EcoSphere paper
 
 
 #Plot using ggplot2
@@ -1489,7 +1525,7 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_denit}%)")) + ylab(glue("PCoA 2 ({explainvar2b_denit}%)")) + 
   geom_segment(data=vec_denit_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_denit_SSF, aes(x=V1+0.04, y=V2), label= expression(paste("mg CO")), size=4, inherit.aes=F)+
+ geom_text(data=vec_denit_SSF, aes(x=V1-0.005, y=V2-0.005), label= expression(paste("CO"[2])), size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1612,8 +1648,6 @@ plot3a <- ggplot(df3a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 plot3a
 ```
 
-
-
 PCoA Methanogenesis, all factors, HISTORY AS SHAPE:
 ```{r PCoA: Methanogenesis; all factors}
 pcoa_meth <- cmdscale(methBC, k=2, eig=TRUE, add=TRUE)
@@ -1683,7 +1717,7 @@ A_meth_SSF <-as.list(fit_meth_SSF$vectors)
 vec_meth_SSF <- as.data.frame(fit_meth_SSF$vectors$arrows*sqrt(fit_meth_SSF$vectors$r)*0.15)
 p_meth_SSF <- as.data.frame(A_meth_SSF$pvals)
 vec_meth_SSF <- cbind(vec_meth_SSF, p_meth_SSF)
-vec_meth_SSF <- subset(vec_meth_SSF, A_meth_SSF$pvals<=0.05)
+vec_meth_SSF <- subset(vec_meth_SSF, A_meth_SSF$pvals<=0.1) # alpha = 0.1 for EcoSphere paper
 
 
 #Plot using ggplot2
@@ -1698,8 +1732,8 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_meth}%)")) + ylab(glue("PCoA 2 ({explainvar2b_meth}%)")) + 
-  #geom_segment(data=vec_meth_SSF, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha=0.4, inherit.aes=F)+ 
- #geom_text(data=vec_meth_SSF, aes(x=Dim1, y=Dim2), label= c(expression(paste("mg CH"[4],"-C m"^{-2}), "%moisture")), size=3, inherit.aes=F)+
+  geom_segment(data=vec_meth_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha=0.4, inherit.aes=F)+ 
+ geom_text(data=vec_meth_SSF, aes(x=V1, y=V2-0.005), label= "%moisture", size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1824,7 +1858,6 @@ plot3b <- ggplot(df3b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 plot3b
 ```
 
-
 PCoA central carbohydrate metabolism, all factors, HISTORY AS SHAPE:
 ```{r PCoA: central carbohydrate metabolism; all factors}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -1896,7 +1929,7 @@ A_carb_metab_SSF <-as.list(fit_carb_metab_SSF$vectors)
 vec_carb_metab_SSF <- as.data.frame(fit_carb_metab_SSF$vectors$arrows*sqrt(fit_carb_metab_SSF$vectors$r)*0.15)
 p_carb_metab_SSF <- as.data.frame(A_carb_metab_SSF$pvals)
 vec_carb_metab_SSF <- cbind(vec_carb_metab_SSF, p_carb_metab_SSF)
-vec_carb_metab_SSF <- subset(vec_carb_metab_SSF, A_carb_metab_SSF$pvals<=0.05)
+vec_carb_metab_SSF <- subset(vec_carb_metab_SSF, A_carb_metab_SSF$pvals<=0.1) # alpha = 0.1 for EcoSphere paper
 
 #Plot using ggplot2
 df2c <- as.data.frame(carb_metab_centroids_points_merged)
@@ -1911,7 +1944,7 @@ plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_carb_metab}%)")) + ylab(glue("PCoA 2 ({explainvar2b_carb_metab}%)")) + 
   geom_segment(data=vec_carb_metab_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_carb_metab_SSF, aes(x=V1-0.01, y=V2-0.005), label= expression(paste("CO"[2])), size=4, inherit.aes=F)+
+ geom_text(data=vec_carb_metab_SSF, aes(x=V1-0.01, y=V2-0.005), label= "%paint removed (redox)", size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -2035,7 +2068,6 @@ plot3c <- ggplot(df3c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 plot3c
 ```
 
-
 PCoA cytochrome C oxidase, all factors, HISTORY AS SHAPE:
 ```{r PCoA: cytochrome C oxidase; all factors}
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -2107,7 +2139,7 @@ A_cytoCox_SSF <-as.list(fit_cytoCox_SSF$vectors)
 vec_cytoCox_SSF <- as.data.frame(fit_cytoCox_SSF$vectors$arrows*sqrt(fit_cytoCox_SSF$vectors$r)*0.15)
 p_cytoCox_SSF <- as.data.frame(A_cytoCox_SSF$pvals)
 vec_cytoCox_SSF <- cbind(vec_cytoCox_SSF, p_cytoCox_SSF)
-vec_cytoCox_SSF <- subset(vec_cytoCox_SSF, A_cytoCox_SSF$pvals<=0.05)
+vec_cytoCox_SSF <- subset(vec_cytoCox_SSF, A_cytoCox_SSF$pvals<=0.1) # alpha = 0.1 for EcoSphere paper
 
 #Plot using ggplot2
 df2d <- as.data.frame(cytoCox_centroids_points_merged)
@@ -2242,27 +2274,17 @@ plot3d <- ggplot(df3d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
 
 plot3d
 ```
-```{r temporary for AP&Ardon proposal}
-MetaG_pcoa_2panel_SSF <- ggarrange(plot2b, plot2c, labels = c("A", "B"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
-
-MetaG_pcoa_2panel_SSF
-
-#ggsave("~/Desktop/PeraltaLab/TMG/TwoPanel_C_relatedPCoAs.png", plot = MetaG_pcoa_2panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 7, limitsize = TRUE, dpi = 600, bg = "white")
-```
-
 
 Create 4-panel figure of the 4 PCoA plots above:
 ```{r 4-panel PCoA plot}
-#require(ggpubr) #load in library for multi-panel figures (if not already loaded)
-
 # 4 panel metaG PCoA with History, start and finish sample (SSF)
-MetaG_pcoa_4panel_SSF <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
+MetaG_pcoa_4panel_SSF <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("(a)", "(b)", "(c)", "(d)"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
 
 MetaG_pcoa_4panel_SSF
 
-#ggsave("../figures/pub/metaG_pcoa4panel_H.tiff", plot = MetaG_pcoa_4panel_H, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 300)
+ggsave("../figures/pub/Figure6.tiff", plot = MetaG_pcoa_4panel_SSF, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 600)
 
-#ggsave("../figures/Thesis/metaG_pcoa4panel_SSF.jpg", plot = MetaG_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
+#ggsave("../figures/pub/metaG_pcoa4panel.jpg", plot = MetaG_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
 
 # 4 panel metaG PCoA with History, Finish samples only (SFO)
 
@@ -3974,66 +3996,7 @@ methane.dbplsr.envfit
 ```
 
 
-### More stats (PERMANOVA and Mantel)
-
-```{r PERMANOVA on Finish only gene sets}
-# this chunk is down here because *RA_FIN_design data frames were made in PCoAs. This chunk, and the creation of *RA_FIN_design data frames may be re positioned later.
-
-# Denit final:
-adonis_denit_FIN = adonis2(denitRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = denitRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_denit_FIN
-
-# Methanogenesis final:
-adonis_meth_FIN = adonis2(methRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = methRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_meth_FIN
-
-# Central Carb metab final:
-adonis_carb_metab_FIN = adonis2(carb_metabRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = carb_metabRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_carb_metab_FIN
-
-# CcO final:
-adonis_cytoCox_FIN = adonis2(cytoCoxRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = cytoCoxRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_cytoCox_FIN
-
-# Sulfate-S assim final:
-adonis_SO4_S_Assim_FIN = adonis2(SO4_S_AssimRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_S_AssimRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_SO4_S_Assim_FIN
-
-# Assimilatory sulfate reduction final:
-adonis_Assim_SO4_red_FIN = adonis2(Assim_SO4_redRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Assim_SO4_redRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_Assim_SO4_red_FIN
-
-# Dissimilatory sulfate reduction final:
-adonis_Dissim_SO4_red_FIN = adonis2(Dissim_SO4_redRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = Dissim_SO4_redRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_Dissim_SO4_red_FIN
-
-# Thiosulfate oxidaiton by SOX complex final:
-adonis_ThioSOX_FIN = adonis2(ThioSOXRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = ThioSOXRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_ThioSOX_FIN
-
-# FeGenie (total Fe genes) final:
-adonis_FeGenie_FIN = adonis2(FeGenieRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeGenieRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_FeGenie_FIN
-
-# Fe reduction final:
-adonis_FeReduction_FIN = adonis2(FeReductionRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = FeReductionRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_FeReduction_FIN
-
-# Sulfate reduction (combined) final:
-adonis_SO4_red_combined_FIN = adonis2(SO4_red_combinedRA_FIN_design[,-c(1:3)]~Plant*Hist + Plant*Treat, method = "bray", data = SO4_red_combinedRA_FIN_design, perm=10000, set.seed=42)
-
-adonis_SO4_red_combined_FIN
-```
+### Mantel tests
 
 ```{r Mantel tests}
 # Using Pat Schloss code club as reference: https://www.youtube.com/watch?v=EXNOgmUyPfY
@@ -4050,6 +4013,13 @@ mantel(denitBC, ThioSOXBC, permutations = 10000, set.seed(42))
 mantel(DNRABC, ThioSOXBC, permutations = 10000, set.seed(42))
 
 mantel(ANRABC, ThioSOXBC, permutations = 10000, set.seed(42))
+
+# Sulfate reduction ~ Methanogen
+mantel(methBC, SO4_red_combinedBC, permutations = 10000, set.seed(42))
+
+mantel(methBC, Assim_SO4_redBC, permutations = 10000, set.seed(42))
+
+mantel(methBC, Dissim_SO4_redBC, permutations = 10000, set.seed(42))
 ```
 
 ```{r Wrangling for hydrology-specific Mantel Tests}
@@ -4099,20 +4069,144 @@ FeReductionRA_DryTreat_BC <- FeReductionRA_DryTreat_design[,-c(1:3)] %>%
   vegdist(method = 'bray')
 ```
 
-```{r Hydrology-specific Mantel tests}
-# Sulfate reduction (combined) and Fe reduction (FeGenie) in Wet history:
-mantel(SO4_red_combinedRA_WetHist_BC, FeReductionRA_WetHist_BC, permutations = 10000, set.seed(42))
+```{r Wrangling sulfate reduction and methanogen}
+#Filter ASR, DSR, and Methanogen for wet history only:
+Assim_SO4_redRA_WetHist_design <- Assim_SO4_redRA_design %>% dplyr::filter(Hist == "w")
 
-# Sulfate reduction (combined) and Fe reduction (FeGenie) in Dry history:
-mantel(SO4_red_combinedRA_DryHist_BC, FeReductionRA_DryHist_BC, permutations = 10000, set.seed(42))
+Dissim_SO4_redRA_WetHist_design <- Dissim_SO4_redRA_design %>% dplyr::filter(Hist == "w")
 
-# Sulfate reduction (combined) and Fe reduction (FeGenie) in Wet treatment:
-mantel(SO4_red_combinedRA_WetTreat_BC, FeReductionRA_WetTreat_BC, permutations = 10000, set.seed(42))
+methRA_WetHist_design <- methRA_design %>% dplyr::filter(Hist == "w")
 
-# Sulfate reduction (combined) and Fe reduction (FeGenie) in Dry treatment:
-mantel(SO4_red_combinedRA_DryTreat_BC, FeReductionRA_DryTreat_BC, permutations = 10000, set.seed(42))
+#Filter ASR, DSR, and Methanogen for dry history only:
+Assim_SO4_redRA_DryHist_design <- Assim_SO4_redRA_design %>% dplyr::filter(Hist == "d")
+
+Dissim_SO4_redRA_DryHist_design <- Dissim_SO4_redRA_design %>% dplyr::filter(Hist == "d")
+
+methRA_DryHist_design <- methRA_design %>% dplyr::filter(Hist == "d")
+
+#Filter ASR, DSR, and Methanogen for wet treatment only:
+Assim_SO4_redRA_WetTreat_design <- Assim_SO4_redRA_design %>% dplyr::filter(Treat == "w")
+
+Dissim_SO4_redRA_WetTreat_design <- Dissim_SO4_redRA_design %>% dplyr::filter(Treat == "w")
+
+methRA_WetTreat_design <- methRA_design %>% dplyr::filter(Treat == "w")
+
+#Filter ASR, DSR, and Methanogen for dry treatment only:
+Assim_SO4_redRA_DryTreat_design <- Assim_SO4_redRA_design %>% dplyr::filter(Treat == "d")
+
+Dissim_SO4_redRA_DryTreat_design <- Dissim_SO4_redRA_design %>% dplyr::filter(Treat == "d")
+
+methRA_DryTreat_design <- methRA_design %>% dplyr::filter(Treat == "d")
+
+# Make Bray-Curtis distance matrices for numeric only data in new RA dfs:
+Assim_SO4_redRA_WetHist_BC <- Assim_SO4_redRA_WetHist_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+Dissim_SO4_redRA_WetHist_BC <- Dissim_SO4_redRA_WetHist_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+methRA_WetHist_BC <- methRA_WetHist_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+Assim_SO4_redRA_DryHist_BC <- Assim_SO4_redRA_DryHist_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+Dissim_SO4_redRA_DryHist_BC <- Dissim_SO4_redRA_DryHist_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+methRA_DryHist_BC <- methRA_DryHist_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+Assim_SO4_redRA_WetTreat_BC <- Assim_SO4_redRA_WetTreat_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+Dissim_SO4_redRA_WetTreat_BC <- Dissim_SO4_redRA_WetTreat_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+methRA_WetTreat_BC <- methRA_WetTreat_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+Assim_SO4_redRA_DryTreat_BC <- Assim_SO4_redRA_DryTreat_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+Dissim_SO4_redRA_DryTreat_BC <- Dissim_SO4_redRA_DryTreat_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
+
+methRA_DryTreat_BC <- methRA_DryTreat_design[,-c(1:3)] %>%
+  vegdist(method = 'bray')
 ```
 
+```{r Hydrology-specific Mantel tests Fe red and combined sulfate red}
+# Fe reduction (FeGenie) and Sulfate reduction (combined) in Wet history:
+mantel(FeReductionRA_WetHist_BC, SO4_red_combinedRA_WetHist_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (combined) in Dry history:
+mantel(FeReductionRA_DryHist_BC, SO4_red_combinedRA_DryHist_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (combined) in Wet treatment:
+mantel(FeReductionRA_WetTreat_BC, SO4_red_combinedRA_WetTreat_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (combined) in Dry treatment:
+mantel(FeReductionRA_DryTreat_BC, SO4_red_combinedRA_DryTreat_BC, permutations = 10000, set.seed(42))
+```
+
+```{r Hydrology-specific Mantel tests Fe red and Assim sulfate red}
+# Fe reduction (FeGenie) and Sulfate reduction (assimilatory) in Wet history:
+mantel(FeReductionRA_WetHist_BC, Assim_SO4_redRA_WetHist_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (assimilatory) in Dry history:
+mantel(FeReductionRA_DryHist_BC, Assim_SO4_redRA_DryHist_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (assimilatory) in Wet treatment:
+mantel(FeReductionRA_WetTreat_BC, Assim_SO4_redRA_WetTreat_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (assimilatory) in Dry treatment:
+mantel(FeReductionRA_DryTreat_BC, Assim_SO4_redRA_DryTreat_BC, permutations = 10000, set.seed(42))
+```
+
+```{r Hydrology-specific Mantel tests Fe red and Dissim sulfate red}
+# Fe reduction (FeGenie) and Sulfate reduction (dissimilatory) in Wet history:
+mantel(FeReductionRA_WetHist_BC, Dissim_SO4_redRA_WetHist_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (dissimilatory) in Dry history:
+mantel(FeReductionRA_DryHist_BC, Dissim_SO4_redRA_DryHist_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (dissimilatory) in Wet treatment:
+mantel(FeReductionRA_WetTreat_BC, Dissim_SO4_redRA_WetTreat_BC, permutations = 10000, set.seed(42))
+
+# Fe reduction (FeGenie) and Sulfate reduction (dissimilatory) in Dry treatment:
+mantel(FeReductionRA_DryTreat_BC, Dissim_SO4_redRA_DryTreat_BC, permutations = 10000, set.seed(42))
+```
+
+```{r Hydrology-specific Mantel tests sulfate red and Methanogen}
+# Methanogenesis and sulfate reduction in Wet history:
+mantel(methRA_WetHist_BC, SO4_red_combinedRA_WetHist_BC, permutations = 10000, set.seed(42))
+
+mantel(methRA_WetHist_BC, Assim_SO4_redRA_WetHist_BC, permutations = 10000, set.seed(42))
+
+mantel(methRA_WetHist_BC, Dissim_SO4_redRA_WetHist_BC, permutations = 10000, set.seed(42))
+
+# Methanogenesis and sulfate reduction in Dry history:
+mantel(methRA_DryHist_BC, SO4_red_combinedRA_DryHist_BC, permutations = 10000, set.seed(42))
+
+mantel(methRA_DryHist_BC, Assim_SO4_redRA_DryHist_BC, permutations = 10000, set.seed(42))
+
+mantel(methRA_DryHist_BC, Dissim_SO4_redRA_DryHist_BC, permutations = 10000, set.seed(42))
+
+# Methanogenesis and sulfate reduction in Wet treatment:
+mantel(methRA_WetTreat_BC, SO4_red_combinedRA_WetTreat_BC, permutations = 10000, set.seed(42))
+
+mantel(methRA_WetTreat_BC, Assim_SO4_redRA_WetTreat_BC, permutations = 10000, set.seed(42))
+
+mantel(methRA_WetTreat_BC, Dissim_SO4_redRA_WetTreat_BC, permutations = 10000, set.seed(42))
+
+# Methanogenesis and sulfate reduction in Dry treatment:
+mantel(methRA_DryTreat_BC, SO4_red_combinedRA_DryTreat_BC, permutations = 10000, set.seed(42))
+
+mantel(methRA_DryTreat_BC, Assim_SO4_redRA_DryTreat_BC, permutations = 10000, set.seed(42))
+
+mantel(methRA_DryTreat_BC, Dissim_SO4_redRA_DryTreat_BC, permutations = 10000, set.seed(42))
+```
 
 
 ```{r Plotting BC correlation}
@@ -4134,6 +4228,10 @@ Assim_SO4_redBC_tbl <- Assim_SO4_redBC %>%
   as_tibble(rownames="A") %>%
   pivot_longer(-A, names_to = "B", values_to = "bray_Assim_SO4")
 
+#Dissim_SO4_red
+
+#meth
+
 # combine the respective tibbles:
 combined_BC_tbls <- inner_join(FeReductionBC_tbl, SO4_red_combinedBC_tbl, by=c("A", "B")) # not sure if I need this.
 
@@ -4151,6 +4249,14 @@ combined_BC_FeRed_AssSO4 %>%
   ggplot(aes(x=bray_Fe, y=bray_Assim_SO4)) +
   geom_point()+
   geom_smooth(se=FALSE)
+
+# DSR ~ FeR
+
+# ASR ~ Meth
+
+# DSR ~ Meth
+
+# (hydrology-specifics)
 ```
 
 

@@ -42,6 +42,7 @@ require("multcompView")
 require("gasfluxes")
 require("rstatix")
 require("NSM3")
+require("ggpmisc")
 ```
 
 ```{r Phyloseq install and load}
@@ -195,125 +196,7 @@ metaotu <- cbind(meta, otu.2.rel)
 metaotu.ad <- adonis2(metaotu[,-c(1:9)] ~ plant * history + plant * treatment, method = "bray", data = metaotu, perm=10000, set.seed=42, by = "terms")
 metaotu.ad 
 ```
-# PCoA
 
-```{r Calculate distance matrix and PCoA components without field, end samples only}
-otu.2.rel.dist<-vegdist(otu.2.rel, method="bray")
-
-# Principal Coordinates Analysis
-otu.2.rel.dist.pcoa <- cmdscale(otu.2.rel.dist, k=3, eig=TRUE, add=FALSE)
-# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
-# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
-
-explainvar1a <- round(otu.2.rel.dist.pcoa$eig[1] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
-explainvar2a <- round(otu.2.rel.dist.pcoa$eig[2] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
-sum.eiga <- sum(explainvar1a, explainvar2a)
-
-explainvar1a #25% (rounding)
-explainvar2a #11% (rounding)
-```
-
-```{r plot PCoA without field, end samples only}
-all.equal(rownames(meta), rownames(otu.2.rel))
-# Set treatments
-treat1 <- as.factor(meta$history)
-droplevels(treat1)
-treat2 <- as.factor(meta$treatment)
-droplevels(treat2)
-#levels(treat2) <- c("I","W","D")
-treat3 <- as.factor(meta$plant)
-droplevels(treat3)
-
-pcoa.groups <- paste(meta$history, meta$treatment, meta$plant, sep = "_")
-
-pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
-
-# Calculate Centroids (mean and SE)
-pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
-pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
-pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
-pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
-
-# Combine
-pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
-colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
-pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
-
-pcoa.plant <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3))  #plant
-pcoa.trt <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) #treatment
-pcoa.history <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  #history 
-
-pcoa.trt <- ordered(pcoa.trt, levels=c("D", "I", "W"))
-pcoa.trt <-revalue(pcoa.trt, c("D"="Dry", "I"="Interim","W"="Wet"))
-
-pcoa.history <- ordered(pcoa.history, levels=c("D", "I", "W"))
-pcoa.history <-revalue(pcoa.history, c("D"="Dry", "I"="Interim","W"="Wet"))
-
-pcoa.plant <- ordered(pcoa.plant, levels=c("n", "p"))
-pcoa.plant <-revalue(pcoa.plant, c("n"="No Plant","p"="Plant"))
-
-soil.finish <- soil %>% 
-dplyr::select(chamber, time, treatment, moisture.percent, pH, nh4.mg.l, no2.no3.mg.l, c.percent, n.percent, P.ppm, K.ppm, Mg.ppm, S.ppm, Fe.ppm, Mn.ppm, HM, CEC)
-
-c<-cor(soil.finish[, -c(1:3,7)]) #design fields and no3 because many missing values
-c<-cor(soil.finish[, -c(1:3,7,9,12,14,17)]) # %N Mg Fe CEC
-
-# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
-pcoa_otu_DF <- as.data.frame(otu.2.rel.dist.pcoa$points)
-
-# envfit:
-meta.env <- soil.finish[, -c(1:3,7,9,12,14,17)]
-fit<-envfit(pcoa_otu_DF, meta.env, perm=1000,na.rm=T, set.seed(42))
-A <-as.list(fit$vectors)
-vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.25) #Scale vector by correlation
-p<- as.data.frame(A$pvals)
-
-vec <- cbind(vec, p) 
-vec <-  subset(vec, A$pvals<=0.05)
-
-vec$parm<-rownames(vec)
-colnames(vec)
-rownames(vec)
-vec$parm<-c("pH", "%C", "S", "Mn") # Check that these readable labels match the originals
-
-# To use open and closed shapes, must create a combined category for History and Plant:
-history_plant_combined <- c(paste(pcoa.history, pcoa.plant, sep = "_"))
-
-#Make new PCoA data frame, then append experimental factors (plant, treatment, history) as new columns:
-pcoa.cent.dataframe.trts <- as.data.frame(pcoa.cent.dataframe)
-pcoa.cent.dataframe.trts$history <- as.factor(pcoa.history)
-pcoa.cent.dataframe.trts$trt <- as.factor(pcoa.trt)
-pcoa.cent.dataframe.trts$plant <- as.factor(pcoa.plant)
-pcoa.cent.dataframe.trts$history_plant <- as.factor(history_plant_combined)
-
-#Plotting:
-plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +   
-  geom_point(aes(shape = history_plant, color=pcoa.trt), size=5, stroke=2) +  
-  theme_bw() +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
-  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant") +
-  xlab("PCoA 1 (25%)") + ylab("PCoA 2 (11%)") + 
-  geom_segment(data=vec, aes(x=0,xend=V1,y=0,yend=V2), size=1, arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
-  #Label soil vectors 
-  geom_text(data=vec,aes(x=V1-0.014,y=V2+0.011,label=parm),size=5, inherit.aes=F)+
-  ggtitle("") + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  theme(panel.background = element_blank()) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=18), 
-          axis.text.x = element_text(size=18),  axis.text.y = element_text(size=18),
-          panel.border = element_rect(colour = "black", size=1.25)) +
-  theme(axis.ticks.length=unit(0.3,"cm")) + 
-  theme(plot.title=element_text(size=18)) +
-  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
-  guides(fill = guide_legend(override.aes=list(shape=21)))
-
-plot16S_PCoA
-
-#ggsave("../figures/pub/16S_PCoA.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=9.5, height=5, dpi=900, limitsize=TRUE)
-
-#ggsave("../figures/pub/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=300, limitsize=TRUE)
-```
 # Indicator species
 
 ```{r read and clean taxonomy file}
@@ -705,7 +588,9 @@ soil_Fe
 
 # Greenhouse gases (GHGs)
 
-```{r GHG T1 concentration analysis}
+## Wrangling, flux calculation, assumption testing
+
+```{r GHG wrangling}
 # Version of ghg with labels for T1 through T4 analysis:
 ghg2 <- read.csv("../data/TMG_GHG-Flux_Pub_3.csv", header=TRUE)
 
@@ -735,7 +620,7 @@ ghg_ppm$date_short <- str_remove(ghg_ppm$date_short, "/2016")
 ```
 
 ```{r Calculate T0s from WRC static chamber monitoring}
-# will attempt to use results from monthly WRC static chamber to calculate average T0. Then calculate fluxes from TMG mesocosms.
+# Will use results from monthly WRC static chamber to calculate average T0. Then calculate fluxes from TMG mesocosms.
 
 # read in compiled T0 data:
 WRC_T0s <- read.csv("../data/WRC_T0s_for_TMG_ambient_calculation.csv")
@@ -1067,6 +952,7 @@ select_fluxes_combined_w_T0 %>%
   # QQ plot:
 ggqqplot(select_fluxes_combined_w_T0, "f0_N2O", facet.by = "date_short")
 ```
+## Flux with T0: Kruskal and SDCFlig
 
 ```{r Kruskal-Wallis on flux with T0 treatment}
 # Will use DWASS-Steel-Critchlow-Fligner test for multiple comparisons, in package NSM3
@@ -1080,7 +966,7 @@ kruskal_CH4_6.28_w_T0
 
   # Pairwise comparisons:
     # Must subset 6/28:
-select_fluxes_combined_w_T0_6.28 <- select_fluxes_combined_w_T0 %>% filter(date_short == "7/25")
+select_fluxes_combined_w_T0_6.28 <- select_fluxes_combined_w_T0 %>% filter(date_short == "6/28")
 
 SDCFlig_CH4_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_6.28$f0_CH4, g = select_fluxes_combined_w_T0_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
 SDCFlig_CH4_6.28_w_T0
@@ -1117,7 +1003,7 @@ kruskal_CO2_6.28_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2
 kruskal_CO2_6.28_w_T0
 
   # Pairwise comparisons:
-SDCFlig_CO2_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0$f0_CO2, g = select_fluxes_combined_w_T0$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CO2_6.28_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_6.28$f0_CO2, g = select_fluxes_combined_w_T0_6.28$treatment, method = "Monte Carlo", n.mc = 10000)
 SDCFlig_CO2_6.28_w_T0
 
 kruskal_CO2_7.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "7/11")
@@ -1127,7 +1013,7 @@ kruskal_CO2_7.25_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2
 kruskal_CO2_7.25_w_T0
 
   # Pairwise comparisons:
-SDCFlig_CO2_7.25_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0$f0_CO2, g = select_fluxes_combined_w_T0$treatment, method = "Monte Carlo", n.mc = 10000)
+SDCFlig_CO2_7.25_w_T0 <- pSDCFlig(x = select_fluxes_combined_w_T0_7.25$f0_CO2, g = select_fluxes_combined_w_T0_7.25$treatment, method = "Monte Carlo", n.mc = 10000)
 SDCFlig_CO2_7.25_w_T0
 
 kruskal_CO2_8.11_w_T0 <- kruskal.test(data = select_fluxes_combined_w_T0, f0_CO2 ~ treatment, subset = date_short == "8/11")
@@ -1227,6 +1113,77 @@ select_fluxes_combined_w_T0$date_format <- factor(select_fluxes_combined_w_T0$da
 ```
 
 ## Flux with T0: Plant vs. No Plant
+```{r wilcox tests long format}
+# June 13th time point:
+  # CH4:
+CH4_wilcox_6.13 <- wilcox.test(select_fluxes_combined_w_T0_6.13$f0_CH4[select_fluxes_combined_w_T0_6.13$plant == "N"], select_fluxes_combined_w_T0_6.13$f0_CH4[select_fluxes_combined_w_T0_6.13$plant == "P"], data = select_fluxes_combined_w_T0_6.13, paired = T)
+CH4_wilcox_6.13
+ 
+ # CO2:
+CO2_wilcox_6.13 <- wilcox.test(select_fluxes_combined_w_T0_6.13$f0_CO2[select_fluxes_combined_w_T0_6.13$plant == "N"], select_fluxes_combined_w_T0_6.13$f0_CO2[select_fluxes_combined_w_T0_6.13$plant == "P"], data = select_fluxes_combined_w_T0_6.13, paired = T)
+CO2_wilcox_6.13
+
+  # N2O:
+N2O_wilcox_6.13 <- wilcox.test(select_fluxes_combined_w_T0_6.13$f0_N2O[select_fluxes_combined_w_T0_6.13$plant == "N"], select_fluxes_combined_w_T0_6.13$f0_N2O[select_fluxes_combined_w_T0_6.13$plant == "P"], data = select_fluxes_combined_w_T0_6.13, paired = T)
+N2O_wilcox_6.13
+
+# June 28th time point:
+  # CH4:
+CH4_wilcox_6.28 <- wilcox.test(select_fluxes_combined_w_T0_6.28$f0_CH4[select_fluxes_combined_w_T0_6.28$plant == "N"], select_fluxes_combined_w_T0_6.28$f0_CH4[select_fluxes_combined_w_T0_6.28$plant == "P"], data = select_fluxes_combined_w_T0_6.28, paired = T)
+CH4_wilcox_6.28
+
+  # CO2:
+CO2_wilcox_6.28 <- wilcox.test(select_fluxes_combined_w_T0_6.28$f0_CO2[select_fluxes_combined_w_T0_6.28$plant == "N"], select_fluxes_combined_w_T0_6.28$f0_CO2[select_fluxes_combined_w_T0_6.28$plant == "P"], data = select_fluxes_combined_w_T0_6.28, paired = T)
+CO2_wilcox_6.28
+
+  # N2O:
+N2O_wilcox_6.28 <- wilcox.test(select_fluxes_combined_w_T0_6.28$f0_N2O[select_fluxes_combined_w_T0_6.28$plant == "N"], select_fluxes_combined_w_T0_6.28$f0_N2O[select_fluxes_combined_w_T0_6.28$plant == "P"], data = select_fluxes_combined_w_T0_6.28, paired = T)
+N2O_wilcox_6.28
+
+# July 11th time point:
+  # CH4:
+CH4_wilcox_7.11 <- wilcox.test(select_fluxes_combined_w_T0_7.11$f0_CH4[select_fluxes_combined_w_T0_7.11$plant == "N"], select_fluxes_combined_w_T0_7.11$f0_CH4[select_fluxes_combined_w_T0_7.11$plant == "P"], data = select_fluxes_combined_w_T0_7.11, paired = T)
+CH4_wilcox_7.11
+
+  # CO2:
+CO2_wilcox_7.11 <- wilcox.test(select_fluxes_combined_w_T0_7.11$f0_CO2[select_fluxes_combined_w_T0_7.11$plant == "N"], select_fluxes_combined_w_T0_7.11$f0_CO2[select_fluxes_combined_w_T0_7.11$plant == "P"], data = select_fluxes_combined_w_T0_7.11, paired = T)
+CO2_wilcox_7.11
+
+  # N2O:
+N2O_wilcox_7.11 <- wilcox.test(select_fluxes_combined_w_T0_7.11$f0_N2O[select_fluxes_combined_w_T0_7.11$plant == "N"], select_fluxes_combined_w_T0_7.11$f0_N2O[select_fluxes_combined_w_T0_7.11$plant == "P"], data = select_fluxes_combined_w_T0_7.11, paired = T)
+N2O_wilcox_7.11
+
+# July 25th time point:
+  # CH4:
+CH4_wilcox_7.25 <- wilcox.test(select_fluxes_combined_w_T0_7.25$f0_CH4[select_fluxes_combined_w_T0_7.25$plant == "N"], select_fluxes_combined_w_T0_7.25$f0_CH4[select_fluxes_combined_w_T0_7.25$plant == "P"], data = select_fluxes_combined_w_T0_7.25, paired = T)
+CH4_wilcox_7.25
+
+  # CO2:
+CO2_wilcox_7.25 <- wilcox.test(select_fluxes_combined_w_T0_7.25$f0_CO2[select_fluxes_combined_w_T0_7.25$plant == "N"], select_fluxes_combined_w_T0_7.25$f0_CO2[select_fluxes_combined_w_T0_7.25$plant == "P"], data = select_fluxes_combined_w_T0_7.25, paired = T)
+CO2_wilcox_7.25
+
+  # N2O:
+N2O_wilcox_7.25 <- wilcox.test(select_fluxes_combined_w_T0_7.25$f0_N2O[select_fluxes_combined_w_T0_7.25$plant == "N"], select_fluxes_combined_w_T0_7.25$f0_N2O[select_fluxes_combined_w_T0_7.25$plant == "P"], data = select_fluxes_combined_w_T0_7.25, paired = T)
+N2O_wilcox_7.25
+
+# August 11th time point:
+  # Make subset of select_fluxes_combined:
+select_fluxes_combined_w_T0_8.11 <- select_fluxes_combined_w_T0 %>% filter(date_short == "8/11")
+
+  # CH4:
+CH4_wilcox_8.11 <- wilcox.test(select_fluxes_combined_w_T0_8.11$f0_CH4[select_fluxes_combined_w_T0_8.11$plant == "N"], select_fluxes_combined_w_T0_8.11$f0_CH4[select_fluxes_combined_w_T0_8.11$plant == "P"], data = select_fluxes_combined_w_T0_8.11, paired = T)
+CH4_wilcox_8.11
+
+  # CO2:
+CO2_wilcox_8.11 <- wilcox.test(select_fluxes_combined_w_T0_8.11$f0_CO2[select_fluxes_combined_w_T0_8.11$plant == "N"], select_fluxes_combined_w_T0_8.11$f0_CO2[select_fluxes_combined_w_T0_8.11$plant == "P"], data = select_fluxes_combined_w_T0_8.11, paired = T)
+CO2_wilcox_8.11
+
+  # N2O:
+N2O_wilcox_8.11 <- wilcox.test(select_fluxes_combined_w_T0_8.11$f0_N2O[select_fluxes_combined_w_T0_8.11$plant == "N"], select_fluxes_combined_w_T0_8.11$f0_N2O[select_fluxes_combined_w_T0_8.11$plant == "P"], data = select_fluxes_combined_w_T0_8.11, paired = T)
+N2O_wilcox_8.11
+```
+
+
 ```{r CH4 flux w T0 NP vs. P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
 CH4_wilcox<- compare_means(f0_CH4~plant, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", paired = T)
@@ -1258,15 +1215,14 @@ plot.CH4.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_CH4)
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
   coord_cartesian(ylim = c(-16, 50)) +  # Use coord_cartesian to limit y-axis range
-  #stat_compare_means(data = select_fluxes_combined_w_T0, method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
-  stat_pvalue_manual(data = CH4_wilcox.DF, comparisons = list(c("N", "P")), label = "p.signif", size = 10, hide.ns = "p", y.position = 45, step.group.by = "date_format", bracket.size = 0)
+  stat_pvalue_manual(data = CH4_wilcox.DF, comparisons = list(c("N", "P")), label = "p.signif", size = 10, hide.ns = "p", y.position = 45, step.group.by = "date_format", bracket.size = 0) # Must use manual b/c outlier zoom in
  
 plot.CH4.flux.NPvP
 ```
 
 ```{r CO2 flux NP vs P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
-CO2_wilcox<- compare_means(f0_CO2~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
+CO2_wilcox<- compare_means(f0_CO2~plant, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", paired = T)
 
 # Turn into data frame:
 CO2_wilcox.DF <- as.data.frame(CO2_wilcox)
@@ -1301,7 +1257,7 @@ plot.CO2.flux.NPvP
 
 ```{r N2O flux NP vs. P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
-N2O_wilcox<- compare_means(f0_N2O~plant, select_fluxes_combined_w_T0, group.by="date_short", method = "wilcox.test", paired = T)
+N2O_wilcox<- compare_means(f0_N2O~plant, select_fluxes_combined_w_T0, group.by="date_format", method = "wilcox.test", paired = T)
 
 # Turn into data frame:
 N2O_wilcox.DF <- as.data.frame(N2O_wilcox)
@@ -1335,11 +1291,11 @@ plot.N2O.flux.NPvP
 ```
 
 ```{r Combined GHG Boxplot}
-CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
+CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
 CombPlot_flux_NPvP
 
-#ggsave("../figures/pub/GHG_NPvP/Flux_NPvP.tiff", plot=CombPlot_flux_NPvP, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/GHG_NPvP/Figure3.tiff", plot=CombPlot_flux_NPvP, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 
 #ggsave("../figures/pub/GHG_NPvP/Flux_NPvP.png", plot=CombPlot_flux_NPvP, device="png", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
@@ -1372,7 +1328,7 @@ plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1418,7 +1374,7 @@ plot.CO2.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                      geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1466,7 +1422,7 @@ plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1474,7 +1430,7 @@ plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N
   theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
           axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="bottom", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("Dry", "Interim", "Wet"))+
@@ -1486,16 +1442,22 @@ plot.N2O.flux.Trt
 ```
 
 ```{r Combined GHG Boxplot}
-CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
+CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
 CombPlot_flux_treat
 
-#ggsave("../figures/pub/GHG_Treatment/Flux_treatment.tiff", plot=CombPlot_flux_treat, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/GHG_Treatment/Figure4.tiff", plot=CombPlot_flux_treat, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 
 #ggsave("../figures/pub/GHG_Treatment/Flux_treatment.png", plot=CombPlot_flux_treat, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
-```{r Kruskal-Wallis table}
+```{r Wilcox and Kruskal-Wallis tables}
+# Rbind the 3 Wilcox tables:
+Wilcox_comb <- rbind(CH4_wilcox.DF, CO2_wilcox.DF, N2O_wilcox.DF)
+
+# Write .csv: 
+#write.csv(Wilcox_comb, file = "../figures/pub/tables/Kruskal_Treatment/Wilcox_comb.csv", row.names = T)
+
 # Rbind the 3 Kruskal-Wallis tables:
 Kruskal_comb <- rbind(CH4_kruskal, CO2_kruskal, N2O_kruskal)
 
@@ -1660,7 +1622,7 @@ CombPlot_flux_hist
 #ggsave("../figures/pub/GHG_history/Flux_history.png", plot=CombPlot_flux_hist, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
-## GHG flux plots for FeS manuscript (new)
+## GHG flux plots for FeS manuscript
 ```{r CH4}
 plot.CH4.flux <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CH4)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
@@ -1737,18 +1699,8 @@ plot.N2O.flux <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N2O))
 plot.N2O.flux
 ```
 
-```{r extract and save legend}
-leg_Flux_P_Trt <- get_legend(plot.CH4.flux, position = "top") #Extract legend as a legend Grob
-legend_plot_Flux_P_Trt <- as_ggplot(leg_Flux_P_Trt) #Asign the grob as a ggplot
-legend_plot_Flux_P_Trt #View the plot
-
-#ggsave("../figures/Fe_S_manuscript/GHG_flux/legend_flux.tiff", plot=legend_plot_Flux_P_Trt, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
-```
-
-
-
 ```{r Combined GHG Boxplot}
-CombPlot_flux <- ggarrange(plot.CH4.flux, plot.CO2.flux, plot.N2O.flux, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", align = "hv")
+CombPlot_flux <- ggarrange(plot.CH4.flux, plot.CO2.flux, plot.N2O.flux, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
 CombPlot_flux
 
@@ -1757,354 +1709,214 @@ CombPlot_flux
 #ggsave("../figures/Fe_S_manuscript/GHG_flux/Flux.png", plot=CombPlot_flux, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
-## Figure for AP and Ardon proposal Feb 2025
-```{r wrangling 6.13 and 8.11}
-# subset for 8.11, no interim treatment
-select_fluxes_combined_w_T0_8.11_noI <- select_fluxes_combined_w_T0 %>% subset(date_short == "8/11" & treatment != "I")
-# remove interim treatment from 6.13 df
-select_fluxes_combined_w_T0_6.13_noI <- select_fluxes_combined_w_T0_6.13 %>% subset(treatment != "I")
-
-# Named vector for new labels
-plant_labels <- c("N" = "No Plant", "P" = "Plant")
-```
-
-```{r plotting CH4 13 June}
-plot.CH4.prop25_6.13 <- ggplot(select_fluxes_combined_w_T0_6.13_noI, aes(x=treatment, y=f0_CH4)) +
-  facet_wrap(~plant, nrow = 1, ncol = 2, labeller = labeller(plant = plant_labels))+
-  geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-  geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#004488"), labels = c("Dry", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1})), title="Week 0") +
-  scale_x_discrete(labels=c("", "", ""))+
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-stat_compare_means(data = select_fluxes_combined_w_T0_6.13_noI, method = "wilcox.test", paired = F, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 15, hide.ns = T)+
-  scale_y_continuous(limits = c(-1, 10))
- 
-plot.CH4.prop25_6.13
-```
-
-```{r plotting CH4 11 August}
-plot.CH4.prop25_8.11 <- ggplot(select_fluxes_combined_w_T0_8.11_noI, aes(x=treatment, y=f0_CH4)) +
-  facet_wrap(~plant, nrow = 1, ncol = 2, labeller = labeller(plant = plant_labels))+
-  geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-  geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#004488"), labels = c("Dry", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = "", title="Week 8") +
-  scale_x_discrete(labels=c("", "", ""))+
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-stat_compare_means(data = select_fluxes_combined_w_T0_8.11_noI, method = "wilcox.test", paired = F, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 15, hide.ns = T)+
-  scale_y_continuous(limits = c(-1, 10))
- 
-plot.CH4.prop25_8.11
-```
-
-```{r plotting CO2 13 June}
-plot.CO2.prop25_6.13 <- ggplot(select_fluxes_combined_w_T0_6.13_noI, aes(x=treatment, y=f0_CO2)) +
-  facet_wrap(~plant, nrow = 1, ncol = 2, labeller = labeller(plant = plant_labels))+
-  geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-  geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#004488"), labels = c("Dry", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1})), title="") +
-  scale_x_discrete(labels=c("", "", ""))+
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-stat_compare_means(method = "wilcox.test", paired = F, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 15, hide.ns = T)+
-  scale_y_continuous(limits = c(-895, 1886))
- 
-plot.CO2.prop25_6.13
-```
-
-```{r plotting CO2 11 August}
-plot.CO2.prop25_8.11 <- ggplot(select_fluxes_combined_w_T0_8.11_noI, aes(x=treatment, y=f0_CO2)) +
-  facet_wrap(~plant, nrow = 1, ncol = 2, labeller = labeller(plant = plant_labels))+
-  geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-  geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#004488"), labels = c("Dry", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = "", title="") +
-  scale_x_discrete(labels=c("", "", ""))+
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-stat_compare_means(data = select_fluxes_combined_w_T0_8.11_noI, method = "wilcox.test", paired = F, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 15, hide.ns = T)+
-  scale_y_continuous(limits = c(-895, 1886))
- 
-plot.CO2.prop25_8.11
-```
-
-```{r plotting N2O 13 June}
-plot.N2O.prop25_6.13 <- ggplot(select_fluxes_combined_w_T0_6.13_noI, aes(x=treatment, y=f0_N2O)) +
-  facet_wrap(~plant, nrow = 1, ncol = 2, labeller = labeller(plant = plant_labels))+
-  geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-  geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#004488"), labels = c("Dry", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
-  scale_x_discrete(labels=c("Dry", "Wet"))+
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-stat_compare_means(data = select_fluxes_combined_w_T0_6.13_noI, method = "wilcox.test", paired = F, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 15, hide.ns = T)+
-  scale_y_continuous(limits = c(-.1, .15))
- 
-plot.N2O.prop25_6.13
-```
-
-```{r plotting N2O 11 August}
-plot.N2O.prop25_8.11 <- ggplot(select_fluxes_combined_w_T0_8.11_noI, aes(x=treatment, y=f0_N2O)) +
-  facet_wrap(~plant, nrow = 1, ncol = 2, labeller = labeller(plant = plant_labels))+
-  geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-  geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#004488"), labels = c("Dry", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Wet"), name="Treatment")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = "", title="") +
-  scale_x_discrete(labels=c("Dry", "Wet"))+
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-stat_compare_means(data = select_fluxes_combined_w_T0_8.11_noI, method = "wilcox.test", paired = F, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 15, hide.ns = T)+
-  scale_y_continuous(limits = c(-.1, .15))
- 
-plot.N2O.prop25_8.11
-```
-
-```{r Combined Proposal Boxplot}
-CombPlot_prop25<- ggarrange(plot.CH4.prop25_6.13, plot.CH4.prop25_8.11, plot.CO2.prop25_6.13, plot.CO2.prop25_8.11, plot.N2O.prop25_6.13, plot.N2O.prop25_8.11, labels = c("A", "B", "C", "D", "E", "F"), ncol = 2, nrow = 3, legend = "top", common.legend = T, align = "hv")
-
-CombPlot_prop25
-
-#ggsave("~/Desktop/PeraltaLab/TMG/FluxFigures_20250115/StartFinish_NP_P.png", plot=CombPlot_prop25, device="png", path=NULL, scale=1, width=14, height=14, dpi=600, limitsize=TRUE, bg="white")
-```
-
 ## GHG summary
 
 ```{r GHG summary}
-#Quick Data Summaries:
-
-# History:
-ghg.summary.history <- ghg %>%
-  group_by(history)%>%
-  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
-
-ghg.summary.history
-
-# Treatment:
-ghg.summary.treatment <- ghg %>%
-  group_by(treatment)%>%
-  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
-
-ghg.summary.treatment
-
-# Plant:
-ghg.summary.plant <- ghg %>%
-  group_by(plant)%>%
-  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
-
-ghg.summary.plant
-
 # Treatment and plant (tp):
-ghg.summary.tp <- ghg %>%
+ghg.flux.summary.tp <- select_fluxes_combined_w_T0 %>%
   group_by(treatment, plant)%>%
-  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
+  dplyr::summarise(mean_ch4=mean(f0_CH4), sd_ch4=sd(f0_CH4), mean_co2=mean(f0_CO2), sd_co2=sd(f0_CO2), mean_n2o=mean(f0_N2O), sd_n2o=sd(f0_N2O))
 
-ghg.summary.tp
-
-# Include all factors: history, treatment, and plant (htp):
-ghg.summary.htp <- ghg %>%
-  group_by(history, treatment, plant)%>%
-  dplyr::summarise(mean_ch4=mean(mg.CH4.N.m.2), sd_ch4=sd(mg.CH4.N.m.2), mean_co2=mean(mg.CO2.N.m.2), sd_co2=sd(mg.CO2.N.m.2) , mean_n2o=mean(mg.N2O.N.m.2), sd_n2o=sd(mg.N2O.N.m.2))
-
-ghg.summary.htp
-```
-
-```{r GHG ppm summary ppm}
-# Treatment and plant (tp):
-ghg.ppm.summary.tp <- ghg_ppm_filtered %>%
-  group_by(treatment, plant)%>%
-  dplyr::summarise(mean_ch4=mean(ch4_ppm), sd_ch4=sd(ch4_ppm), mean_co2=mean(co2_ppm), sd_co2=sd(co2_ppm) , mean_n2o=mean(n2o_ppm), sd_n2o=sd(n2o_ppm))
-
-ghg.ppm.summary.tp
+ghg.flux.summary.tp
 
 # format decimal places, 2 decimal places:
-ghg.ppm.summary.tp$mean_ch4 <- format(round(ghg.ppm.summary.tp$mean_ch4, 2), nsmall = 2)
-ghg.ppm.summary.tp$mean_ch4 <- as.numeric(ghg.ppm.summary.tp$mean_ch4)
-ghg.ppm.summary.tp$sd_ch4 <- format(round(ghg.ppm.summary.tp$sd_ch4, 2), nsmall = 2)
-ghg.ppm.summary.tp$sd_ch4 <- as.numeric(ghg.ppm.summary.tp$sd_ch4)
+ghg.flux.summary.tp$mean_ch4 <- format(round(ghg.flux.summary.tp$mean_ch4, 2), nsmall = 2)
+ghg.flux.summary.tp$mean_ch4 <- as.numeric(ghg.flux.summary.tp$mean_ch4)
+ghg.flux.summary.tp$sd_ch4 <- format(round(ghg.flux.summary.tp$sd_ch4, 2), nsmall = 2)
+ghg.flux.summary.tp$sd_ch4 <- as.numeric(ghg.flux.summary.tp$sd_ch4)
 
-ghg.ppm.summary.tp$mean_co2 <- format(round(ghg.ppm.summary.tp$mean_co2, 2), nsmall = 2)
-ghg.ppm.summary.tp$mean_co2 <- as.numeric(ghg.ppm.summary.tp$mean_co2)
-ghg.ppm.summary.tp$sd_co2 <- format(round(ghg.ppm.summary.tp$sd_co2, 2), nsmall = 2)
-ghg.ppm.summary.tp$sd_co2 <- as.numeric(ghg.ppm.summary.tp$sd_co2)
+ghg.flux.summary.tp$mean_co2 <- format(round(ghg.flux.summary.tp$mean_co2, 2), nsmall = 2)
+ghg.flux.summary.tp$mean_co2 <- as.numeric(ghg.flux.summary.tp$mean_co2)
+ghg.flux.summary.tp$sd_co2 <- format(round(ghg.flux.summary.tp$sd_co2, 2), nsmall = 2)
+ghg.flux.summary.tp$sd_co2 <- as.numeric(ghg.flux.summary.tp$sd_co2)
 
-ghg.ppm.summary.tp$mean_n2o <- format(round(ghg.ppm.summary.tp$mean_n2o, 2), nsmall = 2)
-ghg.ppm.summary.tp$mean_n2o <- as.numeric(ghg.ppm.summary.tp$mean_n2o)
-ghg.ppm.summary.tp$sd_n2o <- format(round(ghg.ppm.summary.tp$sd_n2o, 2), nsmall = 2)
-ghg.ppm.summary.tp$sd_n2o <- as.numeric(ghg.ppm.summary.tp$sd_n2o)
+ghg.flux.summary.tp$mean_n2o <- format(round(ghg.flux.summary.tp$mean_n2o, 2), nsmall = 2)
+ghg.flux.summary.tp$mean_n2o <- as.numeric(ghg.flux.summary.tp$mean_n2o)
+ghg.flux.summary.tp$sd_n2o <- format(round(ghg.flux.summary.tp$sd_n2o, 2), nsmall = 2)
+ghg.flux.summary.tp$sd_n2o <- as.numeric(ghg.flux.summary.tp$sd_n2o)
 
 # Add plus or minus symbol to divide mean and SD:
-ghg.ppm.summary.tp$mean_sd_ch4 <- paste(ghg.ppm.summary.tp$mean_ch4, "±", ghg.ppm.summary.tp$sd_ch4, sep = " ")
-ghg.ppm.summary.tp$mean_sd_co2 <- paste(ghg.ppm.summary.tp$mean_co2, "±", ghg.ppm.summary.tp$sd_co2, sep = " ")
-ghg.ppm.summary.tp$mean_sd_n2o <- paste(ghg.ppm.summary.tp$mean_n2o, "±", ghg.ppm.summary.tp$sd_n2o, sep = " ")
+ghg.flux.summary.tp$mean_sd_ch4 <- paste(ghg.flux.summary.tp$mean_ch4, "±", ghg.flux.summary.tp$sd_ch4, sep = " ")
+ghg.flux.summary.tp$mean_sd_co2 <- paste(ghg.flux.summary.tp$mean_co2, "±", ghg.flux.summary.tp$sd_co2, sep = " ")
+ghg.flux.summary.tp$mean_sd_n2o <- paste(ghg.flux.summary.tp$mean_n2o, "±", ghg.flux.summary.tp$sd_n2o, sep = " ")
 
 # Write .csv:
-#write.csv(ghg.ppm.summary.tp, file = "../figures/pub/tables/ghg_ppm_summary.csv", row.names = T)
+# Warning: running this will overwrite formatting modifications to the file
+#write.csv(ghg.flux.summary.tp, file = "../figures/pub/tables/ghg_flux_summary.csv", row.names = T)
 ```
 
+# PCoA with interim and GHGs on envfit
 
+```{r wrangling}
+soil.finish_FULL <- soil %>% 
+dplyr::select(-c(g.soil.kcl, no2.no3.mg.l, plant.c.percent, plant.n.percent, plant.dry.mass.g, HM., CEC.))
+
+# soil finish, only finish samples:
+soil.finish_FULL <- soil.finish_FULL %>%
+  filter(time == "finish")
+
+# make chamber row names
+rownames(soil.finish_FULL) <- soil.finish_FULL$chamber
+
+# remove design info and NOx column that has many NAs
+meta.env_FULL <- soil.finish_FULL[, -c(1:5)]
+
+# Add GHG fluxes from final time point, August 11
+meta.env_GHG <- cbind(meta.env_FULL, select_fluxes_combined_w_T0_8.11$f0_CH4, select_fluxes_combined_w_T0_8.11$f0_CO2, select_fluxes_combined_w_T0_8.11$f0_N2O)
+
+colnames(meta.env_GHG)[19:21] <- c("f0_CH4", "f0_CO2", "f0_N2O")
+
+
+# Now ready for new PCoA calculation without interim, then envfit to meta.env_GHG
+```
+
+```{r Calculate distance matrix and PCoA components without field, end samples only}
+# Bray-Curtis distance matrix:
+otu.2.rel.dist<-vegdist(otu.2.rel, method="bray")
+
+# Principal Coordinates Analysis
+otu.2.rel.dist.pcoa <- cmdscale(otu.2.rel.dist, k=2, eig=TRUE, add=TRUE)
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1a <- round(otu.2.rel.dist.pcoa$eig[1] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
+explainvar2a <- round(otu.2.rel.dist.pcoa$eig[2] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
+sum.eiga <- sum(explainvar1a, explainvar2a)
+
+explainvar1a #25% (rounding)
+explainvar2a #11% (rounding)
+```
+
+```{r plot PCoA without field, end samples only}
+all.equal(rownames(meta), rownames(otu.2.rel))
+# Set treatments
+treat1 <- as.factor(meta$history)
+droplevels(treat1)
+treat2 <- as.factor(meta$treatment)
+droplevels(treat2)
+#levels(treat2) <- c("I","W","D")
+treat3 <- as.factor(meta$plant)
+droplevels(treat3)
+
+pcoa.groups <- paste(meta$history, meta$treatment, meta$plant, sep = "_")
+
+pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.plant <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3))  #plant
+pcoa.trt <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) #treatment
+pcoa.history <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  #history 
+
+pcoa.trt <- ordered(pcoa.trt, levels=c("D", "I", "W"))
+pcoa.trt <-revalue(pcoa.trt, c("D"="Dry", "I"="Interim","W"="Wet"))
+
+pcoa.history <- ordered(pcoa.history, levels=c("D", "I", "W"))
+pcoa.history <-revalue(pcoa.history, c("D"="Dry", "I"="Interim","W"="Wet"))
+
+pcoa.plant <- ordered(pcoa.plant, levels=c("n", "p"))
+pcoa.plant <-revalue(pcoa.plant, c("n"="No Plant","p"="Plant"))
+
+# Add points data frame (seems to be newer issue, used to be able to use $ on pcoa_denit_FINAL$points)
+pcoa_otu_DF <- as.data.frame(otu.2.rel.dist.pcoa$points)
+
+# envfit:
+fit<-envfit(pcoa_otu_DF, meta.env_GHG, perm=10000, na.rm=T, set.seed(42))
+A <-as.list(fit$vectors)
+vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.25) #Scale vector by correlation
+p<- as.data.frame(A$pvals)
+
+vec <- cbind(vec, p) 
+vec <-  subset(vec, A$pvals<=0.05) # alpha = 0.05
+
+# Create label column called "parm"
+vec$parm<-rownames(vec)
+vec$parm<-c("%C", "%N", "Mg", "Ca", "pH", "S", "Mn", "Fe", "Cu", "CEC") # Check that these readable labels match the originals
+
+# Add a column with nudges for nudge_x and nudge_y:
+vec$X_nudge <- c(-0.02, -0.02, -0.02, -0.01, -0.01, 0, -0.005, 0, 0.01, -0.02)
+vec$Y_nudge <- c(0, 0, 0.005, 0, 0, 0.01, -0.015, 0.02, 0, 0.02)
+
+# To use open and closed shapes, must create a combined category for History and Plant:
+history_plant_combined <- c(paste(pcoa.history, pcoa.plant, sep = "_"))
+
+#Make new PCoA data frame, then append experimental factors (plant, treatment, history) as new columns:
+pcoa.cent.dataframe.trts <- as.data.frame(pcoa.cent.dataframe)
+pcoa.cent.dataframe.trts$history <- as.factor(pcoa.history)
+pcoa.cent.dataframe.trts$trt <- as.factor(pcoa.trt)
+pcoa.cent.dataframe.trts$plant <- as.factor(pcoa.plant)
+pcoa.cent.dataframe.trts$history_plant <- as.factor(history_plant_combined)
+
+#Plotting:
+plot16S_PCoA <- ggplot(pcoa.cent.dataframe.trts, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +   
+  geom_point(aes(shape = history_plant, color=pcoa.trt), size=5, stroke=2) +  
+  theme_bw() +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant") +
+  xlab("PCoA 1 (25%)") + ylab("PCoA 2 (11%)") + 
+  geom_segment(data=vec, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4,inherit.aes=F)+ 
+  geom_text(data=vec, aes(x=V1, y=V2), label=vec$parm, nudge_x = vec$X_nudge, nudge_y = vec$Y_nudge, size=4, inherit.aes=F)+
+  ggtitle("") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.background = element_blank()) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=18), 
+          axis.text.x = element_text(size=18),  axis.text.y = element_text(size=18),
+          panel.border = element_rect(colour = "black", size=1.25)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  theme(plot.title=element_text(size=18)) +
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  guides(fill = guide_legend(override.aes=list(shape=21)))
+
+plot16S_PCoA
+
+#ggsave("../figures/pub/Figure5.tiff", plot=plot16S_PCoA, device="tiff", path=NULL, scale=1, width=9.5, height=5, dpi=600, limitsize=TRUE)
+
+#ggsave("../figures/pub/16S_PCoA.png", plot=plot16S_PCoA, device="png", path=NULL, scale=1, width=9.5, height=5, dpi=600, limitsize=TRUE)
+```
 
 # Distance-based partial least squares regression (dbplsr)
 
-```{r only ending samples}
-#Using end samples for GHG because microbial community analyses was on end samples
-#make df of design, soil, and ghg
-ghg.filter.soil <- ghg %>%
-  dplyr::select('date', 'chamber', 'timepoint', 'mg.CH4.N.m.2', 'mg.CO2.N.m.2', 'mg.N2O.N.m.2')%>%
-  filter(timepoint=='T1' & date == '8/11/2016') 
-
-soil.ghg <- soil %>% 
-dplyr::select('chamber', 'time', 'plant', 'treatment', 'moisture.percent', 'pH', 'nh4.mg.l', 'c.percent', 'n.percent', 'P.ppm', 'K.ppm', 'Mg.ppm', 'S.ppm', 'Fe.ppm', 'Mn.ppm', 'HM', 'redox.percent.paint.removed') %>%
-  filter(time=="finish") %>%
-  bind_cols(ghg.filter.soil)
-  
-rownames(soil.ghg) <- rownames(otu.2.rel)
-
-# Drop the two 'Chamber' columns (because Chambers are now row names)
-soil.ghg <- soil.ghg[,-c(1,19)]
-
+```{r Euclidean distance matrices}
 # Calculate euclidean distances for soil parameters only, soil parameters and GHGs, and GHGs only:
-soilonly.dist <- vegdist(x = scale(soil.ghg[, -c(1:3, 17:21)]), "euclid")
-soilghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:3,17:18)]), "euclid")
-ghg.dist <- vegdist(x = scale(soil.ghg[, -c(1:18)]), "euclid")
+soilonly.dist <- vegdist(x = scale(meta.env_GHG[, -c(19:21)]), "euclid")
+soilghg.dist <- vegdist(x = scale(meta.env_GHG), "euclid")
+ghg.dist <- vegdist(x = scale(meta.env_GHG[, c(19:21)]), "euclid")
 ```
 
-```{r only ending samples ppm}
-#Using end samples for GHG because microbial community analyses was on end samples
-#make df of design, soil, and ghg
-  # Use ghg_ppm_filtered_8.11
-ghg_ppm_filtered_8.11_MERGE <- ghg_ppm_filtered_8.11[,c(5:7, 11:12)]
-
-soil.PPM.END.ghg <- soil %>% 
-dplyr::select('chamber', 'time', 'plant', 'treatment', 'moisture.percent', 'pH', 'nh4.mg.l', 'c.percent', 'n.percent', 'P.ppm', 'K.ppm', 'Mg.ppm', 'S.ppm', 'Fe.ppm', 'Mn.ppm', 'HM', 'redox.percent.paint.removed') %>%
-  filter(time=="finish") %>%
-  bind_cols(ghg_ppm_filtered_8.11_MERGE)
-  
-rownames(soil.PPM.END.ghg) <- rownames(otu.2.rel)
-
-# Drop the two 'Chamber' columns (because Chambers are now row names)
-soil.PPM.END.ghg <- soil.PPM.END.ghg[,-1]
-
-# Calculate euclidean distances for soil parameters only, soil parameters and GHGs, and GHGs only:
-PPM.soilonly.dist <- vegdist(x = scale(soil.PPM.END.ghg[, -c(1:3, 17:21)]), "euclid")
-PPM.soilghg.dist <- vegdist(x = scale(soil.PPM.END.ghg[, -c(1:3, 20:21)]), "euclid")
-PPM.ghg.dist <- vegdist(x = scale(soil.PPM.END.ghg[, c(17:19)]), "euclid")
-```
-
-```{r dbplsr analysis}
-#distance based partial least squares regression
+```{r DBPLSR}
+#distance-based partial least squares regression (DBPLSR)
 #Compares distance matrices. can use mixture of continuous and qualitative variables. 
-#Method good when factors are may and highly colinear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
+#Method good when factors are may and highly co-linear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
 
 # GHGs compared to Bray-Curtis Distance matrix of rarified OTUs: 
-dbplsr.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+dbplsr.ch4 <- dbplsr(f0_CH4 ~ as.matrix(otu.2.rel.dist), data=meta.env_GHG , ncomp=30, method="GCV")
 summary(dbplsr.ch4)
 
-dbplsr.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+dbplsr.co2 <- dbplsr(f0_CO2 ~ as.matrix(otu.2.rel.dist), data=meta.env_GHG , ncomp=30, method="GCV")
 summary(dbplsr.co2)
 
-dbplsr.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(otu.2.rel.dist), data=soil.ghg , ncomp=30, method="GCV")
+dbplsr.n2o <- dbplsr(f0_N2O ~ as.matrix(otu.2.rel.dist), data=meta.env_GHG , ncomp=31, method="GCV")
 summary(dbplsr.n2o)
 
 # GHGs compared to euclidean distance matrix of soil parameters (sp): 
-dbplsr.sp.ch4 <- dbplsr(mg.CH4.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+dbplsr.sp.ch4 <- dbplsr(f0_CH4 ~ as.matrix(soilonly.dist), data=meta.env_GHG , ncomp=35, method="GCV")
 summary(dbplsr.sp.ch4)
 
-dbplsr.sp.co2 <- dbplsr(mg.CO2.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+dbplsr.sp.co2 <- dbplsr(f0_CO2 ~ as.matrix(soilonly.dist), data=meta.env_GHG , ncomp=35, method="GCV")
 summary(dbplsr.sp.co2)
 
-dbplsr.sp.n2o <- dbplsr(mg.N2O.N.m.2 ~ as.matrix(soilonly.dist), data=soil.ghg , ncomp=35, method="GCV")
+dbplsr.sp.n2o <- dbplsr(f0_N2O ~ as.matrix(soilonly.dist), data=meta.env_GHG , ncomp=35, method="GCV")
 summary(dbplsr.sp.n2o)
-```
-
-```{r dbplsr analysis ppm}
-#distance based partial least squares regression
-#Compares distance matrices. can use mixture of continuous and qualitative variables. 
-#Method good when factors are may and highly colinear. A PLS model find the multidimensional direction in the Z space that explains the variance in the Y space. 
-
-# GHGs compared to Bray-Curtis Distance matrix of rarified OTUs: 
-dbplsr.PPM.ch4 <- dbplsr(ch4_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
-summary(dbplsr.PPM.ch4)
-
-dbplsr.PPM.co2 <- dbplsr(co2_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
-summary(dbplsr.PPM.co2)
-
-dbplsr.PPM.n2o <- dbplsr(n2o_ppm ~ as.matrix(otu.2.rel.dist), data=soil.PPM.END.ghg , ncomp=30, method="GCV")
-summary(dbplsr.PPM.n2o)
-
-# GHGs compared to euclidean distance matrix of soil parameters (sp): 
-dbplsr.sp.PPM.ch4 <- dbplsr(ch4_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
-summary(dbplsr.sp.PPM.ch4)
-
-dbplsr.sp.PPM.co2 <- dbplsr(co2_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
-summary(dbplsr.sp.PPM.co2)
-
-dbplsr.sp.PPM.n2o <- dbplsr(n2o_ppm ~ as.matrix(soilonly.dist), data=soil.PPM.END.ghg , ncomp=35, method="GCV")
-summary(dbplsr.sp.PPM.n2o)
 ```
 
 # Mantel test: soil and bacterial community
@@ -2126,123 +1938,140 @@ bac.soil.mantel.3 <- vegan::mantel(as.matrix(ghg.dist), as.matrix(otu.2.rel.dist
 bac.soil.mantel.3
 ```
 
-```{r mantel soil and bac comm ppm}
-# For reproducibility, confirm that random seed is set:
-set.seed(42)
-
-#soil only
-PPM.bac.soil.mantel.1 <- vegan::mantel(as.matrix(PPM.soilonly.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
-PPM.bac.soil.mantel.1
-
-#soil and ghg
-PPM.bac.soil.mantel.2 <- vegan::mantel(as.matrix(PPM.soilghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
-PPM.bac.soil.mantel.2
-
-#ghg only 
-PPM.bac.soil.mantel.3 <- vegan::mantel(as.matrix(PPM.ghg.dist), as.matrix(otu.2.rel.dist), method="pearson", permutations=10000)
-PPM.bac.soil.mantel.3
-```
-
-
 # Greenhouse gas and redox regressions
 
-```{r CH4 redox regression ppm}
-require(ggpmisc)
+```{r wrangling}
+# Create IRIS start and finish data frame:
+IRIS_start_Fin <- soil %>%
+  filter(time != "field") %>%
+  dplyr::select(c("chamber", "time", "history", "treatment", "plant", "redox.percent.paint.removed"))
 
-PPM.ch4.lm <- lm(log(ch4_ppm) ~ redox.percent.paint.removed, data=soil.PPM.END.ghg)
-anova(PPM.ch4.lm)
-summary(PPM.ch4.lm)
+# Create GHG start and finish data frame from select_fluxes_combined:
+GHG_flux_start_fin <- select_fluxes_combined_w_T0 %>%
+  dplyr::filter(date_format == "13-Jun" | date_format == "11-Aug") %>%
+  dplyr::select(c("f0_CH4", "f0_CO2", "f0_N2O", "plant", "treatment", "history", "chamber", "date_format"))
 
-PPM.ch4.redox.regress.plot <- ggplot(soil.PPM.END.ghg)  +
-  geom_point(aes(x=(redox.percent.paint.removed *100), y=log(ch4_ppm), color=plant, shape = plant), size=5)+ 
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_fill_manual(values=c("#E69F00","#009E73")) +
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
-  geom_smooth(aes(x=(redox.percent.paint.removed*100), y=log(ch4_ppm)), formula = y ~ x, method=lm, se=T, color="black")+
-  stat_poly_eq(aes(x=(redox.percent.paint.removed*100), y=log(ch4_ppm), label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.PPM.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+# Set levels of time so facets are ordered correctly
+IRIS_start_Fin$time <- factor(IRIS_start_Fin$time, levels = c("start", "finish"))
+
+# Adjust labels
+IRIS_start_Fin$time <- revalue(IRIS_start_Fin$time, c(start = "Start (Week 0)", finish = "Finish (Week 8)"))
+
+# reorder df
+IRIS_start_Fin <- IRIS_start_Fin %>%
+  arrange(time)
+
+# Combine the IRIS and GHG dfs:
+IRIS_GHG_start_fin <- cbind(IRIS_start_Fin, GHG_flux_start_fin)
+
+# Remove extra columns:
+IRIS_GHG_start_fin <- IRIS_GHG_start_fin[,-c(10:13)]
+
+# Change history, treatment, and plant to factors:
+IRIS_GHG_start_fin$history <- as.factor(IRIS_GHG_start_fin$history)
+IRIS_GHG_start_fin$treatment <- as.factor(IRIS_GHG_start_fin$treatment)
+IRIS_GHG_start_fin$plant <- as.factor(IRIS_GHG_start_fin$plant)
+
+# Format redox.percent.paint.removed as percent:
+IRIS_GHG_start_fin$redox.percent.formatted <- IRIS_GHG_start_fin$redox.percent.paint.removed * 100
+```
+
+
+```{r CH4 redox regression}
+ch4.lm.start <- lm(f0_CH4 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
+summary(ch4.lm.start)
+
+ch4.lm.finish <- lm(f0_CH4 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "11-Aug")
+summary(ch4.lm.finish)
+
+ch4.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_CH4)  +
+  facet_wrap(~time, nrow = 1, ncol = 2)+
+                    geom_point(aes(x=redox.percent.formatted, y=f0_CH4, color=treatment, shape=plant), size = 2) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=redox.percent.formatted, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_CH4, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
           axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
           element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("log(CH"[4],") (PPM)"))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "right")
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))
 
-PPM.ch4.redox.regress.plot
+ch4.redox.regress.plot
 ```
 
 
-```{r CO2 redox regression ppm}
-PPM.co2.lm <- lm(log(co2_ppm) ~ redox.percent.paint.removed, data=soil.PPM.END.ghg)
-anova(PPM.co2.lm)
-summary(PPM.co2.lm)
+```{r CO2 redox regression}
+co2.lm.start <- lm(f0_CO2 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
+summary(co2.lm.start)
 
-PPM.co2.redox.regress.plot <- ggplot(soil.PPM.END.ghg)  +
-  geom_point(aes(x=(redox.percent.paint.removed *100), y=log(co2_ppm), color=plant, shape = plant), size=5)+ 
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_fill_manual(values=c("#E69F00","#009E73")) +
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
-  geom_smooth(aes(x=(redox.percent.paint.removed*100), y=log(co2_ppm)), formula = y ~ x, method=lm, se=T, color="black")+
-  stat_poly_eq(aes(x=(redox.percent.paint.removed*100), y=log(co2_ppm), label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.PPM.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+co2.lm.finish <- lm(f0_CO2 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "11-Aug")
+summary(co2.lm.finish)
+
+co2.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_CO2)  +
+  facet_wrap(~time, nrow = 1, ncol = 2)+
+                    geom_point(aes(x=redox.percent.formatted, y=f0_CO2, color=treatment, shape=plant), size = 2) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=redox.percent.formatted, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_CO2, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
           axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
           element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("log(CO"[2],") (PPM)"))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "right")
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))
 
-PPM.co2.redox.regress.plot
+co2.redox.regress.plot
 ```
 
 
 
-```{r N2O redox regression ppm}
-PPM.n2o.lm <- lm(log(n2o_ppm) ~ redox.percent.paint.removed, data=soil.PPM.END.ghg)
-anova(PPM.n2o.lm)
-summary(PPM.n2o.lm)
+```{r N2O redox regression }
+n2o.lm.start <- lm(f0_N2O ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
+summary(n2o.lm.start)
 
-PPM.n2o.redox.regress.plot <- ggplot(soil.PPM.END.ghg)  +
-  geom_point(aes(x=(redox.percent.paint.removed *100), y=log(n2o_ppm), color=plant, shape = plant), size=5)+ 
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_fill_manual(values=c("#E69F00","#009E73")) +
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
-  geom_smooth(aes(x=(redox.percent.paint.removed*100), y=log(n2o_ppm)), formula = y ~ x, method=lm, se=T, color="black")+
-  stat_poly_eq(aes(x=(redox.percent.paint.removed*100), y=log(n2o_ppm), label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = soil.PPM.END.ghg, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+n2o.lm.finish <- lm(f0_N2O ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "11-Aug")
+summary(n2o.lm.finish)
+
+n2o.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_N2O)  +
+  facet_wrap(~time, nrow = 1, ncol = 2)+
+                    geom_point(aes(x=redox.percent.formatted, y=f0_N2O, color=treatment, shape=plant), size = 2) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=redox.percent.formatted, y=f0_N2O), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=redox.percent.formatted, y=f0_N2O, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "bottom",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)), 
           axis.title.x=element_text(margin=margin(t=10))) +
-    theme(axis.title=element_text(vjust=1,size=18),
-          axis.text=element_text(size=14), axis.text.x = element_text(size=14), panel.border =
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
           element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "IRIS Percent", y = expression(paste("log(N"[2],"O) (PPM)"))) + 
-    theme(legend.text=element_text(size=14), legend.title = element_text(size=14), 
-          legend.position = "bottom")
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "IRIS Percent Paint Removed", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))
 
-PPM.n2o.redox.regress.plot
+n2o.redox.regress.plot
 ```
-
-```{r extract legend and save}
-leg_NPvP_reg <- get_legend(PPM.n2o.redox.regress.plot, position = "bottom") #Extract legend as a legend Grob
-legend_plot_NPvP_reg <- as_ggplot(leg_NPvP_reg) #Asign the grob as a ggplot
-legend_plot_NPvP_reg #View the plot
-
-#ggsave("../figures/pub/Redox_Reg_legend.tiff", plot=legend_plot_NPvP_reg, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
-```
-
 
 ```{r Panel together GHG ~ redox regressions}
-PPM.GHG_redox_3panel <- ggarrange(PPM.ch4.redox.regress.plot, PPM.co2.redox.regress.plot, PPM.n2o.redox.regress.plot, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", common.legend = T)
+GHG_redox_3panel <- ggarrange(ch4.redox.regress.plot, co2.redox.regress.plot, n2o.redox.regress.plot, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
-PPM.GHG_redox_3panel
+GHG_redox_3panel
 
-#ggsave("../figures/pub/PPM_redox_regres.tiff", plot=PPM.GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=10, height=10, dpi=900, limitsize=TRUE, bg="white")
+#ggsave("../figures/pub/redox_regres.png", plot=GHG_redox_3panel, device="png", path=NULL, scale=1, width=10, height=12, dpi=600, limitsize=TRUE, bg="white")
 ```
 
