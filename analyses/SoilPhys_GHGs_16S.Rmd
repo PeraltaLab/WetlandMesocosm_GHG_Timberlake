@@ -49,7 +49,7 @@ require("ggpmisc")
 # If phyloseq not installed, un-comment and run:
 #if (!require("BiocManager", quietly = TRUE))
     #install.packages("BiocManager")
-#BiocManager::install(version = "3.20")
+#BiocManager::install(version = "3.21")
 
 #BiocManager::install("phyloseq")
 
@@ -1708,6 +1708,63 @@ CombPlot_flux
 
 #ggsave("../figures/Fe_S_manuscript/GHG_flux/Flux.png", plot=CombPlot_flux, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
+
+```{r GHG Line Plot}
+# Rename the data
+df <- select_fluxes_combined_w_T0
+
+# Convert 'date_format' to a proper Date object
+df <- df %>%
+  mutate(date_format = as.Date(date_format, format = "%d-%b"))
+
+# List of gases to plot
+gases <- c("f0_CH4", "f0_CO2", "f0_N2O")
+
+# Loop through each gas and create a smoothed plot
+for (gas in gases) {
+  p <- ggplot(df, aes(x = date_format, y = .data[[gas]])) +
+    geom_point(alpha = 0.6) +
+    geom_smooth(method = "loess", se = FALSE, color = "blue") +
+    labs(
+      title = paste("Smoothed Line Plot for", gas, "Over Time"),
+      x = "Date",
+      y = gas
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  print(p)
+}
+```
+```{r list of date breaks for 3 line plots}
+date_breaks <- as.Date(c("2025-06-13", "2025-06-28", "2025-07-11", "2025-07-25", "2025-08-11"))
+```
+
+```{r CH4 line plot}
+# remove X-axis text before ggarange
+
+ch4.line.plot <- ggplot(df, x=date_format, y=f0_CH4)  +
+  geom_point(aes(x=date_format, y=f0_CH4, color=treatment, shape=plant), size = 2) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=date_format, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=date_format, y=f0_CH4, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = df, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))+
+    scale_x_date(breaks = date_breaks, date_labels = "%b %d")
+
+ch4.line.plot
+```
+
 
 ## GHG summary
 
