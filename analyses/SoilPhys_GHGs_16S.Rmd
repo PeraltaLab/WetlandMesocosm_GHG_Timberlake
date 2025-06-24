@@ -1741,8 +1741,6 @@ date_breaks <- as.Date(c("2025-06-13", "2025-06-28", "2025-07-11", "2025-07-25",
 ```
 
 ```{r CH4 line plot}
-# remove X-axis text before ggarange
-
 ch4.line.plot <- ggplot(df, x=date_format, y=f0_CH4)  +
   geom_point(aes(x=date_format, y=f0_CH4, color=treatment, shape=plant), size = 2) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
@@ -1754,15 +1752,70 @@ ch4.line.plot <- ggplot(df, x=date_format, y=f0_CH4)  +
           axis.title.y=element_text(margin=margin(r=10)), 
           axis.title.x=element_text(margin=margin(t=10))) +
     theme(axis.title=element_text(vjust=1,size=20),
-          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
+          axis.text=element_text(size=20), axis.text.x = element_blank(), panel.border =
           element_rect(colour = "black",size=1)) + 
     theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1}))) + 
     theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
           legend.position = "right")+
     theme(strip.text = element_text(size = 20))+
-    scale_x_date(breaks = date_breaks, date_labels = "%b %d")
+    scale_x_date(breaks = date_breaks, date_labels = "%b %d")+
+    coord_cartesian(ylim = c(-20, 50))
 
 ch4.line.plot
+```
+
+```{r CO2 line plot}
+co2.line.plot <- ggplot(df, x=date_format, y=f0_CO2)  +
+  geom_point(aes(x=date_format, y=f0_CO2, color=treatment, shape=plant), size = 2) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=date_format, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=date_format, y=f0_CO2, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = df, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_blank(), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))+
+    scale_x_date(breaks = date_breaks, date_labels = "%b %d")
+
+co2.line.plot
+```
+
+```{r N2O line plot}
+n2o.line.plot <- ggplot(df, x=date_format, y=f0_N2O)  +
+  geom_point(aes(x=date_format, y=f0_N2O, color=treatment, shape=plant), size = 2) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
+  geom_smooth(aes(x=date_format, y=f0_N2O), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=date_format, y=f0_N2O, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = df, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))+
+    scale_x_date(breaks = date_breaks, date_labels = "%b %d")
+
+n2o.line.plot
+```
+
+```{r Three panel GHG line plot}
+GHG_flux_3panel <- ggarrange(ch4.line.plot, co2.line.plot, n2o.line.plot, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
+
+GHG_flux_3panel
+
+ggsave("../figures/Fe_S_manuscript/GHG_flux/LinePlot_Flux.tiff", plot=GHG_flux_3panel, device="tiff", path=NULL, scale=1, width=9, height=11, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 
