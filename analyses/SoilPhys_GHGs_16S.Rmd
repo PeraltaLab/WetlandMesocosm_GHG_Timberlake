@@ -520,6 +520,8 @@ plot.IRIS_stats <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
 plot.IRIS_stats
 
 #ggsave("../figures/Fe_S_manuscript/iris_stats.png", plot=plot.IRIS_stats, device=NULL, path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE ,bg="white")
+
+#ggsave("../figures/Fe_S_manuscript/iris_stats.tiff", plot=plot.IRIS_stats, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE ,bg="white")
 ```
 
 
