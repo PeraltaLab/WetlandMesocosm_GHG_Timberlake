@@ -1812,7 +1812,7 @@ GHG_flux_3panel <- ggarrange(ch4.line.plot, co2.line.plot, n2o.line.plot, labels
 
 GHG_flux_3panel
 
-#ggsave("../figures/Fe_S_manuscript/GHG_flux/LinePlot_Flux.tiff", plot=GHG_flux_3panel, device="tiff", path=NULL, scale=1, width=9, height=11, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Fe_S_manuscript/GHG_flux/LinePlot_Flux.tiff", plot=GHG_flux_3panel, device="tiff", path=NULL, scale=1, width=11, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 
