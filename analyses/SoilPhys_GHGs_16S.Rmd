@@ -1494,7 +1494,7 @@ plot.CH4.flux.Hst <- ggplot(select_fluxes_combined_w_T0, aes(x=history, y=f0_CH4
                      geom_boxplot(aes(color=history), outlier.shape = NA) +
                      geom_point(aes(color=history,  shape=history), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="History")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="History")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="History")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1541,7 +1541,7 @@ plot.CO2.flux.Hst <- ggplot(select_fluxes_combined_w_T0, aes(x=history, y=f0_CO2
                      geom_boxplot(aes(color=history), outlier.shape = NA) +
                      geom_point(aes(color=history,  shape=history), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="History")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="History")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="History")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1588,7 +1588,7 @@ plot.N2O.flux.Hst <- ggplot(select_fluxes_combined_w_T0, aes(x=history, y=f0_N2O
                      geom_boxplot(aes(color=history), outlier.shape = NA) +
                     geom_point(aes(color=history,  shape=history), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="History")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="History")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="History")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
