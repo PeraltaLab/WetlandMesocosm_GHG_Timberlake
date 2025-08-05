@@ -3158,6 +3158,8 @@ S_pcoa_4panel_SSF
 
 #ggsave("../figures/Fe_S_manuscript/S_pcoa4panel_SSF.png", plot = S_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 12, limitsize = TRUE, dpi = 600)
 
+#ggsave("../figures/Fe_S_manuscript/Figure5.tiff", plot = S_pcoa_4panel_SSF, device="tiff", path=NULL, scale=1, height = 7, width = 12, limitsize = TRUE, dpi = 600)
+
 # 4 panel Sulfur PCoA, Finish samples only (SFO)
 
 S_pcoa_4panel_SFO <- ggarrange(plot5a, plot5b, plot5c, plot5d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
@@ -3817,6 +3819,8 @@ FeRed_SO4Red_4panel <- ggarrange(plot7a, plot7b, plot7c, plot7d, ncol = 2, nrow 
 FeRed_SO4Red_4panel
 
 #ggsave("../figures/Fe_S_manuscript/FeRed_SO4Red_4panel.png", plot = FeRed_SO4Red_4panel, device=NULL, path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
+
+#ggsave("../figures/Fe_S_manuscript/Figure6.tiff", plot = FeRed_SO4Red_4panel, device="tiff", path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
 ```
 
 ```{r PCOA: Methane Oxidation}
