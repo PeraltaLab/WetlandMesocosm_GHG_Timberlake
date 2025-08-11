@@ -1739,10 +1739,10 @@ df$history_plant <- as.factor(c(paste(df$history, df$plant, sep = "_")))
 
 # Plotting:
 ch4.line.plot <- ggplot(df, x=date_format, y=f0_CH4)  +
-  geom_point(aes(x=date_format, y=f0_CH4, color=treatment, shape=history_plant), size = 3) +
+  geom_point(aes(x=date_format, y=f0_CH4, color=treatment, shape=history_plant), size = 3, position = position_jitterdodge(jitter.width = 4, dodge.width = 4)) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
-  geom_smooth(aes(x=date_format, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
+  #geom_smooth(aes(x=date_format, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
   stat_poly_eq(aes(x=date_format, y=f0_CH4, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = df, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
@@ -1763,10 +1763,10 @@ ch4.line.plot
 
 ```{r CO2 line plot}
 co2.line.plot <- ggplot(df, x=date_format, y=f0_CO2)  +
-  geom_point(aes(x=date_format, y=f0_CO2, color=treatment, shape=history_plant), size = 3) +
+  geom_point(aes(x=date_format, y=f0_CO2, color=treatment, shape=history_plant), size = 3, position = position_jitterdodge(jitter.width = 4, dodge.width = 4)) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
-  geom_smooth(aes(x=date_format, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
+  #geom_smooth(aes(x=date_format, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
   stat_poly_eq(aes(x=date_format, y=f0_CO2, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = df, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
@@ -1786,7 +1786,7 @@ co2.line.plot
 
 ```{r N2O line plot}
 n2o.line.plot <- ggplot(df, x=date_format, y=f0_N2O)  +
-  geom_point(aes(x=date_format, y=f0_N2O, color=treatment, shape=history_plant), size = 3) +
+  geom_point(aes(x=date_format, y=f0_N2O, color=treatment, shape=history_plant), size = 3, position = position_jitterdodge(jitter.width = 4, dodge.width = 4)) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
   geom_smooth(aes(x=date_format, y=f0_N2O), formula = y ~ x, method=lm, se=T, color="black")+
