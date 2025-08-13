@@ -4026,6 +4026,59 @@ mantel(methBC, Assim_SO4_redBC, permutations = 10000, set.seed(42))
 mantel(methBC, Dissim_SO4_redBC, permutations = 10000, set.seed(42))
 ```
 
+```{r Mantel heatmap figure (overall comparisons)}
+# Example distance matrices (replace with your actual matrices)
+matrices <- list(
+  FeR = FeReductionBC,
+  ASR = Assim_SO4_redBC,
+  DSR = Dissim_SO4_redBC,
+  SOX = ThioSOXBC,
+  Denit = denitBC,
+  DNRA = DNRABC,
+  Meth = methBC
+)
+
+# Initialize matrices to store r and p-values
+n <- length(matrices)
+r_matrix <- matrix(NA, n, n)
+p_matrix <- matrix(NA, n, n)
+rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
+rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
+
+# Run Mantel tests
+for (i in 1:n) {
+  for (j in 1:n) {
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000)
+    r_matrix[i, j] <- test$statistic
+    p_matrix[i, j] <- test$signif
+  }
+}
+
+# Melt matrices for ggplot
+r_melt <- melt(r_matrix)
+p_melt <- melt(p_matrix)
+combined <- data.frame(
+  Var1 = r_melt$Var1,
+  Var2 = r_melt$Var2,
+  r = round(r_melt$value, 2),
+  p = round(p_melt$value, 3),
+  label = paste0("r=", round(r_melt$value, 2), "\n", "p=", round(p_melt$value, 3))
+)
+
+# Plot heatmap
+ggplot(combined, aes(Var1, Var2)) +
+  geom_tile(aes(fill = r), color = "white") +
+  geom_text(aes(label = label), size = 4, color = "white") +
+  #scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0,
+                       #name = "Mantel r") +
+  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +  # Use viridis color palette
+  theme_minimal() +
+  labs(x = "", y = "", title = "") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
 ```{r Wrangling for hydrology-specific Mantel Tests}
 #Filter FeReduction and SO4 reduction (combined) for wet history only:
 SO4_red_combinedRA_WetHist_design <- SO4_red_combinedRA_design %>% dplyr::filter(Hist == "w")
