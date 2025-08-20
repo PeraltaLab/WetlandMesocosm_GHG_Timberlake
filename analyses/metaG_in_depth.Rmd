@@ -4035,7 +4035,7 @@ matrices <- list(
   SOX = ThioSOXBC,
   Denit = denitBC,
   DNRA = DNRABC,
-  Meth = methBC
+  Methano = methBC
 )
 
 # Initialize matrices to store r and p-values
@@ -4048,7 +4048,7 @@ rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000)
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 1000)
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4061,17 +4061,36 @@ combined <- data.frame(
   Var1 = r_melt$Var1,
   Var2 = r_melt$Var2,
   r = round(r_melt$value, 2),
-  p = round(p_melt$value, 3),
-  label = paste0("r=", round(r_melt$value, 2), "\n", "p=", round(p_melt$value, 3))
+  p = p_melt$value
 )
 
-# Plot heatmap
+# Format p-values
+combined$p_formatted <- ifelse(combined$p < 0.001,
+                               formatC(combined$p, format = "e", digits = 1),
+                               formatC(combined$p, format = "f", digits = 2))
+
+# Create label
+combined$label <- paste0("r=", formatC(combined$r, digits = 2, format = "f"),
+                         "\n", "p=", combined$p_formatted)
+
+# Define consistent matrix order
+matrix_names <- names(matrices)
+
+# Set both Var1 and Var2 to the same factor levels
+combined$Var1 <- factor(combined$Var1, levels = matrix_names)
+combined$Var2 <- factor(combined$Var2, levels = matrix_names)
+
+# Mask upper triangle: Var1 is column (X), Var2 is row (Y)
+combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
+
+# Plot heatmap with masked lower triangle
 ggplot(combined, aes(Var1, Var2)) +
-  geom_tile(aes(fill = r), color = "white") +
-  geom_text(aes(label = label), size = 4, color = "white") +
-  #scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0,
-                       #name = "Mantel r") +
-  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +  # Use viridis color palette
+  geom_tile(data = subset(combined, mask), fill = "gray80", color = "white") +
+  geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
+  geom_text(data = subset(combined, !mask), aes(label = label), size = 4, color = "white") +
+  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
+  scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
+  scale_x_discrete(limits = matrix_names) +  # non reversed X-axis
   theme_minimal() +
   labs(x = "", y = "", title = "") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -4265,6 +4284,73 @@ mantel(methRA_DryTreat_BC, Assim_SO4_redRA_DryTreat_BC, permutations = 10000, se
 mantel(methRA_DryTreat_BC, Dissim_SO4_redRA_DryTreat_BC, permutations = 10000, set.seed(42))
 ```
 
+```{r Mantel heatmap: Wet Hist}
+# Distance matrices, wet history only
+matrices <- list(
+  FeR = FeReductionBC,
+  ASR = Assim_SO4_redBC,
+  DSR = Dissim_SO4_redBC,
+  Methano = methBC
+)
+
+# Initialize matrices to store r and p-values
+n <- length(matrices)
+r_matrix <- matrix(NA, n, n)
+p_matrix <- matrix(NA, n, n)
+rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
+rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
+
+# Run Mantel tests
+for (i in 1:n) {
+  for (j in 1:n) {
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 1000)
+    r_matrix[i, j] <- test$statistic
+    p_matrix[i, j] <- test$signif
+  }
+}
+
+# Melt matrices for ggplot
+r_melt <- melt(r_matrix)
+p_melt <- melt(p_matrix)
+combined <- data.frame(
+  Var1 = r_melt$Var1,
+  Var2 = r_melt$Var2,
+  r = round(r_melt$value, 2),
+  p = p_melt$value
+)
+
+# Format p-values
+combined$p_formatted <- ifelse(combined$p < 0.001,
+                               formatC(combined$p, format = "e", digits = 1),
+                               formatC(combined$p, format = "f", digits = 2))
+
+# Create label
+combined$label <- paste0("r=", formatC(combined$r, digits = 2, format = "f"),
+                         "\n", "p=", combined$p_formatted)
+
+# Define consistent matrix order
+matrix_names <- names(matrices)
+
+# Set both Var1 and Var2 to the same factor levels
+combined$Var1 <- factor(combined$Var1, levels = matrix_names)
+combined$Var2 <- factor(combined$Var2, levels = matrix_names)
+
+# Mask upper triangle: Var1 is column (X), Var2 is row (Y)
+combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
+
+# Plot heatmap with masked lower triangle
+ggplot(combined, aes(Var1, Var2)) +
+  geom_tile(data = subset(combined, mask), fill = "gray80", color = "white") +
+  geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
+  geom_text(data = subset(combined, !mask), aes(label = label), size = 4, color = "white") +
+  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
+  scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
+  scale_x_discrete(limits = matrix_names) +  # non reversed X-axis
+  theme_minimal() +
+  labs(x = "", y = "", title = "") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
 
 ```{r Plotting BC correlation}
 # These plots were made in https://www.youtube.com/watch?v=EXNOgmUyPfY, but are not required to run Mantel Test
