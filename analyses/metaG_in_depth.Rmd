@@ -4048,7 +4048,7 @@ rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 1000)
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4084,7 +4084,7 @@ combined$Var2 <- factor(combined$Var2, levels = matrix_names)
 combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
 
 # Plot heatmap with masked lower triangle
-ggplot(combined, aes(Var1, Var2)) +
+Mantel_heat_overall <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
   geom_text(data = subset(combined, !mask), aes(label = label), size = 4, color = "white") +
@@ -4101,8 +4101,10 @@ ggplot(combined, aes(Var1, Var2)) +
   axis.line = element_blank()          # optional: remove axis lines
 )
 
-```
+Mantel_heat_overall
 
+#ggsave("../figures/Fe_S_manuscript/Mantel_heat_overall.tiff", plot=Mantel_heat_overall, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE ,bg="white")
+```
 
 ```{r Wrangling for hydrology-specific Mantel Tests}
 #Filter FeReduction and SO4 reduction (combined) for wet history only:
@@ -4309,7 +4311,7 @@ rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 1000)
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4345,7 +4347,7 @@ combined$Var2 <- factor(combined$Var2, levels = matrix_names)
 combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
 
 # Plot heatmap with masked lower triangle
-ggplot(combined, aes(Var1, Var2)) +
+MantelHeatHydro_1 <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
   geom_text(data = subset(combined, !mask), aes(label = label), size = 4, color = "white") +
@@ -4362,6 +4364,7 @@ ggplot(combined, aes(Var1, Var2)) +
   axis.line = element_blank()          # optional: remove axis lines
 )
 
+MantelHeatHydro_1
 ```
 
 ```{r Mantel heatmap: Dry Hist}
@@ -4383,7 +4386,7 @@ rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 1000)
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4419,7 +4422,7 @@ combined$Var2 <- factor(combined$Var2, levels = matrix_names)
 combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
 
 # Plot heatmap with masked lower triangle
-ggplot(combined, aes(Var1, Var2)) +
+MantelHeatHydro_2 <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
   geom_text(data = subset(combined, !mask), aes(label = label), size = 4, color = "white") +
@@ -4436,7 +4439,7 @@ ggplot(combined, aes(Var1, Var2)) +
   axis.line = element_blank()          # optional: remove axis lines
 )
 
-
+MantelHeatHydro_2
 ```
 
 ```{r Mantel heatmap: Wet Treatment}
@@ -4458,7 +4461,7 @@ rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 1000)
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4494,7 +4497,7 @@ combined$Var2 <- factor(combined$Var2, levels = matrix_names)
 combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
 
 # Plot heatmap with masked lower triangle
-ggplot(combined, aes(Var1, Var2)) +
+MantelHeatHydro_3 <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
   geom_text(data = subset(combined, !mask), aes(label = label), size = 4, color = "white") +
@@ -4511,7 +4514,7 @@ ggplot(combined, aes(Var1, Var2)) +
   axis.line = element_blank()          # optional: remove axis lines
 )
 
-
+MantelHeatHydro_3
 ```
 
 ```{r Mantel heatmap: Dry Treatment}
@@ -4533,7 +4536,7 @@ rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 1000)
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4569,7 +4572,7 @@ combined$Var2 <- factor(combined$Var2, levels = matrix_names)
 combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
 
 # Plot heatmap with masked lower triangle
-ggplot(combined, aes(Var1, Var2)) +
+MantelHeatHydro_4 <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
   geom_text(data = subset(combined, !mask), aes(label = label), size = 4, color = "white") +
@@ -4586,8 +4589,17 @@ ggplot(combined, aes(Var1, Var2)) +
   axis.line = element_blank()          # optional: remove axis lines
 )
 
-
+MantelHeatHydro_4
 ```
+
+```{r 4-panel Hydrology Mantel Heatmaps}
+MantelHeatHydro_ALL <- ggarrange(MantelHeatHydro_1, MantelHeatHydro_2, MantelHeatHydro_3, MantelHeatHydro_4, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
+
+MantelHeatHydro_ALL
+
+#ggsave("../figures/Fe_S_manuscript/MantelHeatHydro.tiff", plot=MantelHeatHydro_ALL, device="tiff", path=NULL, scale=1, width=9, height=7, dpi=600, limitsize=TRUE ,bg="white")
+```
+
 
 ```{r Plotting BC correlation}
 # These plots were made in https://www.youtube.com/watch?v=EXNOgmUyPfY, but are not required to run Mantel Test
