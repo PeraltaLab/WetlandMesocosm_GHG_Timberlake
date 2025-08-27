@@ -4027,7 +4027,7 @@ mantel(methBC, Dissim_SO4_redBC, permutations = 10000, set.seed(42))
 ```
 
 ```{r Mantel heatmap figure (overall comparisons)}
-# Example distance matrices (replace with your actual matrices)
+# List of distance matrices
 matrices <- list(
   "Iron reduction" = FeReductionBC,
   "Assimilatory sulfate reduction" = Assim_SO4_redBC,
@@ -4045,10 +4045,13 @@ p_matrix <- matrix(NA, n, n)
 rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
 rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 
+# Set the seed ONCE before the loops start
+set.seed(42)
+
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4064,14 +4067,20 @@ combined <- data.frame(
   p = p_melt$value
 )
 
-# Format p-values
-combined$p_formatted <- ifelse(combined$p < 0.01,
-                               formatC(combined$p, format = "e", digits = 1),
-                               formatC(combined$p, format = "f", digits = 2))
-
 # Create label
-combined$label <- paste0("r=", formatC(combined$r, digits = 2, format = "f"),
-                         "\n", "p=", combined$p_formatted)
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
 
 # Define consistent matrix order
 matrix_names <- names(matrices)
@@ -4093,8 +4102,8 @@ combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
 Mantel_heat_overall <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
-  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4) +
-  scale_color_identity()+  # use actual color values from the data
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
+  scale_color_identity() +
   scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
   scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
   scale_x_discrete(limits = matrix_names) +  # non reversed X-axis
@@ -4110,7 +4119,7 @@ Mantel_heat_overall <- ggplot(combined, aes(Var1, Var2)) +
 
 Mantel_heat_overall
 
-#ggsave("../figures/Fe_S_manuscript/Mantel_heat_overall.tiff", plot=Mantel_heat_overall, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE ,bg="white")
+#ggsave("../figures/Fe_S_manuscript/Mantel_heat_overall.tiff", plot=Mantel_heat_overall, device="tiff", path=NULL, scale=1, width=10, height=6, dpi=600, limitsize=TRUE ,bg="white")
 ```
 
 ```{r Wrangling for hydrology-specific Mantel Tests}
@@ -4315,10 +4324,13 @@ p_matrix <- matrix(NA, n, n)
 rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
 rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 
+# Set the seed ONCE before the loops start
+set.seed(42)
+
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4334,14 +4346,20 @@ combined <- data.frame(
   p = p_melt$value
 )
 
-# Format p-values
-combined$p_formatted <- ifelse(combined$p < 0.01,
-                               formatC(combined$p, format = "e", digits = 1),
-                               formatC(combined$p, format = "f", digits = 2))
-
 # Create label
-combined$label <- paste0("r=", formatC(combined$r, digits = 2, format = "f"),
-                         "\n", "p=", combined$p_formatted)
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
 
 # Define consistent matrix order
 matrix_names <- names(matrices)
@@ -4363,7 +4381,7 @@ combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
 MantelHeatHydro_1 <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
-  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4) +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
   scale_color_identity()+  # use actual color values from the data
   scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
   scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
@@ -4383,12 +4401,12 @@ MantelHeatHydro_1
 ```
 
 ```{r Mantel heatmap: Dry Hist}
-# Distance matrices, wet history only
+# Distance matrices, dry history only
 matrices <- list(
-  "Iron reduction" = FeReductionRA_WetHist_BC,
-  "Assimilatory sulfate reduction" = Assim_SO4_redRA_WetHist_BC,
-  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_WetHist_BC,
-  Methanogenesis = methRA_WetHist_BC
+  "Iron reduction" = FeReductionRA_DryHist_BC,
+  "Assimilatory sulfate reduction" = Assim_SO4_redRA_DryHist_BC,
+  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_DryHist_BC,
+  Methanogenesis = methRA_DryHist_BC
 )
 
 # Initialize matrices to store r and p-values
@@ -4398,10 +4416,13 @@ p_matrix <- matrix(NA, n, n)
 rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
 rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 
+# Set the seed ONCE before the loops start
+set.seed(42)
+
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4417,14 +4438,20 @@ combined <- data.frame(
   p = p_melt$value
 )
 
-# Format p-values
-combined$p_formatted <- ifelse(combined$p < 0.01,
-                               formatC(combined$p, format = "e", digits = 1),
-                               formatC(combined$p, format = "f", digits = 2))
-
 # Create label
-combined$label <- paste0("r=", formatC(combined$r, digits = 2, format = "f"),
-                         "\n", "p=", combined$p_formatted)
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
 
 # Define consistent matrix order
 matrix_names <- names(matrices)
@@ -4446,7 +4473,7 @@ combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
 MantelHeatHydro_2 <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
-  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4) +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
   scale_color_identity()+  # use actual color values from the data
   scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
   scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
@@ -4466,12 +4493,12 @@ MantelHeatHydro_2
 ```
 
 ```{r Mantel heatmap: Wet Treatment}
-# Distance matrices, wet history only
+# Distance matrices, wet treatment only
 matrices <- list(
-  "Iron reduction" = FeReductionRA_WetHist_BC,
-  "Assimilatory sulfate reduction" = Assim_SO4_redRA_WetHist_BC,
-  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_WetHist_BC,
-  Methanogenesis = methRA_WetHist_BC
+  "Iron reduction" = FeReductionRA_WetTreat_BC,
+  "Assimilatory sulfate reduction" = Assim_SO4_redRA_WetTreat_BC,
+  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_WetTreat_BC,
+  Methanogenesis = methRA_WetTreat_BC
 )
 
 # Initialize matrices to store r and p-values
@@ -4481,10 +4508,13 @@ p_matrix <- matrix(NA, n, n)
 rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
 rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 
+# Set the seed ONCE before the loops start
+set.seed(42)
+
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4500,14 +4530,20 @@ combined <- data.frame(
   p = p_melt$value
 )
 
-# Format p-values
-combined$p_formatted <- ifelse(combined$p < 0.01,
-                               formatC(combined$p, format = "e", digits = 1),
-                               formatC(combined$p, format = "f", digits = 2))
-
 # Create label
-combined$label <- paste0("r=", formatC(combined$r, digits = 2, format = "f"),
-                         "\n", "p=", combined$p_formatted)
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
 
 # Define consistent matrix order
 matrix_names <- names(matrices)
@@ -4529,7 +4565,7 @@ combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
 MantelHeatHydro_3 <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
-  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4) +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
   scale_color_identity()+  # use actual color values from the data
   scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
   scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
@@ -4548,12 +4584,12 @@ MantelHeatHydro_3
 ```
 
 ```{r Mantel heatmap: Dry Treatment}
-# Distance matrices, wet history only
+# Distance matrices, dry treatment only
 matrices <- list(
-  "Iron reduction" = FeReductionRA_WetHist_BC,
-  "Assimilatory sulfate reduction" = Assim_SO4_redRA_WetHist_BC,
-  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_WetHist_BC,
-  Methanogenesis = methRA_WetHist_BC
+  "Iron reduction" = FeReductionRA_DryTreat_BC,
+  "Assimilatory sulfate reduction" = Assim_SO4_redRA_DryTreat_BC,
+  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_DryTreat_BC,
+  Methanogenesis = methRA_DryTreat_BC
 )
 
 # Initialize matrices to store r and p-values
@@ -4563,10 +4599,13 @@ p_matrix <- matrix(NA, n, n)
 rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
 rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
 
+# Set the seed ONCE before the loops start
+set.seed(42)
+
 # Run Mantel tests
 for (i in 1:n) {
   for (j in 1:n) {
-    test <- mantel(matrices[[i]], matrices[[j]], permutations = 10000, set.seed(42))
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
     r_matrix[i, j] <- test$statistic
     p_matrix[i, j] <- test$signif
   }
@@ -4582,14 +4621,20 @@ combined <- data.frame(
   p = p_melt$value
 )
 
-# Format p-values
-combined$p_formatted <- ifelse(combined$p < 0.01,
-                               formatC(combined$p, format = "e", digits = 1),
-                               formatC(combined$p, format = "f", digits = 2))
-
 # Create label
-combined$label <- paste0("r=", formatC(combined$r, digits = 2, format = "f"),
-                         "\n", "p=", combined$p_formatted)
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
 
 # Define consistent matrix order
 matrix_names <- names(matrices)
@@ -4611,7 +4656,7 @@ combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
 MantelHeatHydro_4 <- ggplot(combined, aes(Var1, Var2)) +
   geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
   geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
-  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4) +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
   scale_color_identity()+  # use actual color values from the data
   scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
   scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
@@ -4635,7 +4680,7 @@ MantelHeatHydro_ALL <- ggarrange(MantelHeatHydro_1, MantelHeatHydro_2, MantelHea
 
 MantelHeatHydro_ALL
 
-#ggsave("../figures/Fe_S_manuscript/MantelHeatHydro.tiff", plot=MantelHeatHydro_ALL, device="tiff", path=NULL, scale=1, width=11, height=9, dpi=600, limitsize=TRUE ,bg="white")
+#ggsave("../figures/Fe_S_manuscript/MantelHeatHydro.tiff", plot=MantelHeatHydro_ALL, device="tiff", path=NULL, scale=1, width=13, height=9, dpi=600, limitsize=TRUE ,bg="white")
 ```
 
 
