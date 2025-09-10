@@ -3158,6 +3158,8 @@ S_pcoa_4panel_SSF
 
 #ggsave("../figures/Fe_S_manuscript/S_pcoa4panel_SSF.png", plot = S_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 12, limitsize = TRUE, dpi = 600)
 
+#ggsave("../figures/Fe_S_manuscript/Figure5.tiff", plot = S_pcoa_4panel_SSF, device="tiff", path=NULL, scale=1, height = 7, width = 12, limitsize = TRUE, dpi = 600)
+
 # 4 panel Sulfur PCoA, Finish samples only (SFO)
 
 S_pcoa_4panel_SFO <- ggarrange(plot5a, plot5b, plot5c, plot5d, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
@@ -3817,6 +3819,8 @@ FeRed_SO4Red_4panel <- ggarrange(plot7a, plot7b, plot7c, plot7d, ncol = 2, nrow 
 FeRed_SO4Red_4panel
 
 #ggsave("../figures/Fe_S_manuscript/FeRed_SO4Red_4panel.png", plot = FeRed_SO4Red_4panel, device=NULL, path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
+
+#ggsave("../figures/Fe_S_manuscript/Figure6.tiff", plot = FeRed_SO4Red_4panel, device="tiff", path=NULL, scale=1, height = 7, width = 13, limitsize = TRUE, dpi = 600)
 ```
 
 ```{r PCOA: Methane Oxidation}
@@ -4022,6 +4026,102 @@ mantel(methBC, Assim_SO4_redBC, permutations = 10000, set.seed(42))
 mantel(methBC, Dissim_SO4_redBC, permutations = 10000, set.seed(42))
 ```
 
+```{r Mantel heatmap figure (overall comparisons)}
+# List of distance matrices
+matrices <- list(
+  "Iron reduction" = FeReductionBC,
+  "Assimilatory sulfate reduction" = Assim_SO4_redBC,
+  "Dissimilatory sulfate reduction" = Dissim_SO4_redBC,
+  "Sox pathway" = ThioSOXBC,
+  "Denitrification" = denitBC,
+  "DNRA" = DNRABC,
+  Methanogenesis = methBC
+)
+
+# Initialize matrices to store r and p-values
+n <- length(matrices)
+r_matrix <- matrix(NA, n, n)
+p_matrix <- matrix(NA, n, n)
+rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
+rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
+
+# Set the seed ONCE before the loops start
+set.seed(42)
+
+# Run Mantel tests
+for (i in 1:n) {
+  for (j in 1:n) {
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
+    r_matrix[i, j] <- test$statistic
+    p_matrix[i, j] <- test$signif
+  }
+}
+
+# Melt matrices for ggplot
+r_melt <- melt(r_matrix)
+p_melt <- melt(p_matrix)
+combined <- data.frame(
+  Var1 = r_melt$Var1,
+  Var2 = r_melt$Var2,
+  r = round(r_melt$value, 2),
+  p = p_melt$value
+)
+
+# Create label
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
+
+# Define consistent matrix order
+matrix_names <- names(matrices)
+
+# Set both Var1 and Var2 to the same factor levels
+combined$Var1 <- factor(combined$Var1, levels = matrix_names)
+combined$Var2 <- factor(combined$Var2, levels = matrix_names)
+
+# Mask upper triangle: Var1 is column (X), Var2 is row (Y)
+combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
+
+# Flag diagonal cells
+combined$is_diagonal <- as.character(combined$Var1) == as.character(combined$Var2)
+
+# Set text color: black for diagonal, white otherwise
+combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
+
+# Plot heatmap with masked lower triangle
+Mantel_heat_overall <- ggplot(combined, aes(Var1, Var2)) +
+  geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
+  geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
+  scale_color_identity() +
+  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
+  scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
+  scale_x_discrete(limits = matrix_names) +  # non reversed X-axis
+  theme_minimal() +
+  labs(x = "", y = "", title = "") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+  axis.ticks.x = element_blank(),
+  axis.ticks.y = element_blank(),
+  panel.grid.major = element_blank(),  # remove major grid lines
+  panel.grid.minor = element_blank(),  # remove minor grid lines
+  axis.line = element_blank()          # optional: remove axis lines
+)
+
+Mantel_heat_overall
+
+#ggsave("../figures/Fe_S_manuscript/Mantel_heat_overall.tiff", plot=Mantel_heat_overall, device="tiff", path=NULL, scale=1, width=10, height=6, dpi=600, limitsize=TRUE ,bg="white")
+```
+
 ```{r Wrangling for hydrology-specific Mantel Tests}
 #Filter FeReduction and SO4 reduction (combined) for wet history only:
 SO4_red_combinedRA_WetHist_design <- SO4_red_combinedRA_design %>% dplyr::filter(Hist == "w")
@@ -4206,6 +4306,381 @@ mantel(methRA_DryTreat_BC, SO4_red_combinedRA_DryTreat_BC, permutations = 10000,
 mantel(methRA_DryTreat_BC, Assim_SO4_redRA_DryTreat_BC, permutations = 10000, set.seed(42))
 
 mantel(methRA_DryTreat_BC, Dissim_SO4_redRA_DryTreat_BC, permutations = 10000, set.seed(42))
+```
+
+```{r Mantel heatmap: Wet Hist}
+# Distance matrices, wet history only
+matrices <- list(
+  "Iron reduction" = FeReductionRA_WetHist_BC,
+  "Assimilatory sulfate reduction" = Assim_SO4_redRA_WetHist_BC,
+  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_WetHist_BC,
+  Methanogenesis = methRA_WetHist_BC
+)
+
+# Initialize matrices to store r and p-values
+n <- length(matrices)
+r_matrix <- matrix(NA, n, n)
+p_matrix <- matrix(NA, n, n)
+rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
+rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
+
+# Set the seed ONCE before the loops start
+set.seed(42)
+
+# Run Mantel tests
+for (i in 1:n) {
+  for (j in 1:n) {
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
+    r_matrix[i, j] <- test$statistic
+    p_matrix[i, j] <- test$signif
+  }
+}
+
+# Melt matrices for ggplot
+r_melt <- melt(r_matrix)
+p_melt <- melt(p_matrix)
+combined <- data.frame(
+  Var1 = r_melt$Var1,
+  Var2 = r_melt$Var2,
+  r = round(r_melt$value, 2),
+  p = p_melt$value
+)
+
+# Create label
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
+
+# Define consistent matrix order
+matrix_names <- names(matrices)
+
+# Set both Var1 and Var2 to the same factor levels
+combined$Var1 <- factor(combined$Var1, levels = matrix_names)
+combined$Var2 <- factor(combined$Var2, levels = matrix_names)
+
+# Mask upper triangle: Var1 is column (X), Var2 is row (Y)
+combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
+
+# Flag diagonal cells
+combined$is_diagonal <- as.character(combined$Var1) == as.character(combined$Var2)
+
+# Set text color: black for diagonal, white otherwise
+combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
+
+# Plot heatmap with masked lower triangle
+MantelHeatHydro_1 <- ggplot(combined, aes(Var1, Var2)) +
+  geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
+  geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
+  scale_color_identity()+  # use actual color values from the data
+  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
+  scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
+  scale_x_discrete(limits = matrix_names) +  # non reversed X-axis
+  theme_minimal() +
+  labs(x = "", y = "", title = "Wet History") +
+  #theme(axis.text.x = element_text(angle = 45, hjust = 1),
+  theme(axis.text.x = element_blank(),
+  axis.ticks.x = element_blank(),
+  axis.ticks.y = element_blank(),
+  panel.grid.major = element_blank(),  # remove major grid lines
+  panel.grid.minor = element_blank(),  # remove minor grid lines
+  axis.line = element_blank()          # optional: remove axis lines
+)
+
+MantelHeatHydro_1
+```
+
+```{r Mantel heatmap: Dry Hist}
+# Distance matrices, dry history only
+matrices <- list(
+  "Iron reduction" = FeReductionRA_DryHist_BC,
+  "Assimilatory sulfate reduction" = Assim_SO4_redRA_DryHist_BC,
+  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_DryHist_BC,
+  Methanogenesis = methRA_DryHist_BC
+)
+
+# Initialize matrices to store r and p-values
+n <- length(matrices)
+r_matrix <- matrix(NA, n, n)
+p_matrix <- matrix(NA, n, n)
+rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
+rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
+
+# Set the seed ONCE before the loops start
+set.seed(42)
+
+# Run Mantel tests
+for (i in 1:n) {
+  for (j in 1:n) {
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
+    r_matrix[i, j] <- test$statistic
+    p_matrix[i, j] <- test$signif
+  }
+}
+
+# Melt matrices for ggplot
+r_melt <- melt(r_matrix)
+p_melt <- melt(p_matrix)
+combined <- data.frame(
+  Var1 = r_melt$Var1,
+  Var2 = r_melt$Var2,
+  r = round(r_melt$value, 2),
+  p = p_melt$value
+)
+
+# Create label
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
+
+# Define consistent matrix order
+matrix_names <- names(matrices)
+
+# Set both Var1 and Var2 to the same factor levels
+combined$Var1 <- factor(combined$Var1, levels = matrix_names)
+combined$Var2 <- factor(combined$Var2, levels = matrix_names)
+
+# Mask upper triangle: Var1 is column (X), Var2 is row (Y)
+combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
+
+# Flag diagonal cells
+combined$is_diagonal <- as.character(combined$Var1) == as.character(combined$Var2)
+
+# Set text color: black for diagonal, white otherwise
+combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
+
+# Plot heatmap with masked lower triangle
+MantelHeatHydro_2 <- ggplot(combined, aes(Var1, Var2)) +
+  geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
+  geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
+  scale_color_identity()+  # use actual color values from the data
+  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
+  scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
+  scale_x_discrete(limits = matrix_names) +  # non reversed X-axis
+  theme_minimal() +
+  labs(x = "", y = "", title = "Dry History") +
+  #theme(axis.text.x = element_text(angle = 45, hjust = 1),
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank(),
+  axis.ticks.x = element_blank(),
+  axis.ticks.y = element_blank(),
+  panel.grid.major = element_blank(),  # remove major grid lines
+  panel.grid.minor = element_blank(),  # remove minor grid lines
+  axis.line = element_blank()          # optional: remove axis lines
+)
+
+MantelHeatHydro_2
+```
+
+```{r Mantel heatmap: Wet Treatment}
+# Distance matrices, wet treatment only
+matrices <- list(
+  "Iron reduction" = FeReductionRA_WetTreat_BC,
+  "Assimilatory sulfate reduction" = Assim_SO4_redRA_WetTreat_BC,
+  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_WetTreat_BC,
+  Methanogenesis = methRA_WetTreat_BC
+)
+
+# Initialize matrices to store r and p-values
+n <- length(matrices)
+r_matrix <- matrix(NA, n, n)
+p_matrix <- matrix(NA, n, n)
+rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
+rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
+
+# Set the seed ONCE before the loops start
+set.seed(42)
+
+# Run Mantel tests
+for (i in 1:n) {
+  for (j in 1:n) {
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
+    r_matrix[i, j] <- test$statistic
+    p_matrix[i, j] <- test$signif
+  }
+}
+
+# Melt matrices for ggplot
+r_melt <- melt(r_matrix)
+p_melt <- melt(p_matrix)
+combined <- data.frame(
+  Var1 = r_melt$Var1,
+  Var2 = r_melt$Var2,
+  r = round(r_melt$value, 2),
+  p = p_melt$value
+)
+
+# Create label
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
+
+# Define consistent matrix order
+matrix_names <- names(matrices)
+
+# Set both Var1 and Var2 to the same factor levels
+combined$Var1 <- factor(combined$Var1, levels = matrix_names)
+combined$Var2 <- factor(combined$Var2, levels = matrix_names)
+
+# Mask upper triangle: Var1 is column (X), Var2 is row (Y)
+combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
+
+# Flag diagonal cells
+combined$is_diagonal <- as.character(combined$Var1) == as.character(combined$Var2)
+
+# Set text color: black for diagonal, white otherwise
+combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
+
+# Plot heatmap with masked lower triangle
+MantelHeatHydro_3 <- ggplot(combined, aes(Var1, Var2)) +
+  geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
+  geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
+  scale_color_identity()+  # use actual color values from the data
+  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
+  scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
+  scale_x_discrete(limits = matrix_names) +  # non reversed X-axis
+  theme_minimal() +
+  labs(x = "", y = "", title = "Wet Treatment") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+  axis.ticks.x = element_blank(),
+  axis.ticks.y = element_blank(),
+  panel.grid.major = element_blank(),  # remove major grid lines
+  panel.grid.minor = element_blank(),  # remove minor grid lines
+  axis.line = element_blank()          # optional: remove axis lines
+)
+
+MantelHeatHydro_3
+```
+
+```{r Mantel heatmap: Dry Treatment}
+# Distance matrices, dry treatment only
+matrices <- list(
+  "Iron reduction" = FeReductionRA_DryTreat_BC,
+  "Assimilatory sulfate reduction" = Assim_SO4_redRA_DryTreat_BC,
+  "Dissimilatory sulfate reduction" = Dissim_SO4_redRA_DryTreat_BC,
+  Methanogenesis = methRA_DryTreat_BC
+)
+
+# Initialize matrices to store r and p-values
+n <- length(matrices)
+r_matrix <- matrix(NA, n, n)
+p_matrix <- matrix(NA, n, n)
+rownames(r_matrix) <- colnames(r_matrix) <- names(matrices)
+rownames(p_matrix) <- colnames(p_matrix) <- names(matrices)
+
+# Set the seed ONCE before the loops start
+set.seed(42)
+
+# Run Mantel tests
+for (i in 1:n) {
+  for (j in 1:n) {
+    test <- mantel(matrices[[i]], matrices[[j]], permutations = 9999)
+    r_matrix[i, j] <- test$statistic
+    p_matrix[i, j] <- test$signif
+  }
+}
+
+# Melt matrices for ggplot
+r_melt <- melt(r_matrix)
+p_melt <- melt(p_matrix)
+combined <- data.frame(
+  Var1 = r_melt$Var1,
+  Var2 = r_melt$Var2,
+  r = round(r_melt$value, 2),
+  p = p_melt$value
+)
+
+# Create label
+combined$label <- mapply(function(r, p) {
+  if (p < 0.01) {
+    sci <- formatC(p, format = "e", digits = 1)  # e.g., "8.0e-03"
+    parts <- strsplit(sci, "e")[[1]]
+    coeff <- parts[1]
+    exponent <- as.numeric(parts[2])
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", coeff, " %*% 10^", exponent, ")")
+  } else {
+    paste0("atop(italic(r)==", formatC(r, digits = 2, format = "f"),
+           ", italic(p)==", formatC(p, format = "f", digits = 2), ")")
+  }
+}, combined$r, combined$p)
+
+# Define consistent matrix order
+matrix_names <- names(matrices)
+
+# Set both Var1 and Var2 to the same factor levels
+combined$Var1 <- factor(combined$Var1, levels = matrix_names)
+combined$Var2 <- factor(combined$Var2, levels = matrix_names)
+
+# Mask upper triangle: Var1 is column (X), Var2 is row (Y)
+combined$mask <- match(combined$Var1, matrix_names) > match(combined$Var2, matrix_names)
+
+# Flag diagonal cells
+combined$is_diagonal <- as.character(combined$Var1) == as.character(combined$Var2)
+
+# Set text color: black for diagonal, white otherwise
+combined$text_color <- ifelse(combined$is_diagonal, "black", "white")
+
+# Plot heatmap with masked lower triangle
+MantelHeatHydro_4 <- ggplot(combined, aes(Var1, Var2)) +
+  geom_tile(data = subset(combined, mask), fill = "white", color = "white") +
+  geom_tile(data = subset(combined, !mask), aes(fill = r), color = "white") +
+  geom_text(data = subset(combined, !mask), aes(label = label, color = text_color), size = 4, parse = TRUE) +
+  scale_color_identity()+  # use actual color values from the data
+  scale_fill_viridis_c(option = "viridis", name = "Mantel r") +
+  scale_y_discrete(limits = rev(matrix_names)) +  # reverse Y-axis
+  scale_x_discrete(limits = matrix_names) +  # non reversed X-axis
+  theme_minimal() +
+  labs(x = "", y = "", title = "Dry Treatment") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+  axis.text.y = element_blank(),
+  axis.ticks.x = element_blank(),
+  axis.ticks.y = element_blank(),
+  panel.grid.major = element_blank(),  # remove major grid lines
+  panel.grid.minor = element_blank(),  # remove minor grid lines
+  axis.line = element_blank()          # optional: remove axis lines
+)
+
+MantelHeatHydro_4
+```
+
+```{r 4-panel Hydrology Mantel Heatmaps}
+MantelHeatHydro_ALL <- ggarrange(MantelHeatHydro_1, MantelHeatHydro_2, MantelHeatHydro_3, MantelHeatHydro_4, labels = c("A", "B", "C", "D"), ncol = 2, nrow = 2, legend = "right", common.legend = T, align = "hv")
+
+MantelHeatHydro_ALL
+
+#ggsave("../figures/Fe_S_manuscript/MantelHeatHydro.tiff", plot=MantelHeatHydro_ALL, device="tiff", path=NULL, scale=1, width=13, height=9, dpi=600, limitsize=TRUE ,bg="white")
 ```
 
 

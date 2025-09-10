@@ -49,7 +49,7 @@ require("ggpmisc")
 # If phyloseq not installed, un-comment and run:
 #if (!require("BiocManager", quietly = TRUE))
     #install.packages("BiocManager")
-#BiocManager::install(version = "3.20")
+#BiocManager::install(version = "3.21")
 
 #BiocManager::install("phyloseq")
 
@@ -520,6 +520,8 @@ plot.IRIS_stats <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
 plot.IRIS_stats
 
 #ggsave("../figures/Fe_S_manuscript/iris_stats.png", plot=plot.IRIS_stats, device=NULL, path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE ,bg="white")
+
+#ggsave("../figures/Fe_S_manuscript/iris_stats.tiff", plot=plot.IRIS_stats, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE ,bg="white")
 ```
 
 
@@ -1492,7 +1494,7 @@ plot.CH4.flux.Hst <- ggplot(select_fluxes_combined_w_T0, aes(x=history, y=f0_CH4
                      geom_boxplot(aes(color=history), outlier.shape = NA) +
                      geom_point(aes(color=history,  shape=history), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="History")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="History")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="History")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1506,7 +1508,9 @@ plot.CH4.flux.Hst <- ggplot(select_fluxes_combined_w_T0, aes(x=history, y=f0_CH4
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
-  stat_pvalue_manual(data = CH4_MultComp.DF_Hst, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = T, y.position = (max(select_fluxes_combined_w_T0$f0_CH4)), step.group.by = "date_format", step.increase = 0.1)
+  coord_cartesian(ylim = c(-16, 55)) +
+  stat_pvalue_manual(data = CH4_MultComp.DF_Hst, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p.adj", y.position = 45, step.group.by = "date_format", step.increase = 0.02, tip.length = 0.006)
+
  
 plot.CH4.flux.Hst
 ```
@@ -1537,7 +1541,7 @@ plot.CO2.flux.Hst <- ggplot(select_fluxes_combined_w_T0, aes(x=history, y=f0_CO2
                      geom_boxplot(aes(color=history), outlier.shape = NA) +
                      geom_point(aes(color=history,  shape=history), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="History")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="History")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="History")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1584,7 +1588,7 @@ plot.N2O.flux.Hst <- ggplot(select_fluxes_combined_w_T0, aes(x=history, y=f0_N2O
                      geom_boxplot(aes(color=history), outlier.shape = NA) +
                     geom_point(aes(color=history,  shape=history), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="History")+
-  scale_shape_manual(values=c(19, 17, 15), labels = c("Dry", "Interim", "Wet"), name="History")+
+  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="History")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1603,23 +1607,12 @@ plot.N2O.flux.Hst <- ggplot(select_fluxes_combined_w_T0, aes(x=history, y=f0_N2O
 plot.N2O.flux.Hst
 ```
 
-```{r Extract and save GHG boxplot legend}
-leg_hist <- get_legend(plot.N2O.flux.Hst, position = "bottom") #Extract legend as a legend Grob
-legend_plot_hist <- as_ggplot(leg_hist) #Asign the grob as a ggplot
-legend_plot_hist #View the plot
-
-#ggsave("../figures/pub/GHG_history/legend_history.tiff", plot=legend_plot_hist, device="tiff", path=NULL, scale=1, dpi=300, limitsize=TRUE, bg="white")
-```
-
-
 ```{r Combined GHG Boxplot}
-CombPlot_flux_hist <- ggarrange(plot.CH4.flux.Hst, plot.CO2.flux.Hst, plot.N2O.flux.Hst, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "none", align = "hv")
+CombPlot_flux_hist <- ggarrange(plot.CH4.flux.Hst, plot.CO2.flux.Hst, plot.N2O.flux.Hst, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
 
 CombPlot_flux_hist
 
-#ggsave("../figures/pub/GHG_history/Flux_history.tiff", plot=CombPlot_flux_hist, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
-
-#ggsave("../figures/pub/GHG_history/Flux_history.png", plot=CombPlot_flux_hist, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Fe_S_manuscript/GHG_flux/Flux_history.tiff", plot=CombPlot_flux_hist, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 ## GHG flux plots for FeS manuscript
@@ -1708,6 +1701,120 @@ CombPlot_flux
 
 #ggsave("../figures/Fe_S_manuscript/GHG_flux/Flux.png", plot=CombPlot_flux, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
+
+```{r GHG Line Plot}
+# Rename the data
+df <- select_fluxes_combined_w_T0
+
+# Convert 'date_format' to a proper Date object
+df <- df %>%
+  mutate(date_format = as.Date(date_format, format = "%d-%b"))
+
+# List of gases to plot
+gases <- c("f0_CH4", "f0_CO2", "f0_N2O")
+
+# Loop through each gas and create a smoothed plot
+for (gas in gases) {
+  p <- ggplot(df, aes(x = date_format, y = .data[[gas]])) +
+    geom_point(alpha = 0.6) +
+    geom_smooth(method = "loess", se = FALSE, color = "blue") +
+    labs(
+      title = paste("Smoothed Line Plot for", gas, "Over Time"),
+      x = "Date",
+      y = gas
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  print(p)
+}
+```
+```{r list of date breaks for 3 line plots}
+date_breaks <- as.Date(c("2025-06-13", "2025-06-28", "2025-07-11", "2025-07-25", "2025-08-11"))
+```
+
+```{r CH4 line plot}
+# To use open and closed shapes, must create a combined category for History and Plant:
+df$history_plant <- as.factor(c(paste(df$history, df$plant, sep = "_")))
+
+# Plotting:
+ch4.line.plot <- ggplot(df, x=date_format, y=f0_CH4)  +
+  geom_point(aes(x=date_format, y=f0_CH4, color=treatment, shape=history_plant), size = 3, position = position_jitterdodge(jitter.width = 4, dodge.width = 4)) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  #geom_smooth(aes(x=date_format, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=date_format, y=f0_CH4, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = df, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_blank(), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))+
+    scale_x_date(breaks = date_breaks, date_labels = "%b %d")+
+    coord_cartesian(ylim = c(-16, 50))
+
+ch4.line.plot
+```
+
+```{r CO2 line plot}
+co2.line.plot <- ggplot(df, x=date_format, y=f0_CO2)  +
+  geom_point(aes(x=date_format, y=f0_CO2, color=treatment, shape=history_plant), size = 3, position = position_jitterdodge(jitter.width = 4, dodge.width = 4)) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  #geom_smooth(aes(x=date_format, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=date_format, y=f0_CO2, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = df, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_blank(), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))+
+    scale_x_date(breaks = date_breaks, date_labels = "%b %d")
+
+co2.line.plot
+```
+
+```{r N2O line plot}
+n2o.line.plot <- ggplot(df, x=date_format, y=f0_N2O)  +
+  geom_point(aes(x=date_format, y=f0_N2O, color=treatment, shape=history_plant), size = 3, position = position_jitterdodge(jitter.width = 4, dodge.width = 4)) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  geom_smooth(aes(x=date_format, y=f0_N2O), formula = y ~ x, method=lm, se=T, color="black")+
+  stat_poly_eq(aes(x=date_format, y=f0_N2O, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = df, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
+  theme_bw()  +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          axis.title.y=element_text(margin=margin(r=10)), 
+          axis.title.x=element_text(margin=margin(t=10))) +
+    theme(axis.title=element_text(vjust=1,size=20),
+          axis.text=element_text(size=20), axis.text.x = element_text(size=20), panel.border =
+          element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1}))) + 
+    theme(legend.text=element_text(size=20), legend.title = element_text(size=20), 
+          legend.position = "right")+
+    theme(strip.text = element_text(size = 20))+
+    scale_x_date(breaks = date_breaks, date_labels = "%b %d")
+
+n2o.line.plot
+```
+
+```{r Three panel GHG line plot}
+GHG_flux_3panel <- ggarrange(ch4.line.plot, co2.line.plot, n2o.line.plot, labels = c("A", "B", "C"), ncol = 1, nrow = 3, legend = "right", common.legend = T, align = "hv")
+
+GHG_flux_3panel
+
+#ggsave("../figures/Fe_S_manuscript/GHG_flux/LinePlot_Flux.tiff", plot=GHG_flux_3panel, device="tiff", path=NULL, scale=1, width=11, height=10, dpi=600, limitsize=TRUE, bg="white")
+```
+
 
 ## GHG summary
 
@@ -2006,7 +2113,6 @@ ch4.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, 
 ch4.redox.regress.plot
 ```
 
-
 ```{r CO2 redox regression}
 co2.lm.start <- lm(f0_CO2 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
 summary(co2.lm.start)
@@ -2035,8 +2141,6 @@ co2.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, 
 
 co2.redox.regress.plot
 ```
-
-
 
 ```{r N2O redox regression }
 n2o.lm.start <- lm(f0_N2O ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
