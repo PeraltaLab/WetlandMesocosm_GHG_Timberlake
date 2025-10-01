@@ -444,12 +444,6 @@ iris_tubes.Finish
 iris_tubes.Combined <- ggarrange(iris_tubes.Start, iris_tubes.Finish, labels = c("Start (Week 0)", "Finish (Week 8)"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
 
 iris_tubes.Combined
-
-#ggsave("../figures/pub/iris_tubes.tiff", plot=iris_tubes.Combined, device="tiff", path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE, bg="white")
-
-#ggsave("../figures/pub/iris_tubes.png", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=600, limitsize=TRUE ,bg="white")
-
-#ggsave("../figures/pub/iris_tubes.pdf", plot=iris_tubes.Combined, device=NULL, path=NULL, scale=1, width=6, height=5, dpi=900, limitsize=TRUE ,bg="transparent")
 ```
 
 ```{r IRIS boxplot with stats for FeS manuscript}
@@ -524,8 +518,39 @@ plot.IRIS_stats
 #ggsave("../figures/Fe_S_manuscript/iris_stats.tiff", plot=plot.IRIS_stats, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE ,bg="white")
 ```
 
+```{r IRIS plot for Ecosphere Sept 2025 revision}
+# Add history as shape. Remove stats. Add X-axis title: Treatment.
+
+# To use open and closed shapes, must create a combined category for History and Plant:
+soil_nofield$history_plant <- as.factor(c(paste(soil_nofield$history, soil_nofield$plant, sep = "_")))
 
 
+# Plotting:
+plot.IRIS_nested <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
+  facet_wrap(vars(as.factor(time)), nrow = 1, ncol = 2)+
+                    geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                    geom_point(aes(color=treatment, shape=history_plant), size = 3, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Treatment", y = "IRIS percent", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+ 
+plot.IRIS_nested
+
+#ggsave("../figures/Ecosphere_pub/iris_tubes.tiff", plot=plot.IRIS_nested, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE, bg="white")
+
+#ggsave("../figures/Ecosphere_pub/iris_tubes.png", plot=plot.IRIS_nested, device="png", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE, bg="white")
+```
 
 ```{r soil moisture boxplot}
 soil_moisture <- ggplot(soil_nofield, aes(x=treatment, y=moisture.percent, fill=plant)) + 
@@ -1185,6 +1210,12 @@ N2O_wilcox_8.11 <- wilcox.test(select_fluxes_combined_w_T0_8.11$f0_N2O[select_fl
 N2O_wilcox_8.11
 ```
 
+### Plotting Plant vs. No Plant
+
+```{r History_plant for "nested" symbols}
+# Add history_plant for plotting:
+select_fluxes_combined_w_T0$history_plant <- as.factor(c(paste(select_fluxes_combined_w_T0$history, select_fluxes_combined_w_T0$plant, sep = "_")))
+```
 
 ```{r CH4 flux w T0 NP vs. P}
 # Wilcox Test, nicer format, can use to verify stats on plot:
@@ -1199,10 +1230,10 @@ CH4_wilcox.DF <- as.data.frame(CH4_wilcox)
 # Plotting:
 plot.CH4.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_CH4)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
-                     geom_boxplot(aes(color=plant), outlier.shape = NA) +
-                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+                     geom_boxplot(color="black", outlier.shape = NA) +
+                     geom_point(aes(color=treatment, shape=history_plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1235,10 +1266,10 @@ CO2_wilcox.DF <- as.data.frame(CO2_wilcox)
 # Plotting:
 plot.CO2.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_CO2)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
-                     geom_boxplot(aes(color=plant), outlier.shape = NA) +
-                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+                     geom_boxplot(color="black", outlier.shape = NA) +
+                     geom_point(aes(color=treatment, shape=history_plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1251,8 +1282,8 @@ plot.CO2.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_CO2)
           labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("", ""))+
   theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))+
-  stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
+  theme(plot.background = element_rect(color=NA))
+  #stat_compare_means(method = "wilcox.test", paired = T, label = "p.signif", label.y.npc = "center", label.x.npc = "center",size = 10, hide.ns = T)
  
 plot.CO2.flux.NPvP
 ```
@@ -1270,10 +1301,10 @@ N2O_wilcox.DF <- as.data.frame(N2O_wilcox)
 # Plotting:
 plot.N2O.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_N2O)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
-                     geom_boxplot(aes(color=plant), outlier.shape = NA) +
-                     geom_point(aes(color=plant, shape=plant), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#E69F00","#009E73"), labels = c("No Plant", "Plant"), name="")+
-  scale_shape_manual(values=c(19, 17), labels = c("No Plant", "Plant"), name="")+
+                     geom_boxplot(color="black", outlier.shape = NA) +
+                     geom_point(aes(color=treatment, shape=history_plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1281,7 +1312,7 @@ plot.N2O.flux.NPvP <- ggplot(select_fluxes_combined_w_T0, aes(x=plant, y=f0_N2O)
   theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
           axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="bottom", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          axis.text.x = element_text(angle = 45, hjust = 1),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("No Plant", "Plant"))+
@@ -1293,13 +1324,13 @@ plot.N2O.flux.NPvP
 ```
 
 ```{r Combined GHG Boxplot}
-CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
+CombPlot_flux_NPvP <- ggarrange(plot.CH4.flux.NPvP, plot.CO2.flux.NPvP, plot.N2O.flux.NPvP, labels = c("(a)", "(b)","(c)"), ncol = 1, nrow = 3, legend = "right", common.legend = T, align = "hv")
 
 CombPlot_flux_NPvP
 
-#ggsave("../figures/pub/GHG_NPvP/Figure3.tiff", plot=CombPlot_flux_NPvP, device="tiff", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/GHG_NPvP/CH4_N2O_suppFig.tiff", plot=CombPlot_flux_NPvP, device="tiff", scale=1, width=14, height=12, dpi=600, limitsize=TRUE, bg="white")
 
-#ggsave("../figures/pub/GHG_NPvP/Flux_NPvP.png", plot=CombPlot_flux_NPvP, device="png", path=NULL, scale=1, width=12, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/GHG_NPvP/CH4_N2O_suppFig.png", plot=CombPlot_flux_NPvP, device="png", scale=1, width=14, height=12, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 ## Flux w T0: Treatment and Kruskal boxplots
@@ -1324,13 +1355,33 @@ CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.co
 # Export the data frames to a .csv file
 #write.csv(CH4_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CH4_MultComp.csv", row.names = T)
 
+# example plot:
+plot.IRIS_nested <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
+  facet_wrap(vars(as.factor(time)), nrow = 1, ncol = 2)+
+                    geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                    geom_point(aes(color=treatment, shape=history_plant), size = 3, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
+          axis.text=element_text(size=20),  
+          axis.title.y=element_text(margin=margin(r=10)),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Treatment", y = "IRIS percent", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+
 # Plotting:
 plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CH4)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+                     geom_point(aes(color=treatment,  shape=history_plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1374,9 +1425,9 @@ CO2_MultComp.DF <- add_significance(CO2_MultComp.DF, p.col = "SDCF_p", output.co
 plot.CO2.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CO2)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                     geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+                     geom_point(aes(color=treatment,  shape=history_plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1422,9 +1473,9 @@ N2O_MultComp.DF$p[4] <- 1.0
 plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N2O)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
                      geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                    geom_point(aes(color=treatment,  shape=treatment), size = 2, position = position_jitterdodge()) +
+                    geom_point(aes(color=treatment,  shape=history_plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(15, 17, 19), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -1432,9 +1483,9 @@ plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N
   theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
           axis.text=element_text(size=20),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          axis.text.x = element_text(angle = 45, hjust = 1), panel.border = element_rect(colour = "black",size=1), strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
+          labs(x = "Treatment", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("Dry", "Interim", "Wet"))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
@@ -1444,13 +1495,13 @@ plot.N2O.flux.Trt
 ```
 
 ```{r Combined GHG Boxplot}
-CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
+CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "right", common.legend = T, align = "hv")
 
 CombPlot_flux_treat
 
-#ggsave("../figures/pub/GHG_Treatment/Figure4.tiff", plot=CombPlot_flux_treat, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.tiff", plot=CombPlot_flux_treat, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 
-#ggsave("../figures/pub/GHG_Treatment/Flux_treatment.png", plot=CombPlot_flux_treat, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.png", plot=CombPlot_flux_treat, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 ```{r Wilcox and Kruskal-Wallis tables}
@@ -1613,6 +1664,8 @@ CombPlot_flux_hist <- ggarrange(plot.CH4.flux.Hst, plot.CO2.flux.Hst, plot.N2O.f
 CombPlot_flux_hist
 
 #ggsave("../figures/Fe_S_manuscript/GHG_flux/Flux_history.tiff", plot=CombPlot_flux_hist, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
+
+#ggsave("../figures/Fe_S_manuscript/GHG_flux/Flux_history.png", plot=CombPlot_flux_hist, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
 ```
 
 ## GHG flux plots for FeS manuscript
@@ -1813,8 +1866,9 @@ GHG_flux_3panel <- ggarrange(ch4.line.plot, co2.line.plot, n2o.line.plot, labels
 GHG_flux_3panel
 
 #ggsave("../figures/Fe_S_manuscript/GHG_flux/LinePlot_Flux.tiff", plot=GHG_flux_3panel, device="tiff", path=NULL, scale=1, width=11, height=10, dpi=600, limitsize=TRUE, bg="white")
-```
 
+#ggsave("../figures/Fe_S_manuscript/GHG_flux/LinePlot_Flux.png", plot=GHG_flux_3panel, device="png", path=NULL, scale=1, width=11, height=10, dpi=600, limitsize=TRUE, bg="white")
+```
 
 ## GHG summary
 
@@ -2085,18 +2139,26 @@ IRIS_GHG_start_fin$redox.percent.formatted <- IRIS_GHG_start_fin$redox.percent.p
 
 
 ```{r CH4 redox regression}
+# Check linear models:
 ch4.lm.start <- lm(f0_CH4 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "13-Jun")
 summary(ch4.lm.start)
 
 ch4.lm.finish <- lm(f0_CH4 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "11-Aug")
 summary(ch4.lm.finish)
 
+# To use open and closed shapes, must create a combined category for History and Plant:
+IRIS_GHG_start_fin$history_plant <- as.factor(c(paste(IRIS_GHG_start_fin$history, IRIS_GHG_start_fin$plant, sep = "_")))
+
+# Filter data for geom_smooth only where p < 0.1
+ch4_smooth_data <- IRIS_GHG_start_fin %>% filter(time == "Start (Week 0)")
+
+# Plot
 ch4.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_CH4)  +
   facet_wrap(~time, nrow = 1, ncol = 2)+
-                    geom_point(aes(x=redox.percent.formatted, y=f0_CH4, color=treatment, shape=plant), size = 2) +
+                    geom_point(aes(x=redox.percent.formatted, y=f0_CH4, color=treatment, shape=history_plant), size = 2) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
-  geom_smooth(aes(x=redox.percent.formatted, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  geom_smooth(data = ch4_smooth_data, aes(x=redox.percent.formatted, y=f0_CH4), formula = y ~ x, method=lm, se=T, color="black")+
   stat_poly_eq(aes(x=redox.percent.formatted, y=f0_CH4, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
@@ -2120,12 +2182,16 @@ summary(co2.lm.start)
 co2.lm.finish <- lm(f0_CO2 ~ redox.percent.formatted, data=IRIS_GHG_start_fin, subset = date_format == "11-Aug")
 summary(co2.lm.finish)
 
+# Filter data for geom_smooth only where p < 0.1
+co2_smooth_data <- IRIS_GHG_start_fin %>% filter(time == "Finish (Week 8)")
+
+# Plot
 co2.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_CO2)  +
   facet_wrap(~time, nrow = 1, ncol = 2)+
-                    geom_point(aes(x=redox.percent.formatted, y=f0_CO2, color=treatment, shape=plant), size = 2) +
+                    geom_point(aes(x=redox.percent.formatted, y=f0_CO2, color=treatment, shape=history_plant), size = 2) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
-  geom_smooth(aes(x=redox.percent.formatted, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  geom_smooth(data = co2_smooth_data, aes(x=redox.percent.formatted, y=f0_CO2), formula = y ~ x, method=lm, se=T, color="black")+
   stat_poly_eq(aes(x=redox.percent.formatted, y=f0_CO2, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "top",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
@@ -2151,10 +2217,10 @@ summary(n2o.lm.finish)
 
 n2o.redox.regress.plot <- ggplot(IRIS_GHG_start_fin, x=redox.percent.formatted, y=f0_N2O)  +
   facet_wrap(~time, nrow = 1, ncol = 2)+
-                    geom_point(aes(x=redox.percent.formatted, y=f0_N2O, color=treatment, shape=plant), size = 2) +
+                    geom_point(aes(x=redox.percent.formatted, y=f0_N2O, color=treatment, shape=history_plant), size = 2) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(values=c(1,19), labels = c("No Plant", "Plant"), name="")+
-  geom_smooth(aes(x=redox.percent.formatted, y=f0_N2O), formula = y ~ x, method=lm, se=T, color="black")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  #geom_smooth(aes(x=redox.percent.formatted, y=f0_N2O), formula = y ~ x, method=lm, se=T, color="black")+
   stat_poly_eq(aes(x=redox.percent.formatted, y=f0_N2O, label = paste(after_stat(adj.rr.label), after_stat(p.value.label), sep = "*\", \"*")), data = IRIS_GHG_start_fin, formula = y ~ x, method = "lm", label.y = "bottom",label.x = "right")+
   theme_bw()  +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
@@ -2172,10 +2238,12 @@ n2o.redox.regress.plot
 ```
 
 ```{r Panel together GHG ~ redox regressions}
-GHG_redox_3panel <- ggarrange(ch4.redox.regress.plot, co2.redox.regress.plot, n2o.redox.regress.plot, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "top", common.legend = T, align = "hv")
+GHG_redox_3panel <- ggarrange(ch4.redox.regress.plot, co2.redox.regress.plot, n2o.redox.regress.plot, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "right", common.legend = T, align = "hv")
 
 GHG_redox_3panel
 
-#ggsave("../figures/pub/redox_regres.png", plot=GHG_redox_3panel, device="png", path=NULL, scale=1, width=10, height=12, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/redox_regres.tiff", plot=GHG_redox_3panel, device="tiff", path=NULL, scale=1, width=14, height=12, dpi=600, limitsize=TRUE, bg="white")
+
+#ggsave("../figures/Ecosphere_pub/redox_regres.png", plot=GHG_redox_3panel, device="png", path=NULL, scale=1, width=14, height=12, dpi=600, limitsize=TRUE, bg="white")
 ```
 
