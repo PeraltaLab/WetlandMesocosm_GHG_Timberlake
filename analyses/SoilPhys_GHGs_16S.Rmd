@@ -395,57 +395,6 @@ wilcox_IRIS_finish <- compare_means(IRIS_percent~plant, soil_nofield.Finish, met
 wilcox_IRIS_finish
 ```
 
-```{r IRIS plotting}
-#Plotting:
-#Start:
-iris_tubes.Start <- ggplot(soil_nofield.Start, aes(x=treatment, y=IRIS_percent)) +
-  geom_boxplot(outlier.shape = NA) +
-  facet_grid(~plant) +
-  geom_point(aes(color=factor(treatment)), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
-  theme_bw() +
-  #Remove plot grid lines
-theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-#Set axis title and text properties, tick marks, and labels
-theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = "IRIS Percent", title="") +
-  scale_x_discrete(labels=c("", "", ""))+
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
-
-iris_tubes.Start
-
-#Finish:
-iris_tubes.Finish <- ggplot(soil_nofield.Finish, aes(x=treatment, y=IRIS_percent)) +
-  geom_boxplot(outlier.shape = NA) +
-  facet_grid(~plant) +
-  geom_point(aes(color=factor(treatment)), size = 2, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), name="Treatment") +
-  theme_bw() +
-  #Remove plot grid lines
-theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-#Set axis title and text properties, tick marks, and labels
-theme(text=element_text(size=14),axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right", legend.title = element_text(size=14), legend.text=element_text(size=14)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "Treatment", y = "IRIS Percent", title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
-
-iris_tubes.Finish
-
-#Panel together using ggarrange{ggpubr}:
-iris_tubes.Combined <- ggarrange(iris_tubes.Start, iris_tubes.Finish, labels = c("Start (Week 0)", "Finish (Week 8)"), ncol = 1, nrow = 2, legend = "right", common.legend = T)
-
-iris_tubes.Combined
-```
-
 ```{r IRIS boxplot with stats for FeS manuscript}
 # Set levels of time so facets are ordered correctly
 soil_nofield$time <- factor(soil_nofield$time, levels = c("Start", "Finish"))
@@ -529,17 +478,16 @@ soil_nofield$history_plant <- as.factor(c(paste(soil_nofield$history, soil_nofie
 plot.IRIS_nested <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
   facet_wrap(vars(as.factor(time)), nrow = 1, ncol = 2)+
                     geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                    geom_point(aes(color=treatment, shape=history_plant), size = 3, position = position_jitterdodge()) +
+                    geom_point(aes(color=treatment, shape=history_plant), size = 2, position = position_jitterdodge()) +
   scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
   scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
   theme_bw() +
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+  theme(text=element_text(size=10),axis.title=element_text(size=10,face="bold"),
+          axis.text=element_text(size=10, color = "black"),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 10), legend.position="none", legend.title = element_text(size=10), legend.text=element_text(size=10)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "Treatment", y = "IRIS percent", title="") +
   theme(rect=element_rect(fill="transparent"))+
@@ -547,71 +495,31 @@ plot.IRIS_nested <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
  
 plot.IRIS_nested
 
-#ggsave("../figures/Ecosphere_pub/iris_tubes.tiff", plot=plot.IRIS_nested, device="tiff", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/iris_tubes.tiff", plot=plot.IRIS_nested, device="tiff", path=NULL, scale=1, width= 9, height= 6, units = "cm", dpi=600, limitsize=TRUE, bg="white")
 
-#ggsave("../figures/Ecosphere_pub/iris_tubes.png", plot=plot.IRIS_nested, device="png", path=NULL, scale=1, width=9, height=5, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/iris_tubes.png", plot=plot.IRIS_nested, device="png", path=NULL, scale=1, width=9, height=6, units = "cm", dpi=600, limitsize=TRUE, bg="white")
 ```
 
-```{r soil moisture boxplot}
-soil_moisture <- ggplot(soil_nofield, aes(x=treatment, y=moisture.percent, fill=plant)) + 
-  geom_boxplot() +
-  facet_grid(~ fct_rev(time)) +
- scale_fill_manual(values=c("gray", "darkgreen"), labels=c("No Plant", "Plant")) +
-#Set plot elements
-theme_bw()  +
-#Remove plot gridlines
-theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-#Set axis title and text properties, tick marks, and labels
-theme(axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 14), legend.position="right") + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = "Moisture Percent", title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
+```{r IRIS Ecosphere legend to use with Adobe Illustrator}
+# 1. Extract the legend
+# This creates a "grob" (graphical object) containing only the legend
+leg <- get_legend(p)
 
-soil_moisture
+# 2. Convert the legend grob back into a ggplot object
+# This is necessary so you can use ggsave() on it
+leg_plot <- as_ggplot(leg)
 
-#ggsave("../figure/pub/soil_moisture.tiff", plot=soil_moisture, device="tiff", path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE, bg="transparent")
-
-#ggsave("../figures/pub/soil_moisture.jpg", plot=soil_moisture, device=NULL, path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE , bg="transparent")
-
-#ggsave("../figures/pub/soil_moisture.pdf", plot=soil_moisture, device=NULL, path=NULL, scale=1, width=6, height=6.3, dpi=900, limitsize=TRUE , bg="transparent")
+# 3. Save the legend as a TIF file
+# Match your 600 DPI and specific physical dimensions
+ggsave("legend_only.tif", 
+       plot = leg_plot, 
+       width = 6,      # Adjust based on legend width
+       height = 9,     # Adjust based on legend height
+       units = "cm", 
+       dpi = 600,
+       bg = "white")
 ```
 
-```{r soil plots}
-ammonium <- ggplot(soil_nofield, aes(x=treatment, y=nh4.mg.l)) + 
-  geom_boxplot(aes(x=treatment, y=nh4.mg.l, fill=treatment)) +
-  scale_fill_manual(values=c("#997700","#6699CC","#004488"), name="Treatment")+
-  facet_wrap(. ~plant) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor =element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black",size=1)) + 
-  #stat_summary(fun.data=mean_cl_boot,size=1.25, position=position_dodge(width=0.75)) + 
-#scale_color_manual(values=cbbPalette, name="Treatment")+
-labs(x = "Treatment", y = "Ammonium (mg/L)") + theme(axis.title=element_text(vjust=1,size=16,face="bold"), axis.text=element_text(size=14))
-
-ammonium
-
-nitrate <- ggplot(soil_nofield, aes(x=treatment, y=no2.no3.mg.l)) + 
-  geom_boxplot(aes(x=treatment, y=no2.no3.mg.l, fill=treatment)) +
-  scale_fill_manual(values=c("#997700","#6699CC","#004488"), name="Treatment")+
-  facet_wrap(. ~plant) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor =element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black",size=1)) + 
-  #stat_summary(fun.data=mean_cl_boot,size=1.25, position=position_dodge(width=0.75)) + 
-#scale_color_manual(values=cbbPalette, name="Treatment")+
-labs(x = "Treatment", y = "Nitrate (mg/L)") + theme(axis.title=element_text(vjust=1,size=16,face="bold"), axis.text=element_text(size=14))
-
-nitrate
-
-soil_Fe <- ggplot(soil_nofield, aes(x=treatment, y=Fe.ppm)) + 
-  geom_boxplot(aes(x=treatment, y=Fe.ppm, fill=treatment)) +
-  scale_fill_manual(values=c("#997700","#6699CC","#004488"), name="Treatment", labels=c("Dry", "Interim", "Wet"))+
-  scale_x_discrete(labels=c("Dry", "Interim", "Wet"), name="") +
-  facet_wrap(. ~plant) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor =element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black",size=1)) + 
-  #stat_summary(fun.data=mean_cl_boot,size=1.25, position=position_dodge(width=0.75)) + 
-#scale_color_manual(values=cbbPalette, name="Treatment")+
-labs(x = "Treatment", y = "Iron (mg/L)") + theme(axis.title=element_text(vjust=1,size=16,face="bold"), axis.text=element_text(size=14))
-
-soil_Fe
-```
 
 # Greenhouse gases (GHGs)
 
