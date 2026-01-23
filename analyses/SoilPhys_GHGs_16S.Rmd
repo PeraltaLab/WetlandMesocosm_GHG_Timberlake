@@ -468,11 +468,8 @@ plot.IRIS_stats
 ```
 
 ```{r IRIS plot for Ecosphere Sept 2025 revision}
-# Add history as shape. Remove stats. Add X-axis title: Treatment.
-
 # To use open and closed shapes, must create a combined category for History and Plant:
 soil_nofield$history_plant <- as.factor(c(paste(soil_nofield$history, soil_nofield$plant, sep = "_")))
-
 
 # Plotting:
 plot.IRIS_nested <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
@@ -495,29 +492,44 @@ plot.IRIS_nested <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
  
 plot.IRIS_nested
 
-#ggsave("../figures/Ecosphere_pub/iris_tubes.tiff", plot=plot.IRIS_nested, device="tiff", path=NULL, scale=1, width= 9, height= 6, units = "cm", dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/iris_tubes.tiff", plot=plot.IRIS_nested, device="tiff", path=NULL, scale=1, width= 9, height= 8.5, units = "cm", dpi=600, limitsize=TRUE, bg="white")
 
-#ggsave("../figures/Ecosphere_pub/iris_tubes.png", plot=plot.IRIS_nested, device="png", path=NULL, scale=1, width=9, height=6, units = "cm", dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/iris_tubes.png", plot=plot.IRIS_nested, device="png", path=NULL, scale=1, width=9, height=8.5, units = "cm", dpi=600, limitsize=TRUE, bg="white")
 ```
 
 ```{r IRIS Ecosphere legend to use with Adobe Illustrator}
-# 1. Extract the legend
-# This creates a "grob" (graphical object) containing only the legend
-leg <- get_legend(p)
+# 1. Plot with legend
+plot.IRIS_nested_leg <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
+  facet_wrap(vars(as.factor(time)), nrow = 1, ncol = 2)+
+                    geom_boxplot(aes(color=treatment), outlier.shape = NA) +
+                    geom_point(aes(color=treatment, shape=history_plant), size = 2, position = position_jitterdodge()) +
+  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
+  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
+  theme_bw() +
+  #Remove plot grid lines
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Set axis title and text properties, tick marks, and labels
+  theme(text=element_text(size=10),axis.title=element_text(size=10,face="bold"),
+          axis.text=element_text(size=10, color = "black"),
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 10), legend.position="right", legend.title = element_text(size=10), legend.text=element_text(size=10)) + 
+          theme(axis.ticks.length=unit(0.3,"cm")) + 
+          labs(x = "Treatment", y = "IRIS percent", title="") +
+  theme(rect=element_rect(fill="transparent"))+
+  theme(plot.background = element_rect(color=NA))
+ 
+plot.IRIS_nested_leg
 
-# 2. Convert the legend grob back into a ggplot object
+# 2. Extract the legend
+# This creates a "grob" (graphical object) containing only the legend
+leg <- get_legend(plot.IRIS_nested_leg)
+
+# 3. Convert the legend grob back into a ggplot object
 # This is necessary so you can use ggsave() on it
 leg_plot <- as_ggplot(leg)
 
-# 3. Save the legend as a TIF file
+# 4. Save the legend as a TIF file
 # Match your 600 DPI and specific physical dimensions
-ggsave("legend_only.tif", 
-       plot = leg_plot, 
-       width = 6,      # Adjust based on legend width
-       height = 9,     # Adjust based on legend height
-       units = "cm", 
-       dpi = 600,
-       bg = "white")
+#ggsave("../figures/Ecosphere_pub/IRIS_legend_only.tiff", device = "tiff", plot = leg_plot, width = 8, height = 9, units = "cm", dpi = 600, bg = "white")
 ```
 
 
@@ -1263,26 +1275,6 @@ CH4_MultComp.DF <- add_significance(CH4_MultComp.DF, p.col = "SDCF_p", output.co
 # Export the data frames to a .csv file
 #write.csv(CH4_MultComp.DF, file = "../figures/pub/tables/Kruskal_Treatment/multiple_comparisons/CH4_MultComp.csv", row.names = T)
 
-# example plot:
-plot.IRIS_nested <- ggplot(soil_nofield, aes(x=treatment, y=IRIS_percent)) +
-  facet_wrap(vars(as.factor(time)), nrow = 1, ncol = 2)+
-                    geom_boxplot(aes(color=treatment), outlier.shape = NA) +
-                    geom_point(aes(color=treatment, shape=history_plant), size = 3, position = position_jitterdodge()) +
-  scale_color_manual(values=c("#997700","#6699CC","#004488"), labels = c("Dry", "Interim", "Wet"), name="Treatment")+
-  scale_shape_manual(labels = c("Dry_No Plant", "Dry_Plant", "Interim_No Plant", "Interim_Plant", "Wet_No Plant", "Wet_Plant"), values = c(0, 15, 2, 17, 1, 19), name="History_Plant")+
-  theme_bw() +
-  #Remove plot grid lines
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-  #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
-          axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
-          theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "Treatment", y = "IRIS percent", title="") +
-  theme(rect=element_rect(fill="transparent"))+
-  theme(plot.background = element_rect(color=NA))
-
 # Plotting:
 plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_CH4)) +
   facet_wrap(~date_format, nrow = 1, ncol = 5)+
@@ -1295,7 +1287,7 @@ plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
   theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
+          axis.text=element_text(size=20, color = "black"),  
           axis.title.y=element_text(margin=margin(r=10)),
           axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
@@ -1341,7 +1333,7 @@ plot.CO2.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
   theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
+          axis.text=element_text(size=20, color = "black"),  
           axis.title.y=element_text(margin=margin(r=10)),
           axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
@@ -1389,7 +1381,7 @@ plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
   theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20),  
+          axis.text=element_text(size=20, color = "black"),  
           axis.title.y=element_text(margin=margin(r=10)),
           axis.text.x = element_text(angle = 45, hjust = 1), panel.border = element_rect(colour = "black",size=1), strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
@@ -1407,9 +1399,9 @@ CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.
 
 CombPlot_flux_treat
 
-#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.tiff", plot=CombPlot_flux_treat, device="tiff", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.tiff", plot=CombPlot_flux_treat, device="tiff", scale=1, width=14, height=10, units = "cm", dpi=600, limitsize=TRUE, bg="white")
 
-#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.png", plot=CombPlot_flux_treat, device="png", path=NULL, scale=1, width=14, height=10, dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.png", plot=CombPlot_flux_treat, device="png", scale=1, width=14, height=10, units = "cm", dpi=600, limitsize=TRUE, bg="white")
 ```
 
 ```{r Wilcox and Kruskal-Wallis tables}
