@@ -1253,7 +1253,7 @@ CombPlot_flux_NPvP
 #ggsave("../figures/Ecosphere_pub/GHG_NPvP/CH4_N2O_suppFig.png", plot=CombPlot_flux_NPvP, device="png", scale=1, width=14, height=12, dpi=600, limitsize=TRUE, bg="white")
 ```
 
-## Flux w T0: Treatment and Kruskal boxplots
+## Flux w T0: Treatment and Kruskal boxplots (Ecosphere)
 
 ```{r CH4 Treatment}
 # Kruskal-Wallis test on Treatment, and multiple comparisons:
@@ -1286,10 +1286,10 @@ plot.CH4.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20, color = "black"),  
+  theme(text=element_text(size=10),axis.title=element_text(size=10,face="bold"),
+          axis.text=element_text(size=10, color = "black"),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 10), legend.position="right", legend.title = element_text(size=10), legend.text=element_text(size=10)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("mg CH"[4]," m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("", "", ""))+
@@ -1332,17 +1332,17 @@ plot.CO2.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_C
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20, color = "black"),  
+  theme(text=element_text(size=10),axis.title=element_text(size=10,face="bold"),
+          axis.text=element_text(size=10, color = "black"),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          axis.text.x = element_text(angle = 0),panel.border = element_rect(colour = "black",size=1),strip.text = element_text(size = 10), legend.position="right", legend.title = element_text(size=10), legend.text=element_text(size=10)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "", y = expression(paste("mg CO"[2]," m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("", "", ""))+
   theme(rect=element_rect(fill="transparent"))+
   theme(plot.background = element_rect(color=NA))+
   stat_pvalue_manual(data = CO2_MultComp.DF, comparisons = list(c("D", "I"), c("D", "W"), c("I", "W")), label = "p.SDCF.signif", size = 10, vjust = 1, hide.ns = "p", y.position = max(select_fluxes_combined_w_T0$f0_CO2), step.group.by = "date_format", step.increase = 0.1)
- 
+
 plot.CO2.flux.Trt
 ```
 
@@ -1380,10 +1380,10 @@ plot.N2O.flux.Trt <- ggplot(select_fluxes_combined_w_T0, aes(x=treatment, y=f0_N
   #Remove plot grid lines
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Set axis title and text properties, tick marks, and labels
-  theme(text=element_text(size=20),axis.title=element_text(size=20,face="bold"),
-          axis.text=element_text(size=20, color = "black"),  
+  theme(text=element_text(size=10),axis.title=element_text(size=10,face="bold"),
+          axis.text=element_text(size=10, color = "black"),  
           axis.title.y=element_text(margin=margin(r=10)),
-          axis.text.x = element_text(angle = 45, hjust = 1), panel.border = element_rect(colour = "black",size=1), strip.text = element_text(size = 20), legend.position="right", legend.title = element_text(size=20), legend.text=element_text(size=20)) + 
+          axis.text.x = element_text(angle = 45, hjust = 1), panel.border = element_rect(colour = "black",size=1), strip.text = element_text(size = 10), legend.position="right", legend.title = element_text(size=10), legend.text=element_text(size=10)) + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
           labs(x = "Treatment", y = expression(paste("mg N"[2],"O m"^{-2}, " h"^{-1})), title="") +
   scale_x_discrete(labels=c("Dry", "Interim", "Wet"))+
@@ -1395,13 +1395,13 @@ plot.N2O.flux.Trt
 ```
 
 ```{r Combined GHG Boxplot}
-CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("(a)", "(b)", "(c)"), ncol = 1, nrow = 3, legend = "right", common.legend = T, align = "hv")
+CombPlot_flux_treat <- ggarrange(plot.CH4.flux.Trt, plot.CO2.flux.Trt, plot.N2O.flux.Trt, labels = c("(a)", "(b)", "(c)"), font.label = list(size=10), ncol = 1, nrow = 3, legend = "right", common.legend = T, align = "hv")
 
 CombPlot_flux_treat
 
-#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.tiff", plot=CombPlot_flux_treat, device="tiff", scale=1, width=14, height=10, units = "cm", dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.tif", plot=CombPlot_flux_treat, device="tiff", scale=1, width=18, height=22, units = "cm", dpi=600, limitsize=TRUE, bg="white")
 
-#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.png", plot=CombPlot_flux_treat, device="png", scale=1, width=14, height=10, units = "cm", dpi=600, limitsize=TRUE, bg="white")
+#ggsave("../figures/Ecosphere_pub/GHG_Treatment/Figure3.png", plot=CombPlot_flux_treat, device="png", scale=1, width=18, height=22, units = "cm", dpi=600, limitsize=TRUE, bg="white")
 ```
 
 ```{r Wilcox and Kruskal-Wallis tables}
