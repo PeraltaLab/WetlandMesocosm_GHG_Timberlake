@@ -1511,11 +1511,11 @@ p_denit_SSF <- as.data.frame(A_denit_SSF$pvals)
 vec_denit_SSF <- cbind(vec_denit_SSF, p_denit_SSF)
 vec_denit_SSF <- subset(vec_denit_SSF, A_denit_SSF$pvals<=0.1) # alpha = 0.1 for EcoSphere paper
 
-
 #Plot using ggplot2
 df2a <- as.data.frame(denit_centroids_points_merged)
 
-plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + 
+  geom_errorbar(aes(xmax=V1+V1e, xmin=V1-V1e, width=0.003), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
   geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
@@ -1525,22 +1525,19 @@ plot2a <- ggplot(df2a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_denit}%)")) + ylab(glue("PCoA 2 ({explainvar2b_denit}%)")) + 
   geom_segment(data=vec_denit_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha = 0.4, inherit.aes=F)+ 
- geom_text(data=vec_denit_SSF, aes(x=V1-0.005, y=V2-0.005), label= expression(paste("CO"[2])), size=4, inherit.aes=F)+
+ geom_text(data=vec_denit_SSF, aes(x=V1-0.005, y=V2-0.007), label = "'CO'[2]", parse = TRUE, size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
-  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
-          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+  theme(axis.title = element_text(size=10), axis.text=element_text(size=10, color = "black"), 
           panel.border = element_rect(colour = "black", linewidth=1.25)) +
   theme(axis.ticks.length=unit(0.3,"cm")) + 
-  theme(plot.title=element_text(size=14)) +
-  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  theme(plot.title=element_text(size=10)) +
+  theme(legend.text=element_text(size=10), legend.title = element_text(size=10))+
   guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
            colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
     ggtitle("Denitrification")
 
 plot2a
-
-#ggsave("~/Desktop/newDenitPCoa.jpeg", plot = plot2a, device="jpeg", path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
 ```{r Denit FINAL}
@@ -1622,7 +1619,8 @@ vec_denit_SFO <- subset(vec_denit_SFO, A_denit_SFO$pvals<=0.05)
 #Plot using ggplot2
 df3a <- as.data.frame(denit_FIN_centroids_points_merged)
 
-plot3a <- ggplot(df3a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+plot3a <- ggplot(df3a, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + 
+  geom_errorbar(aes(xmax=V1+V1e, xmin=V1-V1e, width=0.003), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
   geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
@@ -1723,7 +1721,8 @@ vec_meth_SSF <- subset(vec_meth_SSF, A_meth_SSF$pvals<=0.1) # alpha = 0.1 for Ec
 #Plot using ggplot2
 df2b <- as.data.frame(meth_centroids_points_merged)
 
-plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + 
+  geom_errorbar(aes(xmax=V1+V1e, xmin=V1-V1e, width=0.003), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
   geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
@@ -1732,23 +1731,20 @@ plot2b <- ggplot(df2b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   scale_color_manual(values=c("black", "#997700", "#004488"), name="Treatment") +
   scale_shape_manual(values = c(7, 0, 15, 13, 1, 19), name="History_Plant") +
   xlab(glue("PCoA 1 ({explainvar1b_meth}%)")) + ylab(glue("PCoA 2 ({explainvar2b_meth}%)")) + 
-  geom_segment(data=vec_meth_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),colour="black", alpha=0.4, inherit.aes=F)+ 
- geom_text(data=vec_meth_SSF, aes(x=V1, y=V2-0.005), label= "%moisture", size=4, inherit.aes=F)+
+  geom_segment(data=vec_meth_SSF, aes(x=0,xend=V1,y=0,yend=V2), linewidth=1, arrow = arrow(length = unit(0.2, "cm")),color="black", alpha=0.4, inherit.aes=F)+ 
+ geom_text(data=vec_meth_SSF, aes(x=V1, y=V2-0.007), label= "%moisture", size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
-  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
-          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
-          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.title = element_text(size=10), axis.text=element_text(size=10, color = "black"), 
+          panel.border = element_rect(color = "black", linewidth=1.25)) +
   theme(axis.ticks.length=unit(0.3,"cm")) + 
-  theme(plot.title=element_text(size=14)) +
-  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  theme(plot.title=element_text(size=10)) +
+  theme(legend.text=element_text(size=10), legend.title = element_text(size=10))+
   guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
            colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
     ggtitle("Methanogenesis")
 
 plot2b
-
-#ggsave("../figures/Thesis/MethanogenesisPCoA.png", plot = plot2b, path=NULL, device="png", scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 300)
 ```
 
 ```{r meth FINAL PCoA}
@@ -1832,7 +1828,8 @@ vec_meth_SFO$labels <- c("P", "Mg", "Ca", "Zn", "Cu", "CEC")
 #Plot using ggplot2
 df3b <- as.data.frame(meth_FIN_centroids_points_merged)
 
-plot3b <- ggplot(df3b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+plot3b <- ggplot(df3b, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + 
+  geom_errorbar(aes(xmax=V1+V1e, xmin=V1-V1e, width=0.003), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
   geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
@@ -1934,9 +1931,10 @@ vec_carb_metab_SSF <- subset(vec_carb_metab_SSF, A_carb_metab_SSF$pvals<=0.1) # 
 #Plot using ggplot2
 df2c <- as.data.frame(carb_metab_centroids_points_merged)
 
-plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
-  geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
+plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, color=trt)) + 
+  geom_errorbar(aes(xmax=V1+V1e, xmin=V1-V1e, width=0.003), color="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), color="black") +   
+  geom_point(aes(shape = history_plant, color=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
   scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
   scale_alpha_manual(values = c(1, 0.3), name = "Centroid or Sample")+
@@ -1947,14 +1945,13 @@ plot2c <- ggplot(df2c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
  geom_text(data=vec_carb_metab_SSF, aes(x=V1-0.01, y=V2-0.005), label= "%paint removed (redox)", size=4, inherit.aes=F)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
-  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
-          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+  theme(axis.title = element_text(size=10), axis.text=element_text(size=10, color = "black"), 
           panel.border = element_rect(colour = "black", linewidth=1.25)) +
   theme(axis.ticks.length=unit(0.3,"cm")) + 
-  theme(plot.title=element_text(size=14)) +
-  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  theme(plot.title=element_text(size=10)) +
+  theme(legend.text=element_text(size=10), legend.title = element_text(size=10))+
   guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
-           colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
+           color = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
     ggtitle("Central Carbohydrate Metabolism")
 
 plot2c
@@ -1964,7 +1961,6 @@ plot2c
 # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
 # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
 pcoa_carb_metab_FINAL <- cmdscale(carb_metabBC_finish, k=2, eig=TRUE, add=TRUE) # k = 2 because we only plot 2 dimensions, add=TRUE corrects highly negative eigenvalues
-
 
 explainvar1_carb_metab_FIN <- round(pcoa_carb_metab_FINAL$eig[1] / sum(pcoa_carb_metab_FINAL$eig), 3) * 100
 explainvar2_carb_metab_FIN <- round(pcoa_carb_metab_FINAL$eig[2] / sum(pcoa_carb_metab_FINAL$eig), 3) * 100
@@ -2042,7 +2038,8 @@ vec_carb_metab_SFO$labels <- c("Mg, pH", "Ca", "pH, Mg", "S", "Mn", "Cu", "HM", 
 #Plot using ggplot2
 df3c <- as.data.frame(carb_metab_FIN_centroids_points_merged)
 
-plot3c <- ggplot(df3c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+plot3c <- ggplot(df3c, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + 
+  geom_errorbar(aes(xmax=V1+V1e, xmin=V1-V1e, width=0.003), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
   geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
@@ -2144,8 +2141,9 @@ vec_cytoCox_SSF <- subset(vec_cytoCox_SSF, A_cytoCox_SSF$pvals<=0.1) # alpha = 0
 #Plot using ggplot2
 df2d <- as.data.frame(cytoCox_centroids_points_merged)
 
-plot2d <- ggplot(df2d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
+plot2d <- ggplot(df2d, aes(x=V1, y=V2, shape=history_plant, color=trt)) + 
+  geom_errorbar(aes(xmax=V1+V1e, xmin=V1-V1e, width=0.003), color="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), color="black") +   
   geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
   scale_size_manual(values = c(6, 3), name = "Centroid or Sample")+
@@ -2155,12 +2153,11 @@ plot2d <- ggplot(df2d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_
   xlab(glue("PCoA 1 ({explainvar1b_cytoCox}%)")) + ylab(glue("PCoA 2 ({explainvar2b_cytoCox}%)")) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   theme(panel.background = element_blank()) + 
-  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
-          axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
-          panel.border = element_rect(colour = "black", linewidth=1.25)) +
+  theme(axis.title = element_text(size=10), axis.text=element_text(size=10, color = "black"), 
+          panel.border = element_rect(color = "black", linewidth=1.25)) +
   theme(axis.ticks.length=unit(0.3,"cm")) + 
-  theme(plot.title=element_text(size=14)) +
-  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  theme(plot.title=element_text(size=10)) +
+  theme(legend.text=element_text(size=10), legend.title = element_text(size=10))+
   guides(shape = guide_legend(override.aes = list(size = 4), order = 1), 
            colour = guide_legend(override.aes = list(pch=16, size = 4), order = 2)) +
     ggtitle("Cytochrome C Oxidase")
@@ -2249,7 +2246,8 @@ vec_cytoCox_SFO$labels <- c("P", "Zn", "Cu")
 #Plot using ggplot2
 df3d <- as.data.frame(cytoCox_FIN_centroids_points_merged)
 
-plot3d <- ggplot(df3d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.003), colour="black") +    
+plot3d <- ggplot(df3d, aes(x=V1, y=V2, shape=history_plant, colour=trt)) + 
+  geom_errorbar(aes(xmax=V1+V1e, xmin=V1-V1e, width=0.003), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.003), colour="black") +   
   geom_point(aes(shape = history_plant, colour=trt, alpha = centroid_or_sample, size = centroid_or_sample), stroke=2) +  
   theme_bw() +
@@ -2278,13 +2276,13 @@ plot3d
 Create 4-panel figure of the 4 PCoA plots above:
 ```{r 4-panel PCoA plot}
 # 4 panel metaG PCoA with History, start and finish sample (SSF)
-MetaG_pcoa_4panel_SSF <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("(a)", "(b)", "(c)", "(d)"), ncol = 2, nrow = 2, legend = "right", common.legend = T)
+MetaG_pcoa_4panel_SSF <- ggarrange(plot2a, plot2b, plot2c, plot2d, labels = c("(a)", "(b)", "(c)", "(d)"), ncol = 2, nrow = 2, legend = "right", common.legend = T, align = "hv")
 
 MetaG_pcoa_4panel_SSF
 
-#ggsave("../figures/Ecosphere_pub/Figure5.tiff", plot = MetaG_pcoa_4panel_SSF, device="tiff", path=NULL, scale=1, height = 7, width = 10, limitsize = T, bg = "white", dpi = 600)
+#ggsave("../figures/Ecosphere_pub/Figure5.tiff", plot = MetaG_pcoa_4panel_SSF, device="tiff", path=NULL, scale=1, height = 18, width = 22, units = "cm", limitsize = T, bg = "white", dpi = 600)
 
-#ggsave("../figures/Ecosphere_pub/metaG_pcoa4panel.jpg", plot = MetaG_pcoa_4panel_SSF, device=NULL, path=NULL, scale=1, height = 7, width = 10, limitsize = TRUE, dpi = 600)
+#ggsave("../figures/Ecosphere_pub/Figure5.png", plot = MetaG_pcoa_4panel_SSF, device="png", path=NULL, scale=1, height = 18, width = 22, units = "cm", limitsize = T, bg = "white", dpi = 600)
 
 # 4 panel metaG PCoA with History, Finish samples only (SFO)
 
