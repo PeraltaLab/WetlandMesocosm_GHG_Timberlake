@@ -4,7 +4,7 @@ This repository contains open-source code, data, & text files.
 
 For information regarding the project, please visit: 
 
-Bledsoe, R.B., Finlay, C.G., and Peralta, A.L., 2024. Plant-microbe-mediated decrease of greenhouse gases under dynamic wetland hydrology. bioRxiv. *[PDF](https://www.biorxiv.org/content/10.1101/2020.06.29.178533v3)*
+Bledsoe, R.B., Finlay, C.G., and Peralta, A.L. (2026). Wetland soil history shapes microbial community composition, while hydrologic disturbance alters greenhouse gas fluxes. Accepted at Ecosphere. bioRxiv. *[PDF](https://www.biorxiv.org/content/10.1101/2020.06.29.178533v5)*
 
 Finlay, C.G. and Peralta, A.L., 2025. Hydrologic history and flooding pulses control iron and sulfur metabolic composition with variable associations to greenhouse gas production in a coastal wetland mesocosm experiment. bioRxiv. *[PDF](https://www.biorxiv.org/content/10.1101/2025.03.03.641170v1)*
 
